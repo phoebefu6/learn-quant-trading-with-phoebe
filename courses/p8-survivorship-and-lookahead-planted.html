@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Practitioner session 8 of 10. Plant two defects in a zero-alpha world on purpose, measure how far each inflates the Sharpe ratio, then build the two cheap catches that every backtest should run: a point-in-time universe and a lag assertion. Synthetic data only, not investment advice.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="Survivorship and lookahead, planted and caught - learn quant with phoebe">
+<meta property="og:description" content="Practitioner session 8 of 10. Survivors of a -20 percent floor read 1.51 where all 50 read -0.01 (100 trials); a momentum rule slipped one day reads 6.11 where the honest one reads 0.02 (200 worlds). Measured, then caught.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/courses/p8-survivorship-and-lookahead-planted.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Survivorship and lookahead, planted and caught - learn quant with phoebe">
+<meta name="twitter:description" content="Two defects that need no alpha to look like alpha. Plant them in a random walk, measure the lie, then write the two cheap tests that catch them.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Practitioner session 8 · Survivorship and lookahead, planted and caught - learn quant with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-quant-trading-with-phoebe</a> / Practitioner session 8 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Quant Trading with Phoebe · Practitioner session 8 of 10</div>
+    <h1>Survivorship and lookahead, <span class="accent">planted and caught</span></h1>
+    <p class="sub">Sessions 3 to 7 asked what a number was the best of, whether its held-out days were unseen, and what was left after it paid to trade. Every one of those questions assumed the data itself was honest. Tonight breaks that assumption on purpose, twice. The generator drops the series that fell below a floor, and a five-day momentum rule reads tomorrow through one index slip. Neither defect needs any alpha to manufacture a large Sharpe ratio, and both are caught by tests so cheap there is no excuse for skipping them. The data is synthetic throughout, and nothing here is investment advice.</p>
+    <div class="chip-row">
+      <span class="chip level">🔴 Advanced</span>
+      <span class="chip audience">Anyone who will build or check a backtest</span>
+      <span class="chip audience">Comfortable with a browser console</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:3">3-15 · Survivorship planted</span>
+      <span class="a3" style="flex:3">15-27 · Lookahead planted</span>
+      <span class="a4" style="flex:4">27-45 · The catches, build-along</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Marlow Street's data, not its rule</h2>
+    </div>
+    <p class="lede">Marlow Street is a constructed research desk, four people and a head who has been handed a backtest with a Sharpe ratio of 1.8 and asked whether to fund it. So far every session has interrogated the rule: how many were tried, how the split was made, what a trade costs. Tonight interrogates the data the rule was run on. Two questions, each with a mechanism of its own: which series were in the test, and when could each input first have been known? The way to learn what a wrong answer does is to plant one in a world with nothing in it and measure the damage.</p>
+
+    <div class="legend">
+      <span class="pill">Live = presented in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with tonight.</strong> Two defects planted in a zero-alpha generator and measured with their trial counts. Survivorship: drop the series that ended below -20 percent and the equal-weight survivors read a Sharpe ratio of 1.51, where the full universe of 50 reads -0.01, over 100 trials of 504 days. Lookahead: slip a five-day momentum rule by one index so its window includes the day it trades, and 0.02 becomes 6.11, over 200 worlds. Two catches: the correlation of the position with the day it trades (-0.001 honest, 0.358 slipped), and one structural test for both defects, which is to cut the future off, recompute and compare. And the habit of running both catches on every backtest, not only the suspicious ones.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why plant a defect on purpose<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A defect found in a real backtest arrives with no size attached. You know the number is wrong; you do not know by how much, or whether a fix moved it the right distance. A defect planted in a generator arrives with its truth known: every series has zero alpha, so any Sharpe ratio above noise was made by the defect and nothing else. That is the same move session 1 made with the null, applied to the data pipeline instead of the method.</p>
+        <p>Planting also tests the catch. A test that has never been shown a planted defect has never been seen to fire, and a test that cannot fire looks exactly like a clean result. Tonight every catch is run on the planted world first, where it must fail, and on the honest world, where it must pass.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Marlow Street's head, constructed like the rest of the desk, had two questions on the 1.8 that sessions 3 to 7 never answered. Which series were in the universe on the first day of the backtest? And for each input to the rule, what was the first moment it could have been known? The researcher answered the second with confidence and the first with "the current list". Tonight measures what each of those answers can be worth.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The words that keep coming back<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Universe.</strong> The set of series a backtest is allowed to hold on a given day. Here: 50 zero-alpha series of 504 days.</li>
+          <li><strong>Survivorship.</strong> Testing only the series that are still on the list at the end. The ones that failed along the way were in the universe at the start and are missing from the test.</li>
+          <li><strong>Point in time.</strong> A value as it was known on a given day, not as it is known now. A point-in-time universe is the list as it stood before the first trade.</li>
+          <li><strong>Floor.</strong> The rule that removes a series: here, a 504-day total return below -20 percent.</li>
+          <li><strong>Lookahead.</strong> A position on day t that uses information from day t+1 or later, the day it is about to earn.</li>
+          <li><strong>Index slip.</strong> The commonest way lookahead gets in: an off-by-one in a window or a shift, so <span class="mono">r[t - k]</span> becomes <span class="mono">r[t - k + 1]</span>.</li>
+          <li><strong>Lag assertion.</strong> A test that recomputes each day's signal from the history up to that day only and checks nothing changed.</li>
+          <li><strong>Catch.</strong> A test that fails on the planted world and passes on the honest one. A test never shown a planted defect is not yet a catch.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where tonight sits among the ten sessions<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Sessions 1 and 2 built the null and the strategy; 3 and 4 measured selection and corrected for it; 5 made the split respect time; 6 planted a real signal; 7 charged it a cost. Tonight plants two faults in the data rather than the method. Session 9 sizes the position until the mean and the median part ways, and session 10's bench puts every dial on one page.</p>
+        <p>The leader-track view of the same defects, with restatement and shuffled splits beside them as a five-question audit, is <a href="a4-the-leakage-classes.html">leader session 4, the leakage classes</a>. The rule against advice is the same rule that governs AI in markets generally: <a href="https://phoebefu6.github.io/learn-ai-finance-with-phoebe/courses/b9-markets-investing.html">assist, never advise</a>.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers survivorship, planted and measured</span>
+      <h2>Fifty series with nothing in them, and a list drawn up at the end</h2>
+      <span class="tag concept">12 min live</span>
+    </div>
+    <p class="lede">The plant is one line. Make 50 zero-alpha series of 504 days each, add up each series' returns, and keep only those whose total ended above -20 percent. Then hold the survivors in equal weight from day one and score them. Nothing about any series changed; only the list did, and the list was drawn up with the whole history in hand.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 452" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn two-panel figure. Left panel: six cumulative return paths start together on day 1 and wander across 504 days with no alpha. Four end above a dashed floor line at minus 20 percent; two dashed paths end below it and are labelled dropped at the end. A thick steel line, the survivors' average, rises gently. A vertical dashed line at day 504 is labelled list drawn up at day 504, with a curved arrow carrying the list back to day 1. A note says all 50 were in the universe on day 1. Right panel: a bell curve of 504-day totals with a dashed cut at minus 20 percent; the left tail beyond the cut is hatched and labelled dropped, 9.5 of 50 on average over 100 trials; a note says the rest's mean sits above zero. Below, three readings: survivors only, equal weight, 1.51; all 50 point in time, minus 0.01; 9.5 of 50 dropped by the floor on average. A note says these are means over 100 trials of 50 zero-alpha series, so the 1.51 was made by the list.">
+        <defs>
+          <filter id="p8aSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="81" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p8aHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#7A1F3D" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p8aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p8aH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .p8aL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .p8aS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .p8aB { font: 800 11px Inter, sans-serif; fill: #2A5068; }
+          .p8aV { font: 800 18px Inter, sans-serif; fill: #4A1024; }
+          .p8aA { font: 700 11px Inter, sans-serif; fill: #7A1F3D; }
+          .p8aN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="p8aH" x="30" y="26">THE LIST IS DRAWN UP AT THE END, THEN APPLIED FROM DAY ONE</text>
+
+        <g filter="url(#p8aSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- panel frames -->
+          <rect x="30" y="44" width="450" height="276" rx="8" transform="rotate(-0.5 255 182)" fill="#FFFFFF"/>
+          <rect x="500" y="44" width="350" height="276" rx="8" transform="rotate(0.6 675 182)" fill="#FAF0F3"/>
+          <!-- left: the floor at -20 percent -->
+          <path d="M70 230 L350 230" stroke="#7A1F3D" stroke-width="1.6" stroke-dasharray="5 4"/>
+          <!-- survivors: four solid paths, x = 70 + 35k -->
+          <path d="M70 170 L105 160 L140 166 L175 150 L210 154 L245 138 L280 130 L315 120 L350 108" stroke-width="1.6"/>
+          <path d="M70 170 L105 176 L140 160 L175 166 L210 150 L245 156 L280 146 L315 150 L350 140" stroke-width="1.6"/>
+          <path d="M70 170 L105 164 L140 180 L175 172 L210 184 L245 170 L280 176 L315 166 L350 172" stroke-width="1.6"/>
+          <path d="M70 170 L105 180 L140 174 L175 190 L210 182 L245 198 L280 190 L315 204 L350 200" stroke-width="1.6"/>
+          <!-- dropped: two dashed paths that ended below the floor -->
+          <path d="M70 170 L105 178 L140 192 L175 186 L210 204 L245 214 L280 226 L315 240 L350 256" stroke="#BF8398" stroke-width="1.8" stroke-dasharray="6 5"/>
+          <path d="M70 170 L105 172 L140 186 L175 200 L210 196 L245 222 L280 238 L315 252 L350 272" stroke="#BF8398" stroke-width="1.8" stroke-dasharray="6 5"/>
+          <!-- the survivors' average: the one thing this figure is about -->
+          <path d="M70 170 L105 168 L140 166 L175 162 L210 160 L245 154 L280 150 L315 146 L350 142" stroke="#3B6E8F" stroke-width="3.6"/>
+          <circle cx="70" cy="170" r="4" fill="#2A1118"/>
+          <!-- day 504: the list is drawn up here -->
+          <path d="M350 78 L350 300" stroke-dasharray="4 5" stroke-width="1.4"/>
+          <path d="M346 86 C260 72 150 74 80 100" stroke-width="1.6" marker-end="url(#p8aAr)"/>
+          <!-- doodle: the list -->
+          <rect x="436" y="80" width="24" height="30" rx="3" transform="rotate(1 448 95)" fill="#FAF0F3" stroke-width="1.6"/>
+          <path d="M444 78 L452 78 M441 89 L455 89 M441 96 L455 96 M441 103 L451 103" stroke-width="1.4"/>
+          <!-- right: the bell of 504-day totals, cut at -0.2 -->
+          <path d="M530 250 L830 250" stroke-width="2.2"/>
+          <path d="M550 250 C590 249 615 242 636 222 L636 250 Z" fill="url(#p8aHc)" stroke="none"/>
+          <path d="M550 249 C590 248 625 232 650 192 C670 160 680 142 690 142 C700 142 710 160 730 192 C755 232 790 248 830 249" stroke="#7A1F3D" stroke-width="2.4"/>
+          <path d="M636 112 L636 250" stroke="#7A1F3D" stroke-width="1.8" stroke-dasharray="5 4"/>
+          <path d="M690 250 L690 258"/>
+          <path d="M712 142 L702 154" stroke-width="1.6" marker-end="url(#p8aAr)"/>
+          <!-- readings -->
+          <rect x="30" y="340" width="260" height="56" rx="6" transform="rotate(-0.8 160 368)" fill="#FAF0F3"/>
+          <rect x="310" y="340" width="260" height="56" rx="6" transform="rotate(0.6 440 368)" fill="#FFFFFF"/>
+          <rect x="590" y="340" width="260" height="56" rx="6" transform="rotate(-0.5 720 368)" fill="#EAF1F6"/>
+        </g>
+
+        <text class="p8aL" x="46" y="68">50 series, no alpha, 504 days</text>
+        <text class="p8aS" x="470" y="68" text-anchor="end">list drawn up at day 504</text>
+        <text class="p8aS" x="140" y="104">applied back to day 1</text>
+        <text class="p8aB" x="360" y="138">survivors'</text>
+        <text class="p8aB" x="360" y="152">average</text>
+        <text class="p8aA" x="360" y="262">dropped</text>
+        <text class="p8aA" x="360" y="276">at the end</text>
+        <text class="p8aA" x="78" y="250">floor: ended below -20%</text>
+        <text class="p8aS" x="46" y="306">day 1: all 50 were in the universe</text>
+
+        <text class="p8aL" x="516" y="68">why survivors earn with no alpha</text>
+        <text class="p8aA" x="636" y="104" text-anchor="middle">cut: -20%</text>
+        <text class="p8aL" x="716" y="122">the rest's mean</text>
+        <text class="p8aL" x="716" y="138">sits above zero</text>
+        <text class="p8aS" x="690" y="270" text-anchor="middle">0</text>
+        <text class="p8aS" x="636" y="270" text-anchor="middle">-0.2</text>
+        <text class="p8aS" x="790" y="270" text-anchor="middle">504-day total</text>
+        <text class="p8aA" x="516" y="292">hatched: dropped, 9.5 of 50</text>
+        <text class="p8aS" x="516" y="308">on average over 100 trials</text>
+
+        <text class="p8aV" x="160" y="366" text-anchor="middle">1.51</text>
+        <text class="p8aS" x="160" y="386" text-anchor="middle">survivors only, equal weight</text>
+        <text class="p8aV" x="440" y="366" text-anchor="middle">-0.01</text>
+        <text class="p8aS" x="440" y="386" text-anchor="middle">all 50, point in time</text>
+        <text class="p8aV" x="720" y="366" text-anchor="middle">9.5 of 50</text>
+        <text class="p8aS" x="720" y="386" text-anchor="middle">dropped by the floor, on average</text>
+
+        <text class="p8aN" x="30" y="418">Means over 100 trials of 50 zero-alpha series, 504 days each. Every series has a true Sharpe ratio of zero,</text>
+        <text class="p8aN" x="30" y="436">so the 1.51 was made by the list, not by any series in it.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the dashed paths were in the universe on day one and vanish only because the list was written on day 504; cut the left tail off a bell and what remains has a positive mean.</figcaption>
+    </figure>
+
+    <div class="wk" id="p8-leaks">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">Both defects, running in this page on zero alpha at the canon seeds. Survivorship: 100 trials of 50 series, 504 days. Lookahead: a five-day momentum rule over 200 worlds of 756 days. Toggle each plant on and off and watch its catch.</span>
+      </div>
+      <div class="wk-body">
+        <label class="sql-label" for="p8-leaks-surv">Survivorship: which list is held from day one</label>
+        <select class="sql-code" id="p8-leaks-surv">
+          <option value="pit" selected>Point in time: all 50, the list known before day one</option>
+          <option value="survivors">Planted: survivors only, the list drawn up at day 504</option>
+        </select>
+        <label class="sql-label" for="p8-leaks-look">Lookahead: which window the momentum rule reads</label>
+        <select class="sql-code" id="p8-leaks-look">
+          <option value="honest" selected>Honest: days t-4 to t, decided at the close of t</option>
+          <option value="slipped">Planted: slipped one day, days t-3 to t+1</option>
+        </select>
+        <div id="p8-leaks-out"></div>
+        <p class="sql-note" id="p8-leaks-verdict">...</p>
+      </div>
+      <div class="wk-foot" id="p8-leaks-self">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Reading the survivorship rows<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Every one of the 50 series has a true Sharpe ratio of zero. Held all together in equal weight from day one, which is the point-in-time universe, they read -0.01 averaged over 100 trials: nothing, measured correctly. Drop the ones whose 504-day total ended below -20 percent, 9.5 of 50 on average, and hold the rest in equal weight from day one. The same series, minus the losers, read 1.51.</p>
+        <p>That 1.51 is not a small bias on top of a real number. It is a large number made from nothing, and it is close to the 1.8 on Marlow Street's desk. No rule was selected, no parameter was tuned, nothing was traded. The only decision was which rows went into the test, and it was made with the answer in hand.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Marlow Street's researcher, constructed, had built the 1.8 on a file of series downloaded once and kept. Asked which series were in the universe on the first day of the backtest, the researcher realised the file only knew which series existed on the day it was downloaded. The head did not assume the worst and did not assume it away: she asked for the 1.8 recomputed on the list as it stood before day one, and for the gap between the two to be reported beside it.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The catch: a point-in-time universe<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The fix is to hold, on each day, only the series that were known to be in the universe on that day, with their dates of joining and leaving. On this generator that is all 50 from day one, because no series has failed yet before the first trade. The catch is the test that proves the fix was applied: <strong>recompute the universe using only data available before day one, and assert it equals the list the backtest used.</strong> If the two lists differ, the list read the future.</p>
+        <p>On the planted world the assertion fails every time, by the 9.5 series on average the floor removed. On the point-in-time world it passes, because the list does not depend on any return yet to happen. It costs one recomputation and one comparison. It needs no zero-alpha world and no statistics, so it runs unchanged on a real backtest.</p>
+        <p>One honest limit: the generator removes a series only at the end, cleanly. A real record drops series in the middle of the history, sometimes after a final loss the record never captured. What return to book for a series on the day it leaves is a real question that this generator never asks, so no figure here speaks to it.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Why the survivors earn with no alpha, by arithmetic<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>How many fall below the floor.</strong> A 504-day total of daily returns with a standard deviation of 0.01 has a standard deviation of 0.01 times the square root of 504, about 0.224. A floor of -0.2 sits about 0.89 standard deviations below zero, and about 19 percent of a normal sits below that. By arithmetic that is about 9.3 of 50; the measured mean is 9.5 over 100 trials.</p>
+        <p><strong>Why the rest have a positive mean.</strong> Cut the left tail off a bell centred on zero and the mean of what remains is above zero. Each survivor's total is, on average, a little positive, not because the series was good but because the bad outcomes were removed from the sample.</p>
+        <p><strong>Why a little positive becomes a Sharpe ratio of 1.5.</strong> The survivors are held in equal weight, about 40 of them, and their daily noise is independent. Averaging 40 independent series divides the daily standard deviation by roughly the square root of 40, while the small positive mean stays. A small mean over a much smaller standard deviation is a large ratio. The arithmetic lands near 1.5, and the measured mean is 1.51. A wider universe would make the illusion larger, not smaller, which is the opposite of what most people expect from diversification.</p>
+        <p>Nothing in the generator gives a survivor any edge after the list is drawn: each series' future returns are independent of its past by construction. The engine does not run the survivors forward, so no forward figure is quoted here.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers lookahead, planted and measured</span>
+      <h2>A five-day rule that reads tomorrow through one index</h2>
+      <span class="tag concept">12 min live</span>
+    </div>
+    <p class="lede">The honest rule is plain momentum: at the close of day t, take the mean of the last five daily returns, days t-4 to t, and hold its sign for day t+1. On a random walk that earns nothing. The plant moves the window one day forward, so it covers days t-3 to t+1. One index, one character in the code, and the window now contains the very return the position is about to earn.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 470" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn timeline of seven daily return cells from t minus 4 to t plus 2. A dashed vertical line after day t is labelled close of day t, the position is decided. Cell t plus 1 is labelled it trades. Below the cells, the honest window spans days t minus 4 to t and stops at the line. Under it, the shifted window spans days t minus 3 to t plus 1; its last cell, t plus 1, is filled steel and reached by a dashed steel arrow from the t plus 1 cell, labelled the slipped read. A note shows the slip in code. Two reading boxes: honest, Sharpe 0.02, correlation with the traded day minus 0.001, with the day before 0.358; shifted one day, Sharpe 6.11, correlation with the traded day 0.358, with the day before 0.355. A note says these are means over 200 zero-alpha worlds and that the traded-day column is the catch.">
+        <defs>
+          <filter id="p8bSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="83" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p8bHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3B6E8F" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p8bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+          <marker id="p8bArS" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#3B6E8F" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p8bH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .p8bL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .p8bS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .p8bB { font: 800 11px Inter, sans-serif; fill: #2A5068; }
+          .p8bV { font: 800 18px Inter, sans-serif; fill: #4A1024; }
+          .p8bW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p8bA { font: 700 11px Inter, sans-serif; fill: #7A1F3D; }
+          .p8bN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="p8bH" x="30" y="26">ONE INDEX SLIP: THE WINDOW MOVES A DAY AND SWALLOWS THE DAY IT TRADES</text>
+
+        <g filter="url(#p8bSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- doodle: a clock at the close -->
+          <circle cx="760" cy="66" r="16" fill="#FFFFFF" stroke-width="1.8"/>
+          <path d="M760 66 L760 55 M760 66 L768 70" stroke-width="1.8"/>
+          <!-- the decision line, between t and t+1 -->
+          <path d="M538 76 L538 296" stroke-dasharray="6 5" stroke-width="1.6"/>
+          <!-- seven day cells, x = 120 + 84k -->
+          <rect x="120" y="96" width="80" height="40" rx="5" transform="rotate(-0.8 160 116)" fill="url(#p8bHc)"/>
+          <rect x="204" y="96" width="80" height="40" rx="5" transform="rotate(0.6 244 116)" fill="url(#p8bHc)"/>
+          <rect x="288" y="96" width="80" height="40" rx="5" transform="rotate(-0.5 328 116)" fill="url(#p8bHc)"/>
+          <rect x="372" y="96" width="80" height="40" rx="5" transform="rotate(0.7 412 116)" fill="url(#p8bHc)"/>
+          <rect x="456" y="96" width="80" height="40" rx="5" transform="rotate(-0.6 496 116)" fill="url(#p8bHc)"/>
+          <rect x="540" y="96" width="80" height="40" rx="5" transform="rotate(0.8 580 116)" fill="#FFFFFF" stroke-width="2.6"/>
+          <rect x="624" y="96" width="80" height="40" rx="5" transform="rotate(-0.7 664 116)" fill="#FFFFFF" stroke-dasharray="5 4"/>
+          <!-- honest window: t-4 to t -->
+          <rect x="122" y="168" width="412" height="36" rx="6" transform="rotate(-0.4 328 186)" fill="#FAF0F3"/>
+          <!-- shifted window: t-3 to t+1, the t+1 part in steel -->
+          <rect x="206" y="240" width="412" height="36" rx="6" transform="rotate(0.4 412 258)" fill="#FFFFFF"/>
+          <rect x="541" y="243" width="74" height="30" rx="4" transform="rotate(0.4 578 258)" fill="#3B6E8F" stroke="#3B6E8F"/>
+          <!-- the slipped read -->
+          <path d="M596 140 L596 236" stroke="#3B6E8F" stroke-width="2.2" stroke-dasharray="6 4" marker-end="url(#p8bArS)"/>
+          <!-- readings -->
+          <rect x="30" y="322" width="400" height="92" rx="6" transform="rotate(-0.5 230 368)" fill="#FFFFFF"/>
+          <rect x="450" y="322" width="400" height="92" rx="6" transform="rotate(0.5 650 368)" fill="#FAF0F3"/>
+        </g>
+
+        <text class="p8bL" x="538" y="66" text-anchor="middle">close of day t: the position is decided</text>
+        <text class="p8bS" x="30" y="120">daily returns</text>
+        <text class="p8bL" x="160" y="121" text-anchor="middle">t-4</text>
+        <text class="p8bL" x="244" y="121" text-anchor="middle">t-3</text>
+        <text class="p8bL" x="328" y="121" text-anchor="middle">t-2</text>
+        <text class="p8bL" x="412" y="121" text-anchor="middle">t-1</text>
+        <text class="p8bL" x="496" y="113" text-anchor="middle">t</text>
+        <text class="p8bS" x="496" y="128" text-anchor="middle">decide</text>
+        <text class="p8bL" x="580" y="113" text-anchor="middle">t+1</text>
+        <text class="p8bA" x="580" y="128" text-anchor="middle">it trades</text>
+        <text class="p8bL" x="664" y="121" text-anchor="middle">t+2</text>
+
+        <text class="p8bL" x="328" y="191" text-anchor="middle">honest: mean of days t-4 to t</text>
+        <text class="p8bS" x="528" y="226" text-anchor="end">both positions earn day t+1</text>
+        <text class="p8bB" x="606" y="214">the slipped read</text>
+        <text class="p8bL" x="372" y="263" text-anchor="middle">shifted: days t-3 to t+1</text>
+        <text class="p8bW" x="578" y="263" text-anchor="middle">t+1</text>
+        <text class="p8bN" x="30" y="306">the slip in code: r[t - k] became r[t - k + 1], one character</text>
+
+        <text class="p8bH" x="50" y="346">honest, days up to t</text>
+        <text class="p8bV" x="50" y="372">Sharpe 0.02</text>
+        <text class="p8bS" x="50" y="392">with the traded day: -0.001</text>
+        <text class="p8bS" x="50" y="406">with the day before: 0.358</text>
+        <text class="p8bH" x="470" y="346">shifted one day, includes t+1</text>
+        <text class="p8bV" x="470" y="372">Sharpe 6.11</text>
+        <text class="p8bA" x="470" y="392">with the traded day: 0.358</text>
+        <text class="p8bS" x="470" y="406">with the day before: 0.355</text>
+
+        <text class="p8bN" x="30" y="436">Means over 200 zero-alpha worlds. The traded-day column is the catch: an honest position cannot see that day.</text>
+        <text class="p8bN" x="30" y="454">The day-before column is the rule reading its own inputs, the same for both, and so not a test.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the two windows differ by one cell, and that cell is the return the position is paid on; the correlation with the traded day goes from -0.001 to 0.358.</figcaption>
+    </figure>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Reading the lookahead rows<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Switch the box above to the honest window. Over 200 zero-alpha worlds the momentum rule reads a Sharpe ratio of 0.02: nothing, as it should, because past returns of a random walk say nothing about the next one. Switch to the slipped window and the same rule on the same 200 worlds reads <strong>6.11</strong>.</p>
+        <p>A 6.11 is loud on purpose. Nobody who has done session 3 would believe a Sharpe ratio of 6 on three years of daily data, and that is the danger in teaching lookahead only at full volume. The slip planted here puts the whole of the traded day's return into the window at a weight of one fifth. A real leak is often quieter: a value read a little early, a field that is only sometimes filled in after the fact. A quiet leak inflates a figure by an amount that looks like a modest, believable edge, and nobody's eyebrows go up. That is why the catch must be a test, not a judgement about whether the number looks too good.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The catch: correlate the position with the day it trades<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A position decided at the close of day t cannot know day t+1's return. In a zero-alpha world that means its correlation with day t+1's return must be zero up to noise, and the honest rule's is -0.001 averaged over 200 worlds. The slipped rule's is 0.358. That third column of the box is the catch: it fires on the plant and stays quiet on the honest rule.</p>
+        <p>The fourth column looks similar and is not a test. The correlation with the day before is 0.358 for the honest rule and 0.355 for the slipped one, because day t sits inside both windows: it is the rule reading its own inputs, which is allowed. A reviewer who checks the wrong column will see the same number on both rules and wave the leak through.</p>
+        <p>The correlation catch has a limit worth saying aloud. It works cleanly here because the world has no alpha, so any correlation with the traded day is a leak. On a real series with a real edge, an honest position is supposed to correlate a little with the next return; that is what an edge is. The statistic then cannot separate a small edge from a small leak. Part 3 builds the structural catch that does not care whether there is alpha at all.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Marlow Street's researcher, constructed, computed the position against the traded-day return on the 1.8 in an afternoon. It came back close to zero, and the head was careful about what that meant: it rules out the full one-day slip, the loudest form, and nothing quieter. She asked for the lag assertion as well, run over the whole history, before writing "lookahead: checked" on the proposal.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Why 0.358 and 6.11, by arithmetic<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>The correlation.</strong> The position is the sign of a sum of five independent normal returns. The correlation between that sign and any one of the five is the square root of 2 over pi, divided by the square root of 5: about 0.357. That is why 0.358 appears for the honest rule against the day before (day t is one of its five) and for the slipped rule against the traded day (day t+1 is one of its five). The slipped rule's 0.355 against the day before is the same quantity, since day t is still inside its window.</p>
+        <p><strong>The Sharpe ratio.</strong> Each observation is the position times day t+1's return. Its mean is 0.357 times the daily standard deviation and its standard deviation is about 0.934 times it, so the ratio per day is about 0.38. Annualised by the square root of 252 that is about 6.1 by arithmetic; the measured mean over 200 worlds is 6.11.</p>
+        <p><strong>The noise floor.</strong> On one world of 754 observations, an honest correlation has a standard deviation of roughly one over the square root of 754, about 0.036. A one-day slip at 0.358 is ten of those out and impossible to miss. A leak a tenth that size would sit inside the noise of a single backtest, which is the arithmetic behind "a quiet leak passes the statistic".</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where serious people disagree<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>Statistical catches or structural ones?</strong> One camp prefers statistical alarms, the traded-day correlation among them, because they run on the output alone and need no access to the pipeline that built the signal. The other camp holds that an alarm only catches leaks loud enough to rise above noise, and insists on structural tests: every input timestamped with the moment it became known, and every signal recomputed from truncated history. The structural camp is right that a quiet leak slips under the alarm; the statistical camp is right that a truncation test only checks the code path, and a figure stored in the record with the wrong date passes it untouched. That second case, restatement, is a leak in the data rather than in the code, and the generator here never revises a figure, so nothing tonight measures it. Both camps agree neither test alone is enough; which to require first is a judgement for the team, not a result.</p>
+        <p><strong>How far back must a point-in-time universe go?</strong> The generator shows that the mechanism exists and that, with a -20 percent floor on 50 zero-alpha series, it is large. It cannot say how large it is on any real record, because that depends on how many series failed, how badly, how far back the record of failures reaches, and what return was booked on the day each one left. Reviewers differ on how much effort rebuilding the full history deserves when part of the record is missing. Treat the size as an empirical question about a real record, never as a constant carried over from this page.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · build-along</span>
+      <h2>Plant each defect, measure the lie, add the catch</h2>
+      <span class="tag build">18 min hands on</span>
+    </div>
+    <p class="lede">Open this page's console. The engine is loaded as <span class="mono">QT</span>. The steps plant survivorship by hand on the seeds of ladder F's first trial, plant the slip by hand on ladder G's first world, run both canon rungs, and then write the one structural catch that works on both: cut the future off, recompute, compare. Plain JavaScript; the same lines translate to Python one for one.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 368" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn two-column diagram of one structural test applied to both defects. Left column, the universe: a box reading universe rule, kept if it ended above minus 20 percent, feeds two run boxes, run on all 504 days giving the list as of today, and run before day one giving the list known then. Both feed a steel box reading same list? if not, it read the future. Under it: planted, 9.5 of 50 differ on average; point in time, identical, passes. Right column, the signal: a box reading signal rule, sign of the 5-day mean at t, feeds run on every day and run on days to t with history cut after t; both feed a steel box reading same sig[t]? if not, it read t+1. Under it: shifted, sig[t] changes, fails; honest, identical, passes. A small console doodle sits at top right. A note says it is pass or fail with no threshold and needs no zero-alpha world.">
+        <defs>
+          <filter id="p8cSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="87" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p8cHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#7A1F3D" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p8cAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p8cH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .p8cL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .p8cS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .p8cW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p8cA { font: 700 11px Inter, sans-serif; fill: #7A1F3D; }
+          .p8cN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="p8cH" x="30" y="26">ONE CHEAP TEST FOR BOTH LEAKS: CUT THE FUTURE OFF, RECOMPUTE, COMPARE</text>
+
+        <g filter="url(#p8cSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- doodle: a console -->
+          <rect x="802" y="8" width="48" height="30" rx="4" transform="rotate(1 826 23)" fill="#FFFFFF" stroke-width="1.6"/>
+          <path d="M810 17 L816 22 L810 27 M820 29 L830 29" stroke-width="1.6"/>
+          <!-- left column: the universe -->
+          <rect x="60" y="52" width="330" height="44" rx="6" transform="rotate(-0.6 225 74)" fill="url(#p8cHc)"/>
+          <path d="M160 98 L132 128" marker-end="url(#p8cAr)"/>
+          <path d="M290 98 L318 128" marker-end="url(#p8cAr)"/>
+          <rect x="40" y="132" width="170" height="48" rx="6" transform="rotate(0.7 125 156)" fill="#FFFFFF"/>
+          <rect x="240" y="132" width="170" height="48" rx="6" transform="rotate(-0.7 325 156)" fill="#FFFFFF"/>
+          <path d="M125 182 L188 214" marker-end="url(#p8cAr)"/>
+          <path d="M325 182 L262 214" marker-end="url(#p8cAr)"/>
+          <rect x="60" y="218" width="330" height="44" rx="6" transform="rotate(0.5 225 240)" fill="#3B6E8F" stroke="#2A5068"/>
+          <!-- divider -->
+          <path d="M440 52 L440 304" stroke="#DCC9CF" stroke-dasharray="4 6" stroke-width="1.6"/>
+          <!-- right column: the signal -->
+          <rect x="490" y="52" width="330" height="44" rx="6" transform="rotate(0.6 655 74)" fill="url(#p8cHc)"/>
+          <path d="M590 98 L562 128" marker-end="url(#p8cAr)"/>
+          <path d="M720 98 L748 128" marker-end="url(#p8cAr)"/>
+          <rect x="470" y="132" width="170" height="48" rx="6" transform="rotate(-0.7 555 156)" fill="#FFFFFF"/>
+          <rect x="670" y="132" width="170" height="48" rx="6" transform="rotate(0.7 755 156)" fill="#FFFFFF"/>
+          <path d="M555 182 L618 214" marker-end="url(#p8cAr)"/>
+          <path d="M755 182 L692 214" marker-end="url(#p8cAr)"/>
+          <rect x="490" y="218" width="330" height="44" rx="6" transform="rotate(-0.5 655 240)" fill="#3B6E8F" stroke="#2A5068"/>
+        </g>
+
+        <text class="p8cL" x="225" y="79" text-anchor="middle">universe rule: kept if it ended above -20%</text>
+        <text class="p8cL" x="125" y="153" text-anchor="middle">run on all 504 days</text>
+        <text class="p8cS" x="125" y="170" text-anchor="middle">the list as of today</text>
+        <text class="p8cL" x="325" y="153" text-anchor="middle">run before day one</text>
+        <text class="p8cS" x="325" y="170" text-anchor="middle">the list known then</text>
+        <text class="p8cW" x="225" y="245" text-anchor="middle">same list? if not, it read the future</text>
+        <text class="p8cA" x="225" y="284" text-anchor="middle">planted: 9.5 of 50 differ on average</text>
+        <text class="p8cS" x="225" y="300" text-anchor="middle">point in time: identical, passes</text>
+
+        <text class="p8cL" x="655" y="79" text-anchor="middle">signal rule: sign of the 5-day mean at t</text>
+        <text class="p8cL" x="555" y="153" text-anchor="middle">run on every day</text>
+        <text class="p8cS" x="555" y="170" text-anchor="middle">sig[t] from all days</text>
+        <text class="p8cL" x="755" y="153" text-anchor="middle">run on days to t</text>
+        <text class="p8cS" x="755" y="170" text-anchor="middle">history cut after t</text>
+        <text class="p8cW" x="655" y="245" text-anchor="middle">same sig[t]? if not, it read t+1</text>
+        <text class="p8cA" x="655" y="284" text-anchor="middle">shifted: sig[t] changes, fails</text>
+        <text class="p8cS" x="655" y="300" text-anchor="middle">honest: identical, passes</text>
+
+        <text class="p8cN" x="30" y="334">Pass or fail, no threshold and no statistics: truncate the history, recompute, compare.</text>
+        <text class="p8cN" x="30" y="352">It needs no zero-alpha world, so it is the catch that can run on every backtest, real ones included.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the steel box is the whole catch, and it is the same box for both defects: anything that changes when the future is cut off was reading the future.</figcaption>
+    </figure>
+
+    <div class="steps">
+      <div class="step"><div>
+        <h4>Plant survivorship: 50 series and a floor</h4>
+        <p>These are the seeds of ladder F's first trial, 100,001 to 100,050, each a zero-alpha world of 504 days. Add up each series' returns and keep those whose total ended above -0.2. Your numbers will match for the same seed, but this is one trial, one draw, and its count of survivors is not the canon mean.</p>
+        <div class="prompt-box good"><span class="label">console</span>var all = [];
+for (var m = 0; m &lt; 50; m++) all.push(QT.makeWorld({ days: 504, trueSR: 0, seed: 100000 + m + 1 }).returns);
+var total = function (r) { return r.reduce(function (a, b) { return a + b; }, 0); };
+var survivors = all.filter(function (r) { return total(r) &gt; -0.2; });
+[all.length, survivors.length]</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Measure the inflated Sharpe ratio, then the honest one</h4>
+        <p>Average the rows day by day into an equal-weight series, then score it with the same moments and annualise as every other session. The first figure is the survivors held from day one, the second is all 50. On this one trial the gap is large; your numbers will match for the same seed, and the next step gives the mean over 100 trials.</p>
+        <div class="prompt-box good"><span class="label">console</span>var avg = function (rows) { var y = []; for (var t = 0; t &lt; 504; t++) { var s = 0; rows.forEach(function (r) { s += r[t]; }); y.push(s / rows.length); } return y; };
+var sr = function (rows) { return QT.annualise(QT.moments(avg(rows)).sr, 1).toFixed(2); };
+[sr(survivors), sr(all)]</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Run ladder F at the canon seeds</h4>
+        <p>survivorshipRung repeats the two steps above over 100 trials, each with its own 50 seeds, from a seed0 of 100,000. It prints 9.5 dropped on average, 1.51 on the survivors and -0.01 on the point-in-time universe. Your numbers will match for the same seed, exactly; the call takes a fraction of a second.</p>
+        <div class="prompt-box good"><span class="label">console</span>var f = QT.survivorshipRung({ M: 50, floor: -0.2, days: 504 }, 100, 100000);
+[f.meanDropped.toFixed(1), f.survivorsSR.toFixed(2), f.pointInTimeSR.toFixed(2)]</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Plant lookahead: one index slip in a five-day rule</h4>
+        <p>Seed 110,001 is ladder G's first world, 756 days of zero alpha. <span class="mono">mom</span> takes the mean of five returns ending at day t minus <span class="mono">shift</span>, so a shift of 0 is honest and a shift of -1 is the slip. pnl holds the sign of the signal at t for day t+1. Then compute the catch: the position's correlation with the day it trades. Your numbers will match for the same seed; one world, so expect the slipped figures near the canon and the honest ones within noise of zero, not equal to the means.</p>
+        <div class="prompt-box good"><span class="label">console</span>var w = QT.makeWorld({ trueSR: 0, seed: 110001 });
+function mom(r, shift) { var s = []; for (var t = 0; t &lt; r.length; t++) { var a = 0, n = 0; for (var k = 0; k &lt; 5; k++) { var i = t - k - shift; if (i &gt;= 0 &amp;&amp; i &lt; r.length) { a += r[i]; n++; } } s.push(n ? a / n : 0); } return s; }
+var honest = mom(w.returns, 0), slipped = mom(w.returns, -1);
+var traded = function (sig) { var p = [], r1 = []; for (var t = 1; t &lt; w.days - 1; t++) { p.push(sig[t] &gt;= 0 ? 1 : -1); r1.push(w.returns[t + 1]); } return QT.corr(p, r1).toFixed(3); };
+[honest, slipped].map(function (x) { return [QT.annualise(QT.moments(QT.pnl(w, x, { h: 1 })).sr, 1).toFixed(2), traded(x)]; })</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Run ladder G at the canon seeds</h4>
+        <p>lookaheadRung runs the same rule over 200 worlds from a seed0 of 110,000, honest and slipped. It prints 0.02, -0.001 and 0.358 for the honest rule, and 6.11, 0.358 and 0.355 for the slipped one: Sharpe ratio, correlation with the traded day, correlation with the day before. Your numbers will match for the same seed.</p>
+        <div class="prompt-box good"><span class="label">console</span>[0, -1].map(function (s) {
+  var g = QT.lookaheadRung(s, 200, 110000);
+  return [s, g.meanSR.toFixed(2), g.corrWithTradedDay.toFixed(3), g.corrWithPastDay.toFixed(3)];
+})</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Add the structural catch for both</h4>
+        <p>Cut the future off, recompute, compare. For the universe: build the list from data known before day one and compare it with the list the backtest used. For the signal: at a spread of days, recompute <span class="mono">sig[t]</span> from the history up to t only and compare it with the value the backtest used. Both are pass or fail, the same on every world: the planted list differs and the point-in-time one does not; the slipped signal fails and the honest one passes. Nothing here needs zero alpha, which is why these lines belong in every backtest.</p>
+        <div class="prompt-box good"><span class="label">console</span>var listOn = function (rows, upTo) { return rows.map(function (r, m) { return total(r.slice(0, upTo)) &gt; -0.2 ? m : -1; }).filter(function (m) { return m &gt;= 0; }); };
+var lagOK = function (build) { for (var t = 5; t &lt; 750; t += 25) { if (build(w.returns)[t] !== build(w.returns.slice(0, t + 1))[t]) return false; } return true; };
+[listOn(all, 0).length, survivors.length,
+ lagOK(function (r) { return mom(r, 0); }), lagOK(function (r) { return mom(r, -1); })]</div>
+      </div></div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> Two assertions run on every backtest before anyone reads its Sharpe ratio: the universe recomputed from data known before day one equals the universe used, and every signal recomputed from history cut at its own day equals the signal used. Show each one a planted defect once, so you have seen it fail. A catch you have never seen fail is a hope, not a test.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">Fifty zero-alpha series are filtered to drop any whose 504-day total ended below -20 percent, and the survivors held in equal weight from day one read a Sharpe ratio of 1.51 over 100 trials. What catches it?</p>
+      <div class="qopt">A · A lower floor, so that fewer series are dropped and the bias shrinks</div>
+      <div class="qopt">B · Building the universe from the list known before day one, and asserting that a list recomputed from data available then equals the list the backtest used</div>
+      <div class="qopt">C · A longer history, which averages the survivors' luck away</div>
+      <q class="qwhy">The 1.51 is made by drawing up the list with the whole history in hand; the full universe of 50 reads -0.01. A different floor only changes how much is cut, and a longer history leaves a list drawn at the end just as wrong. The catch is the point-in-time list and the assertion that proves it was used.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">An honest five-day momentum rule and the same rule slipped one day are run over 200 zero-alpha worlds. Which reading catches the slip?</p>
+      <div class="qopt">A · The position's correlation with the day it trades: -0.001 honest against 0.358 slipped, because a position decided at the close of t cannot see day t+1</div>
+      <div class="qopt">B · The position's correlation with the day before: 0.358 honest against 0.355 slipped</div>
+      <div class="qopt">C · Neither; only the Sharpe ratio can tell them apart</div>
+      <q class="qwhy">Day t sits inside both windows, so the day-before column is the rule reading its own inputs and is the same for both. The traded-day column moves from zero to 0.358. The Sharpe ratio does move, 0.02 to 6.11, but a quieter leak moves it to a believable number, so it cannot be the test.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">Why run the truncation assertions on every backtest rather than only on the ones whose numbers look too good?</p>
+      <div class="qopt">A · Because every leak produces a Sharpe ratio above 6, which is easy to spot anyway</div>
+      <div class="qopt">B · Because the assertions only work on zero-alpha worlds, so they must be run while testing</div>
+      <div class="qopt">C · Because a quiet leak inflates a figure into a believable edge, and the assertions cost one recompute and one comparison, need no zero-alpha world and answer pass or fail</div>
+      <q class="qwhy">The planted slip is loud on purpose; real ones are often a fraction of a day and produce numbers nobody questions. A test that runs only when a number looks suspicious misses exactly those. The truncation test does not depend on alpha being zero, so it runs on real backtests unchanged.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before session 9</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">About forty minutes, in the console or in Python.</p>
+    <div class="steps">
+      <div class="step"><div>
+        <h4>Move the floor and predict first</h4>
+        <p>Before running anything, write down which way the survivors' Sharpe ratio should move if the floor drops to -40 percent, and which way if it rises to -10 percent, using the cut-tail arithmetic from Part 1. Then run <span class="mono">survivorshipRung</span> at each floor over 100 trials at a seed0 of your own. Your numbers will differ from any canon figure; check the direction against your prediction and write one sentence on why.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Make the leak quiet and test both catches</h4>
+        <p>Write a version of <span class="mono">mom</span> that adds day t+1's return at a weight of one tenth instead of one fifth. Over 200 worlds at a seed0 of your own, measure its Sharpe ratio and its correlation with the traded day; your numbers will differ. Then ask the two questions that matter: on a single world, would the correlation sit outside a noise floor of about 0.036? And does <span class="mono">lagOK</span> still fail it?</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Audit one backtest you have seen</h4>
+        <p>Take any backtest you have been shown, or one of your own. Write down how its universe was built and on what date, and for each input to its rule, the first moment that input could have been known. Mark each one passed, failed or unanswered. Session 9 turns to the size of the position, where the mean and the median of the same rule part ways.</p>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Survivorship, planted</span><span class="note">50 zero-alpha series of 504 days, drop any that ended below -20 percent: 9.5 dropped on average, survivors 1.51 against -0.01 point in time. 100 trials.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Why survivors earn with no alpha</span><span class="note">A cut left tail leaves a positive mean, and an equal-weight average of about 40 independent series shrinks the noise. Arithmetic, labelled as such.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The point-in-time universe</span><span class="note">Hold only the series known on each day; assert the list recomputed from data before day one equals the list used.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Lookahead, planted</span><span class="note">A five-day momentum rule slipped one index: Sharpe ratio 0.02 honest, 6.11 slipped. 200 worlds.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The traded-day correlation</span><span class="note">-0.001 honest against 0.358 slipped; the day-before column, 0.358 and 0.355, is the rule reading its inputs and not a test.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The lag assertion</span><span class="note">Recompute each signal from history cut at its own day; pass or fail, no threshold, needs no zero-alpha world.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Quiet leaks and restatement</span><span class="note">Named. The generator plants only the full one-day slip and never revises a figure, so neither is measured here.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">What a series earns on the day it leaves</span><span class="note">Named as a real question. The generator drops series only at the end, so no figure is given.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Target leakage in general; the leader view</span><span class="note">Target leakage on tabular models lives in <a href="https://phoebefu6.github.io/learn-feature-engineering-with-phoebe/">learn-feature-engineering-with-phoebe</a>. The leakage classes for leaders are <a href="a4-the-leakage-classes.html">leader session 4</a>.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Any market, price or instrument</span><span class="note">Out of scope by design. Synthetic data only, and nothing here is investment advice.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>The one sentence.</strong> Neither defect needs alpha to look like alpha; both are caught by cutting the future off and checking that nothing changed.</div>
+      <div class="cheat-item"><strong>Survivorship.</strong> Drop the losers at the end: survivors 1.51, all 50 -0.01, 9.5 of 50 dropped. 100 trials of 504 days.</div>
+      <div class="cheat-item"><strong>Why it works.</strong> A cut tail leaves a positive mean; averaging about 40 independent series shrinks the noise under it.</div>
+      <div class="cheat-item"><strong>Lookahead.</strong> Slip a five-day momentum window one day: 0.02 becomes 6.11. 200 worlds.</div>
+      <div class="cheat-item"><strong>The column that catches it.</strong> Position against the traded day: -0.001 honest, 0.358 slipped. Not the day before.</div>
+      <div class="cheat-item"><strong>The structural catch.</strong> Recompute the universe before day one and each signal from history up to its day. Any change is a leak.</div>
+      <div class="cheat-item"><strong>The quiet leak.</strong> A one-day slip is loud on purpose. A small one looks like a modest edge, so test always, not when suspicious.</div>
+      <div class="cheat-item"><strong>The limit.</strong> No restatement, no mid-history departures, no quiet leaks in the generator. Say so when quoting it.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Practitioner session 8 of 10 · learn-quant-trading-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="p7-costs-against-a-small-edge.html">← Practitioner session 7 · Costs against a small edge</a>
+        <a href="p9-sizing-and-drawdown.html">Practitioner session 9 · Sizing and drawdown: risk is the product →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/qt-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof QT === "undefined") return;
+  var selS = document.getElementById("p8-leaks-surv");
+  var selL = document.getElementById("p8-leaks-look");
+  var out = document.getElementById("p8-leaks-out");
+  var verdict = document.getElementById("p8-leaks-verdict");
+  var self = document.getElementById("p8-leaks-self");
+  /* canon seeds: ladder F uses seed0 = 100000 (100 trials of 50 series, 504 days);
+     ladder G uses seed0 = 110000 (200 worlds), shift 0 honest and -1 slipped. */
+  var F = null, G = {}, LAG = {};
+
+  function surv() {
+    if (!F) F = QT.survivorshipRung({ M: 50, floor: -0.2, days: 504 }, 100, 100000);
+    return F;
+  }
+  function look(shift) {
+    if (!G[shift]) G[shift] = QT.lookaheadRung(shift, 200, 110000);
+    return G[shift];
+  }
+  /* the same five-day rule as the engine's, for the truncation test on ladder G's first world */
+  function mom(r, shift) {
+    var s = [], t, k;
+    for (t = 0; t < r.length; t++) {
+      var a = 0, n = 0;
+      for (k = 0; k < 5; k++) { var i = t - k - shift; if (i >= 0 && i < r.length) { a += r[i]; n++; } }
+      s.push(n ? a / n : 0);
+    }
+    return s;
+  }
+  function lagOK(shift) {
+    if (LAG[shift] != null) return LAG[shift];
+    var w = QT.makeWorld({ trueSR: 0, seed: 110001 });
+    var full = mom(w.returns, shift), ok = true, t;
+    for (t = 5; t < 750; t += 25) { if (mom(w.returns.slice(0, t + 1), shift)[t] !== full[t]) { ok = false; break; } }
+    LAG[shift] = ok;
+    return ok;
+  }
+
+  function row(q, v, what, cls) {
+    return "<tr><td>" + q + "</td><td><b" + (cls ? ' class="' + cls + '"' : "") + ">" + v + "</b></td><td>" + what + "</td></tr>";
+  }
+
+  function render() {
+    var planted = selS.value === "survivors", slipped = selL.value === "slipped";
+    var f = surv(), shift = slipped ? -1 : 0, g = look(shift), ok = lagOK(shift);
+    var srF = planted ? f.survivorsSR : f.pointInTimeSR;
+    var held = planted ? (f.M - f.meanDropped).toFixed(1) + " of " + f.M + " on average" : f.M + " of " + f.M;
+
+    var html = '<table class="sql-table"><thead><tr><th>Quantity</th><th>Value</th><th>What it is</th></tr></thead><tbody>';
+    html += row("Survivorship: series held from day one", held, planted ? "the list drawn up at day 504, losers removed" : "the list known before day one");
+    html += row("Equal-weight Sharpe ratio, " + f.trials + " trials", srF.toFixed(2), "every series has zero alpha", planted ? "p8-hot" : "p8-ok");
+    html += row("Catch: list recomputed before day one", planted ? "differs by " + f.meanDropped.toFixed(1) : "identical", planted ? "fires: the list read the future" : "passes", planted ? "p8-hot" : "p8-ok");
+    html += row("Lookahead: annualised Sharpe ratio, " + g.trials + " worlds", g.meanSR.toFixed(2), slipped ? "the window includes the day it trades" : "the window ends at the close of t", slipped ? "p8-hot" : "p8-ok");
+    html += row("Catch: correlation with the traded day", g.corrWithTradedDay.toFixed(3), slipped ? "fires: an honest position cannot see t+1" : "near zero, as it must be", slipped ? "p8-hot" : "p8-ok");
+    html += row("Correlation with the day before", g.corrWithPastDay.toFixed(3), "the rule reading its own inputs, not a test");
+    html += row("Catch: lag assertion on ladder G's first world", ok ? "passes" : "fails", ok ? "every sig[t] unchanged when days after t are cut" : "sig[t] changes when days after t are cut", ok ? "p8-ok" : "p8-hot");
+    html += "</tbody></table>";
+    out.innerHTML = html;
+
+    var msg;
+    if (!planted && !slipped) {
+      msg = "Both plants off. The point-in-time universe reads " + f.pointInTimeSR.toFixed(2) + " and the honest rule " + g.meanSR.toFixed(2) + ": nothing, measured correctly, and every catch passes. Switch either plant on and watch its catch fire.";
+    } else if (planted && !slipped) {
+      msg = "Survivorship planted. Dropping " + f.meanDropped.toFixed(1) + " losers at the end lifts 50 series with no alpha from " + f.pointInTimeSR.toFixed(2) + " to " + f.survivorsSR.toFixed(2) + ". No rule changed; the list did, and the list recomputed before day one disagrees with it.";
+    } else if (!planted && slipped) {
+      msg = "Lookahead planted. One index slip takes the same rule from " + look(0).meanSR.toFixed(2) + " to " + g.meanSR.toFixed(2) + ", and the correlation with the traded day jumps to " + g.corrWithTradedDay.toFixed(3) + ". The day-before column barely moves, which is why it is not the test.";
+    } else {
+      msg = "Both planted. Two numbers made from nothing: " + f.survivorsSR.toFixed(2) + " from the list and " + g.meanSR.toFixed(2) + " from the slip. Every catch fires, and none of them needed to know the alpha was zero except the correlation.";
+    }
+    verdict.textContent = msg + " Canon seeds: ladder F at seed0 100,000, ladder G at seed0 110,000.";
+  }
+
+  var t = QT.selfTest();
+  self.textContent = t.ok
+    ? "The generator's six properties pass in this browser, so the figures above are the figures any correct run gives. Synthetic data only: nothing here describes a real market, and nothing here is investment advice."
+    : "The generator's self test did not pass in this browser, so nothing above should be believed.";
+
+  selS.addEventListener("change", render);
+  selL.addEventListener("change", render);
+  render();
+})();
+</script>
+<style>
+  #p8-leaks .sql-code { border: 1px solid var(--hairline); border-radius: 8px; max-width: 30rem; }
+  #p8-leaks table.sql-table { margin: .6rem 0 .2rem; font-size: .85rem; }
+  #p8-leaks .p8-ok { color: var(--indigo); }
+  #p8-leaks .p8-hot { color: var(--amber); }
+</style>
+</body>
+</html>

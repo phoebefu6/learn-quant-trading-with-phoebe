@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Leader session 1 of 6. A backtest is one realised path with no control group and no rerun, and the person presenting it chose it from many. Marlow Street is handed a Sharpe ratio of 1.8 and asked whether to fund it. Not investment advice.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="A backtest is one history, not an experiment - learn quant with phoebe">
+<meta property="og:description" content="Leader session 1 of 6. The best of 100 random strategies shows an in-sample Sharpe ratio of 1.80 and earns nothing afterwards. Measured, 200 trials.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/courses/a1-one-history-not-an-experiment.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="A backtest is one history, not an experiment - learn quant with phoebe">
+<meta name="twitter:description" content="No control group, no rerun, and the number was chosen. What a leader asks before funding a backtest.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Leader session 1 · A backtest is one history, not an experiment - learn quant with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-quant-trading-with-phoebe</a> / Leader session 1 of 6</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Quant Trading with Phoebe · Leader session 1 of 6</div>
+    <h1>A backtest is one history, <span class="accent">not an experiment</span></h1>
+    <p class="sub">A data team knows how to read an experiment: a control group, a random split, a result you can rerun on a fresh sample. A backtest has none of those. It is one realised path of history, read once, by somebody who tried many rules on that same path and brought you the best one. Marlow Street, a constructed four-person research desk, has been handed a strategy with an annualised Sharpe ratio of 1.8 and asked whether to fund it. Tonight is what that number is, what it is not, and the three questions that separate a finding from a selection. Nothing here is investment advice; the data is generated so that the truth is known.</p>
+    <div class="chip-row">
+      <span class="chip level">🟠 Leader track</span>
+      <span class="chip audience">Anyone asked to fund a backtest</span>
+      <span class="chip audience">Anyone who signs off a research result</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:3">3-18 · One path, no rerun</span>
+      <span class="a3" style="flex:3">18-28 · What Marlow Street was handed</span>
+      <span class="a4" style="flex:4">28-45 · Build-along and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Marlow Street, on the morning a backtest lands on the desk</h2>
+    </div>
+    <p class="lede">Marlow Street is a constructed desk: four researchers, one head, and a budget that funds two strategies a year. A researcher presents a rule with a backtested Sharpe ratio of 1.8 over two years. The head has run product experiments for a decade and knows exactly what a result like that would mean on an A/B test. The trouble is that none of that knowledge transfers, because the thing on the screen is not an experiment, and the ways in which it is not one are the whole subject of the six leader sessions.</p>
+
+    <div class="legend">
+      <span class="pill">Live = presented in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with tonight.</strong> A clear statement of what a backtest is: one path, no control, no rerun, and selected. What a Sharpe ratio is and how noisy one estimate of it is on two years of daily data, which is more than most people expect. A measured answer to the question "what does the best of a hundred random rules look like", which is the question Marlow Street's head should have asked first. And three questions to put to any backtest before a single number is discussed. Nothing here is advice on what to buy, sell or trade.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why the experiment instinct misfires here<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>An experiment has three properties a data leader relies on without naming them. There is a control: a group that did not get the treatment, drawn from the same population at the same time. There is a fresh draw: if the result looks odd you can run it again on new users next week. And the design is fixed before the data arrives, so the result is a test of a hypothesis rather than a search for one.</p>
+        <p>A backtest has one history. There is no control group that lived through a different past. There is no second draw, because the past happened once. And the rule was almost always chosen after looking at that history, which means the design was fitted to the data it is now being scored on. Each of those on its own would be a caveat. All three together make the number on the screen a different kind of object from an experimental result, and the rest of the leader track is what kind.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Marlow Street's head asked the researcher the question she would ask of any experiment: what is the p-value? The researcher gave one, and it was small. Neither of them asked how many rules had been tried before this one, and the honest answer was somewhere above a hundred. That omission is not dishonesty. It is the ordinary way research is reported, and the papers in the sources section are the people who first counted its cost.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The words that keep coming back<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Backtest.</strong> A simulation of what a rule would have earned had it been run over a stretch of history. In-sample is the stretch used to design the rule; out-of-sample is a stretch it never saw.</li>
+          <li><strong>Sharpe ratio.</strong> Mean return in excess of a benchmark, divided by the standard deviation of that excess. Introduced in 1966 as the reward-to-variability ratio and renamed by common usage; the 1994 paper is the one to cite. Annualised by multiplying a daily figure by the square root of 252.</li>
+          <li><strong>Trial.</strong> One rule, one parameter setting, one backtest. The count of trials is the number nobody writes down.</li>
+          <li><strong>Selection.</strong> Picking the best of N trials on the same data. Session 3 measures what it does to the number.</li>
+          <li><strong>Leakage.</strong> Information from the future, or from outside the sample, reaching the rule. Session 4 names its classes.</li>
+          <li><strong>Zero alpha.</strong> A series with no exploitable structure at all. Every number on these pages is first measured on such a series, so that whatever a method reports there is known to be noise.</li>
+          <li><strong>Constructed.</strong> Every case here, Marlow Street included, is invented so that the truth is knowable. No figure describes a real market.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers what a backtest is</span>
+      <h2>One path, no control, no rerun, and chosen</h2>
+      <span class="tag concept">15 min live</span>
+    </div>
+    <p class="lede">The clearest way to see what a backtest lacks is to draw the experiment beside it. On the left, the machinery a data team trusts: a population, a random split, a comparison, and an arrow that says do it again. On the right, the machinery a backtest actually has. Three parts are missing and one has been added, and the one that was added points backwards.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn comparison. Left panel, an experiment: a hatched pile labelled the population splits by a random draw into a treatment box and a control box, both feed a compare box, and a loop arrow returns from compare to the population labelled rerun on a fresh sample. Right panel, a backtest: one wobbly line labelled one realised path of history, a researcher reads it, a box labelled pick the best rule, and a loop arrow from that box back onto the same path labelled the same path again. The word rerun is written and struck through, and the word control is written and struck through. A note below says the control group and the rerun are both missing, and both are replaced by selection on the same path.">
+        <defs>
+          <filter id="a1aSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="11" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="a1aHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#7A1F3D" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="a1aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+          <marker id="a1aArS" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#3B6E8F" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .a1aH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .a1aL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .a1aS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .a1aB { font: 800 11px Inter, sans-serif; fill: #2A5068; }
+          .a1aA { font: 700 11px Inter, sans-serif; fill: #7A1F3D; }
+          .a1aN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+          .a1aX { font: 700 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="a1aH" x="30" y="26">AN EXPERIMENT, WHICH A DATA TEAM KNOWS HOW TO READ</text>
+        <text class="a1aH" x="470" y="26">A BACKTEST, WHICH LOOKS THE SAME AND IS NOT</text>
+
+        <g filter="url(#a1aSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- left: the population pile -->
+          <path d="M40 150 C55 95 110 80 150 100 C185 118 196 140 200 150 Z" fill="url(#a1aHc)"/>
+          <!-- split arrows -->
+          <path d="M205 128 C240 110 250 95 272 86" marker-end="url(#a1aAr)"/>
+          <path d="M205 142 C240 160 250 175 272 186" marker-end="url(#a1aAr)"/>
+          <!-- treatment / control boxes -->
+          <rect x="278" y="64" width="110" height="44" rx="6" transform="rotate(-1 333 86)" fill="#FAF0F3"/>
+          <rect x="278" y="164" width="110" height="44" rx="6" transform="rotate(1 333 186)" fill="#FFFFFF"/>
+          <!-- compare -->
+          <path d="M392 90 C405 110 405 118 392 136" />
+          <path d="M392 186 C405 166 405 158 392 140" />
+          <rect x="300" y="236" width="90" height="36" rx="6" transform="rotate(-0.6 345 254)" fill="#FFFFFF"/>
+          <path d="M398 138 L410 138 L410 254 L396 254" marker-end="url(#a1aAr)"/>
+          <!-- rerun loop back to the population -->
+          <path d="M296 254 L60 254 L60 170" stroke="#3B6E8F" stroke-dasharray="6 5" marker-end="url(#a1aArS)"/>
+
+          <!-- divider -->
+          <path d="M440 40 L440 330" stroke="#DCC9CF" stroke-width="1.5"/>
+
+          <!-- right: one realised path -->
+          <path d="M470 150 C500 120 520 180 550 140 C580 100 600 190 630 150 C655 120 670 170 700 130 C720 105 735 150 760 120" stroke="#7A1F3D" stroke-width="2.5"/>
+          <!-- the researcher's eye -->
+          <circle cx="800" cy="110" r="16" fill="#FFFFFF"/>
+          <circle cx="800" cy="110" r="5" fill="#2A1118"/>
+          <path d="M786 122 C775 130 770 134 766 136"/>
+          <!-- pick the best rule box -->
+          <rect x="690" y="206" width="150" height="40" rx="6" transform="rotate(-1 765 226)" fill="#EAF1F6" stroke="#3B6E8F"/>
+          <!-- loop from the box back onto the same path -->
+          <path d="M688 226 L560 226 L560 170" stroke="#3B6E8F" stroke-dasharray="6 5" marker-end="url(#a1aArS)"/>
+          <!-- struck words -->
+          <path d="M470 288 L532 288" stroke="#7A1F3D" stroke-width="2" data-strike="1"/>
+          <path d="M470 316 L516 316" stroke="#7A1F3D" stroke-width="2" data-strike="1"/>
+        </g>
+
+        <text class="a1aL" x="120" y="172" text-anchor="middle">the population</text>
+        <text class="a1aS" x="120" y="188" text-anchor="middle">a fresh draw each time</text>
+        <text class="a1aL" x="333" y="91" text-anchor="middle">treatment</text>
+        <text class="a1aL" x="333" y="191" text-anchor="middle">control</text>
+        <text class="a1aL" x="345" y="259" text-anchor="middle">compare</text>
+        <text class="a1aB" x="200" y="246" text-anchor="middle">rerun on a fresh sample</text>
+        <text class="a1aS" x="30" y="294">the random split is the control, the loop is the rerun</text>
+
+        <text class="a1aA" x="470" y="92">one realised path of history</text>
+        <text class="a1aS" x="800" y="86" text-anchor="middle">a researcher reads it</text>
+        <text class="a1aB" x="765" y="231" text-anchor="middle">pick the best rule</text>
+        <text class="a1aB" x="620" y="246" text-anchor="middle">the same path, again</text>
+        <text class="a1aX" x="470" y="292">rerun</text>
+        <text class="a1aX" x="470" y="320">control</text>
+        <text class="a1aS" x="548" y="292">there is no second draw of the past</text>
+        <text class="a1aS" x="548" y="320">nobody lived through a different history</text>
+
+        <text class="a1aN" x="30" y="366">The control and the rerun are both missing. In their place is a loop that goes backwards: the rule was picked by reading</text>
+        <text class="a1aN" x="30" y="384">the very path it is now scored on. That loop is not a flaw in one researcher. It is what a backtest is.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the dashed loop on the left runs forward to new data; the dashed loop on the right runs backwards onto the same data. Everything else follows from that.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>What a Sharpe ratio is, and how noisy one estimate of it is<span class="mini">5 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The ratio is the mean of the strategy's returns in excess of a benchmark, divided by their standard deviation. Sharpe's 1994 paper gives the ex ante form (expected differential return over its predicted standard deviation) and the ex post form (the historic average over the historic standard deviation), and says plainly that the ratio "is not independent of the time period over which it is measured". A daily figure is annualised by the square root of 252, which is why a number like 1.8 is quoted as if it were a yearly fact.</p>
+        <p>The part leaders rarely hear is the standard error. On 503 daily observations, roughly two years, one estimate of an annualised Sharpe ratio on a series with no alpha at all has a standard deviation of about 0.71. That is the width of the noise before anybody has selected anything. A single rule on a single path reporting 1.0 is one and a half standard deviations from nothing. Sharpe gives the same fact from the other side: "The t-statistic will equal the Sharpe Ratio times the square root of T", and T here is small.</p>
+        <p>The practitioner track builds that estimate from scratch in session 2 and measures its noise in session 1. For a leader the number to keep is 0.71: it is the ruler every backtest figure is held against.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Three missing parts, named<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>No control.</strong> The strategy's return is compared to a benchmark, which is a number, not a group. A benchmark cannot tell you what the strategy would have earned in a world where the rule did not exist, because the world only happened one way. The experiment courses handle this properly; the difference in finance is that there is no way to randomise history.</p>
+        <p><strong>No rerun.</strong> Out-of-sample testing is the closest thing to a fresh draw, and it is one draw, not a fresh draw. Once the out-of-sample stretch has been looked at, it has been used, and the next rule tried on it is in-sample again. The data is consumed by being read.</p>
+        <p><strong>No fixed design.</strong> The rule was chosen by trying rules. That is not a scandal, it is research. The scandal is reporting the best rule's score as if it were the only rule's score, and the paper that counted the cost is the subject of Part 2.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where serious people disagree<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>One camp holds that overfitting a backtest costs you nothing more than the illusion: the rule earns zero afterwards, and the loss is the capital you tied up and the better rule you did not fund. Bailey, Borwein, Lopez de Prado and Zhu say exactly this for series without memory: "in the absence of memory, there is no reason to expect overfitting to induce negative performance".</p>
+        <p>The same authors hold the other position for series with memory: "the presence of memory in a strategy's performance series induces a compensation effect, which increases the chances for that strategy to be selected IS, only to underperform the rest OOS". On that reading, an overfit rule does not merely earn nothing, it is selected precisely because it is about to give back what it took.</p>
+        <p>Which case you are in depends on the series, and the honest statement is that the generator behind these pages has no memory, so every zero-alpha rung reports an out-of-sample figure within noise of zero, never below it. A page that says "overfit strategies lose money" has resolved a question the literature left open. Say "earn nothing, or worse if the series has memory".</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers Marlow Street</span>
+      <h2>What the best of a hundred random rules looks like</h2>
+      <span class="tag concept">10 min live</span>
+    </div>
+    <p class="lede">Marlow Street's head should have asked one question first, and it is answerable without any market data at all: if a hundred rules with no information whatsoever were scored on two years of a random walk, what would the best of them report? The generator behind every page here answers it directly, and the answer is a Sharpe ratio of 1.80, which is the number that was presented.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn bar chart of the best-of-N experiment on zero alpha. A hatched pile on the left is labelled N random rules, none with any information. Four pairs of bars for N equal to 1, 10, 100 and 1,000. The burgundy bars are the best in-sample Sharpe ratio: minus 0.01, 1.04, 1.80 and 2.33. The steel bars beside them are the same rule's out-of-sample Sharpe ratio: minus 0.07, 0.14, minus 0.06 and 0.02. A note says 200 trials per rung, walk-forward split of 503 then 252 daily observations, and that the out-of-sample column never leaves the noise around zero.">
+        <defs>
+          <filter id="a1bSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="23" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="a1bHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#7A1F3D" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="a1bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .a1bH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .a1bL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .a1bS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .a1bV { font: 800 16px Inter, sans-serif; fill: #4A1024; }
+          .a1bB { font: 800 11px Inter, sans-serif; fill: #2A5068; }
+          .a1bA { font: 700 11px Inter, sans-serif; fill: #7A1F3D; }
+          .a1bN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="a1bH" x="30" y="26">THE BEST OF N RULES THAT KNOW NOTHING, SCORED ON A RANDOM WALK</text>
+
+        <g filter="url(#a1bSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- the pile of rules -->
+          <path d="M40 250 C58 190 112 172 152 194 C184 212 196 236 200 250 Z" fill="url(#a1bHc)"/>
+          <path d="M206 222 L250 222" marker-end="url(#a1bAr)"/>
+          <!-- baseline -->
+          <path d="M270 250 L850 250" stroke-width="2.5"/>
+          <!-- N = 1 : IS -0.01 -> 1px below, OOS -0.07 -> 4px below -->
+          <rect x="296" y="250" width="34" height="1" fill="#7A1F3D" transform="rotate(0.5 313 250)"/>
+          <rect x="336" y="250" width="34" height="4" fill="#3B6E8F" transform="rotate(-0.5 353 252)"/>
+          <!-- N = 10 : IS 1.04 -> 62px, OOS 0.14 -> 8px -->
+          <rect x="436" y="188" width="34" height="62" fill="#7A1F3D" transform="rotate(-0.8 453 219)"/>
+          <rect x="476" y="242" width="34" height="8" fill="#3B6E8F" transform="rotate(0.6 493 246)"/>
+          <!-- N = 100 : IS 1.80 -> 108px, OOS -0.06 -> 4px below -->
+          <rect x="576" y="142" width="34" height="108" fill="#7A1F3D" transform="rotate(0.7 593 196)"/>
+          <rect x="616" y="250" width="34" height="4" fill="#3B6E8F" transform="rotate(-0.4 633 252)"/>
+          <!-- N = 1000 : IS 2.33 -> 140px, OOS 0.02 -> 1px -->
+          <rect x="716" y="110" width="34" height="140" fill="#7A1F3D" transform="rotate(-0.6 733 180)"/>
+          <rect x="756" y="249" width="34" height="1" fill="#3B6E8F" transform="rotate(0.5 773 249)"/>
+        </g>
+
+        <text class="a1bL" x="120" y="274" text-anchor="middle">N random rules</text>
+        <text class="a1bS" x="120" y="290" text-anchor="middle">none has any information</text>
+
+        <text class="a1bV" x="313" y="236" text-anchor="middle">-0.01</text>
+        <text class="a1bB" x="353" y="276" text-anchor="middle">-0.07</text>
+        <text class="a1bL" x="333" y="300" text-anchor="middle">N = 1</text>
+
+        <text class="a1bV" x="453" y="176" text-anchor="middle">1.04</text>
+        <text class="a1bB" x="493" y="232" text-anchor="middle">0.14</text>
+        <text class="a1bL" x="473" y="300" text-anchor="middle">N = 10</text>
+
+        <text class="a1bV" x="593" y="130" text-anchor="middle">1.80</text>
+        <text class="a1bB" x="633" y="276" text-anchor="middle">-0.06</text>
+        <text class="a1bL" x="613" y="300" text-anchor="middle">N = 100</text>
+
+        <text class="a1bV" x="733" y="98" text-anchor="middle">2.33</text>
+        <text class="a1bB" x="773" y="276" text-anchor="middle">0.02</text>
+        <text class="a1bL" x="753" y="300" text-anchor="middle">N = 1,000</text>
+
+        <text class="a1bA" x="296" y="60">burgundy: best in-sample Sharpe ratio, annualised</text>
+        <text class="a1bB" x="296" y="78">steel: the same rule, out of sample</text>
+        <text class="a1bS" x="580" y="60">200 trials per rung, mean reported</text>
+        <text class="a1bS" x="580" y="78">walk-forward split, 503 then 252 daily observations</text>
+
+        <text class="a1bN" x="30" y="332">The in-sample column climbs with N and never stops. The out-of-sample column never leaves the noise around zero, because there was</text>
+        <text class="a1bN" x="30" y="350">nothing to find. Marlow Street was shown the burgundy bar at N = 100 and was not told the value of N.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - 1.80 is not an unusual result for the best of a hundred rules on nothing. It is the expected one.</figcaption>
+    </figure>
+
+    <div class="wk" id="a1-bestof">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">The generator behind every session, running in this page. N random rules on a random walk with no alpha, the best one picked on the first 503 days and scored on the next 252. Means over the trial count you choose.</span>
+      </div>
+      <div class="wk-body">
+        <label class="sql-label" for="a1-n">How many rules were tried</label>
+        <select class="sql-code" id="a1-n">
+          <option value="1">1</option>
+          <option value="10">10</option>
+          <option value="100" selected>100</option>
+          <option value="1000">1,000</option>
+        </select>
+        <label class="sql-label" for="a1-trials">How many worlds to average over</label>
+        <select class="sql-code" id="a1-trials">
+          <option value="20" selected>20, quick</option>
+          <option value="50">50</option>
+          <option value="200">200, the full canon (a few seconds at 1,000 rules)</option>
+        </select>
+        <div id="a1-out"></div>
+        <p class="sql-note" id="a1-verdict">...</p>
+      </div>
+      <div class="wk-foot" id="a1-self">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Reading the two columns together<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Set the rules to 100 and the worlds to 200 and the box reports the canon: a best in-sample Sharpe ratio of 1.80 and an out-of-sample figure of -0.06. Set it to 1,000 and the first number climbs to 2.33 while the second stays at 0.02. The in-sample figure is a function of how hard you looked. The out-of-sample figure is a function of what was there, and nothing was.</p>
+        <p>The researcher who presented 1.8 did not lie and did not cheat. They tried about a hundred things, as researchers do, and showed the best. The leader's job is to know that 1.8 is what the best of a hundred looks like when the hundred know nothing, and to ask for N before asking for anything else.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The paper that counted it<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Bailey, Borwein, Lopez de Prado and Zhu made the arithmetic public in 2014 in the Notices of the American Mathematical Society. Two of their sentences are worth carrying around. "After trying only seven independent strategy configurations, the expected maximum SR IS is 1 for a two-year long backtest, while the expected SR OOS is 0." And: "if only five years of data are available, no more than forty-five independent model configurations should be tried", or the search is "almost guaranteed to produce strategies with an annualized Sharpe ratio IS of 1 but an expected Sharpe ratio OOS of zero".</p>
+        <p>Their bound is that the expected maximum grows like the square root of twice the natural log of N. Session 3 measures that growth on this generator and finds the bound is loose and their sharper formula is tight. For tonight the point is simpler: the growth never stops, so a large enough search produces any Sharpe ratio you ask for, on nothing.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Why "not investment advice" is a technical statement here<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Every number on these pages comes from a generator whose truth is known: the alpha is zero unless a signal is planted, and when one is planted its strength is a parameter. That is what makes a method's output checkable. It is also what makes the numbers useless as advice. A Sharpe ratio of 1.80 here is a property of a selection procedure run on noise, not a property of anything anybody could buy.</p>
+        <p>The sibling course on AI in finance holds the rule "assist, never advise", and it applies without change. What a leader takes from here is a way of reading a research claim, not a view on any market. The pages say so wherever money is near, and they mean it as a statement about what the generator can and cannot support.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · build-along</span>
+      <h2>Three questions to put to any backtest</h2>
+      <span class="tag build">17 min hands on</span>
+    </div>
+    <p class="lede">No code. Three questions, asked in order, on a research result your own team has presented or will present. Each one has an answer that can be written down, and the absence of an answer is itself the finding. The figure is the card to keep.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Three hand drawn note cards. Card one, how many did you try, with the expected answer a number N and the measured consequence that the best of a hundred random rules reports 1.80. Card two, what did the split respect, with the expected answer time order and the consequence that a shuffled split on overlapping observations lifts a zero-alpha rule to 0.65 out of sample. Card three, what did a trade cost, with the expected answer basis points and turnover and the consequence that 20 basis points turn a real edge of 1.0 negative. A note says that a missing answer is the finding.">
+        <defs>
+          <filter id="a1cSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="31" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="a1cHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#7A1F3D" stroke-width="1" opacity=".5"/></pattern>
+        </defs>
+        <style>
+          .a1cH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .a1cL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .a1cS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .a1cV { font: 800 16px Inter, sans-serif; fill: #4A1024; }
+          .a1cB { font: 800 11px Inter, sans-serif; fill: #2A5068; }
+          .a1cN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="a1cH" x="30" y="26">THREE QUESTIONS, EACH WITH AN ANSWER THAT CAN BE WRITTEN DOWN</text>
+
+        <g filter="url(#a1cSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="34" y="50" width="256" height="170" rx="8" transform="rotate(-1.2 162 135)" fill="#FFFFFF"/>
+          <rect x="312" y="50" width="256" height="170" rx="8" transform="rotate(0.8 440 135)" fill="#FFFFFF"/>
+          <rect x="590" y="50" width="256" height="170" rx="8" transform="rotate(-0.6 718 135)" fill="#FFFFFF"/>
+          <!-- pin dots -->
+          <circle cx="162" cy="58" r="5" fill="#3B6E8F" stroke="#3B6E8F"/>
+          <circle cx="440" cy="58" r="5" fill="#3B6E8F" stroke="#3B6E8F"/>
+          <circle cx="718" cy="58" r="5" fill="#3B6E8F" stroke="#3B6E8F"/>
+          <!-- a small hatched swatch on each card, the thing being counted -->
+          <rect x="54" y="150" width="40" height="22" rx="3" fill="url(#a1cHc)" stroke="#7A1F3D" stroke-width="1.2"/>
+          <path d="M332 160 L392 160 M400 160 L440 160 M448 160 L520 160" stroke="#7A1F3D" stroke-width="3"/>
+          <path d="M610 150 L640 172 M640 150 L610 172" stroke="#7A1F3D" stroke-width="1.6"/>
+        </g>
+
+        <text class="a1cV" x="54" y="92">1 · How many did you try?</text>
+        <text class="a1cS" x="54" y="114">Expected: a number N, including</text>
+        <text class="a1cS" x="54" y="130">the ones thrown away.</text>
+        <text class="a1cB" x="54" y="190">best of 100 on nothing: 1.80</text>
+        <text class="a1cS" x="54" y="206">No N means no reading.</text>
+
+        <text class="a1cV" x="332" y="92">2 · Split respected time?</text>
+        <text class="a1cS" x="332" y="114">Expected: time order, with a gap</text>
+        <text class="a1cS" x="332" y="130">where observations overlap.</text>
+        <text class="a1cB" x="332" y="190">a shuffled split lifts 0 to 0.65</text>
+        <text class="a1cS" x="332" y="206">Random folds are the tool default.</text>
+
+        <text class="a1cV" x="610" y="92">3 · What did a trade cost?</text>
+        <text class="a1cS" x="610" y="114">Expected: basis points per trade,</text>
+        <text class="a1cS" x="610" y="130">times the turnover.</text>
+        <text class="a1cB" x="610" y="190">20 basis points turn 1.0 negative</text>
+        <text class="a1cS" x="610" y="206">A gross figure is not a figure.</text>
+
+        <text class="a1cN" x="30" y="254">Ask them in this order. The first is a question about the researcher, the second about the method, the third about the world.</text>
+        <text class="a1cN" x="30" y="272">A missing answer to any of the three is the finding, and sessions 3, 4 and 5 put a number on each.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the three steel lines are what each question costs when it goes unasked, measured on the generator rather than argued.</figcaption>
+    </figure>
+
+    <div class="steps">
+      <div class="step"><div>
+        <h4>Pick a result your team has presented</h4>
+        <p>A model, a forecast, a strategy, anything with a headline number that went to someone senior. Write the headline number down, and beside it write the number of alternatives that were tried before it. If nobody can produce the second number, write "unknown", and notice how that changes the first.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Ask how many were tried, out loud</h4>
+        <p>Not as an accusation. As the first question. The honest answer is usually larger than the presenter thinks, because parameter sweeps, feature variants and discarded versions are all trials. Count them with the presenter, in the room.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Ask what the split respected</h4>
+        <p>Was the test period after the training period, with a gap? Or were the rows shuffled, which is what every tabular tool does by default? Session 4 draws the mechanism by which a shuffled split leaks; for tonight, write down which one was used.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Ask what a trade cost</h4>
+        <p>If the number is gross of costs, it is not yet a number. Ask for the cost per trade and the number of trades, and multiply. Session 5 shows what that multiplication does to a small edge.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Hold the headline against 0.71</h4>
+        <p>One Sharpe estimate on two years of daily data has a standard deviation of about 0.71 when there is nothing there. Divide the headline by that and say the result out loud. Then remember that the division only applies if N was 1.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Commit to a guess about Marlow Street</h4>
+        <p>The researcher tried about a hundred rules and presented a 1.8. Write down, as a single number, what you expect the strategy to earn in the year after funding, in Sharpe units. Do not hedge it. Session 3 checks the guess against the generator, where the truth is known.</p>
+      </div></div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> When someone hands you a backtest, do not ask whether the number is good. Ask what it is the best of. A 1.8 that is the best of one is a finding. A 1.8 that is the best of a hundred is the expected result of looking, and the generator will produce it for you on a random walk any time you like.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">Marlow Street's researcher presents a rule with a two-year backtested Sharpe ratio of 1.8 and a small p-value. What is the first question the head should ask?</p>
+      <div class="qopt">A · Whether the p-value was computed with the right test</div>
+      <div class="qopt">B · How many rules were tried before this one, since the best of 100 random rules on a random walk reports 1.80 in-sample and earns nothing afterwards</div>
+      <div class="qopt">C · Whether the strategy can be scaled to a larger budget</div>
+      <q class="qwhy">The p-value is correct for one trial and meaningless for the best of many. The generator shows that 1.80 is the expected best-of-100 result when nothing is there, so the number cannot be read until N is known. Scale is a session 5 question and comes after.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">Why does the experiment instinct misfire on a backtest, even for a leader who reads A/B tests well?</p>
+      <div class="qopt">A · Because financial data is noisier than product data</div>
+      <div class="qopt">B · Because backtests use a different statistic</div>
+      <div class="qopt">C · Because a backtest has no control group, no fresh draw of the past, and a rule that was chosen by reading the same path it is scored on</div>
+      <q class="qwhy">All three experimental supports are absent at once. Noise is real but is not the structural difference, and the statistic is just a ratio. The loop that runs backwards onto the same data is what makes a backtest a different kind of object.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">A rule with no information tried once on two years of daily data reports a Sharpe ratio of 1.0. How surprising is that?</p>
+      <div class="qopt">A · Not very: one estimate on 503 daily observations has a standard deviation of about 0.71 when there is nothing there, so 1.0 is about one and a half standard deviations from zero</div>
+      <div class="qopt">B · Very: a Sharpe ratio of 1.0 is strong evidence of skill on any sample</div>
+      <div class="qopt">C · Impossible: a rule with no information must report exactly zero</div>
+      <q class="qwhy">The ruler is 0.71, and the practitioner track measures it. A single 1.0 is a mild result on two years, and only if it was the only trial. Option C confuses the expected value with one draw.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before session 2</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">Twenty minutes, on a result your own team has reported and on the guess you just wrote down.</p>
+    <div class="steps">
+      <div class="step"><div>
+        <h4>Write the three answers for one real result</h4>
+        <p>How many were tried, what the split respected, what a trade (or an action) cost. One line each. Mark the ones nobody could answer.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Bring the guess you committed to</h4>
+        <p>Your single number for what Marlow Street's 1.8 earns in the year after funding. Session 3 puts it against the generator and session 2 explains why the market makes it worse than the generator does.</p>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">What a backtest is</span><span class="note">One realised path, no control, no rerun, and a rule chosen by reading the path it is scored on.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The Sharpe ratio, defined</span><span class="note">Sharpe 1994 read at source: ex ante and ex post forms, the 1966 origin, and "not independent of the time period".</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The noise in one estimate</span><span class="note">About 0.71 annualised on 503 daily observations with no alpha by formula; 0.70 measured over 200 generated worlds.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The best of N on nothing</span><span class="note">-0.01, 1.04, 1.80, 2.33 in-sample for N of 1, 10, 100, 1,000; out of sample within noise of zero. 200 trials each.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The 2014 Notices paper</span><span class="note">Seven configurations give an expected in-sample Sharpe of 1 on two years; forty-five on five years. Read at source.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Three questions to ask first</span><span class="note">How many were tried, what the split respected, what a trade cost.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Why the market makes it worse</span><span class="note">Adversarial, reflexive, decaying. Session 2.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">The haircut that undoes selection</span><span class="note">Named tonight. Session 3 for leaders, practitioner session 4 for the formula.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Rolling-origin evaluation of a forecast</span><span class="note">Lives in learn-timeseries-forecasting-with-phoebe, builder session 8.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Any market, price, instrument or trade</span><span class="note">Out of scope by design. Nothing here is investment advice, and no figure describes a real market.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>The one sentence.</strong> A backtest is one history, read once, by someone who chose the rule after reading it.</div>
+      <div class="cheat-item"><strong>The three absences.</strong> No control group, no fresh draw of the past, no design fixed before the data.</div>
+      <div class="cheat-item"><strong>The ruler.</strong> One Sharpe estimate on two years of daily data: standard deviation about 0.71 when nothing is there.</div>
+      <div class="cheat-item"><strong>The best of N.</strong> 1.04 at 10, 1.80 at 100, 2.33 at 1,000, on a random walk. Out of sample: zero, every time.</div>
+      <div class="cheat-item"><strong>The paper.</strong> Seven configurations give an expected in-sample Sharpe of 1 on two years. Forty-five on five.</div>
+      <div class="cheat-item"><strong>Question 1.</strong> How many did you try? A number, including the discarded ones.</div>
+      <div class="cheat-item"><strong>Questions 2 and 3.</strong> What did the split respect? What did a trade cost?</div>
+      <div class="cheat-item"><strong>The disagreement.</strong> Overfit rules earn nothing on series without memory, and may earn less than nothing on series with it. Say which.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Leader session 1 of 6 · learn-quant-trading-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="../index.html">← All sessions</a>
+        <a href="a2-the-market-is-not-a-customer.html">Leader session 2 · The market is not a customer →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/qt-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof QT === "undefined") return;
+  var selN = document.getElementById("a1-n");
+  var selT = document.getElementById("a1-trials");
+  var out = document.getElementById("a1-out");
+  var verdict = document.getElementById("a1-verdict");
+  var self = document.getElementById("a1-self");
+
+  function render() {
+    var N = Number(selN.value), trials = Number(selT.value);
+    out.innerHTML = '<p class="sql-note">Running ' + trials + ' worlds with ' + N + ' rules each...</p>';
+    setTimeout(function () {
+      /* the canon seeds: ladder A uses seed0 = 10000 * N, so at 200 trials the box prints the course map's numbers */
+      var r = QT.ladderRung({ N: N, trueSR: 0, method: "walkforward" }, trials, 10000 * N);
+      var html = '<table class="sql-table"><thead><tr><th>Quantity</th><th>Value</th><th>What it is</th></tr></thead><tbody>';
+      html += "<tr><td>Best in-sample Sharpe ratio</td><td><b>" + r.isSR.toFixed(2) + "</b></td><td>the number that gets presented, annualised</td></tr>";
+      html += '<tr><td>The same rule, out of sample</td><td><b class="a1-oos">' + r.oosSR.toFixed(2) + "</b></td><td>what it earned on the 252 days it never saw</td></tr>";
+      html += "<tr><td>Rules tried</td><td>" + N + "</td><td>none with any information</td></tr>";
+      html += "<tr><td>Worlds averaged</td><td>" + trials + "</td><td>" + (trials === 200 ? "the canon trial count" : "a quick look; 200 is the canon") + "</td></tr>";
+      html += "</tbody></table>";
+      out.innerHTML = html;
+      var gap = r.isSR - r.oosSR;
+      verdict.textContent = N === 1
+        ? "With one rule there is no selection, so the in-sample figure is one noisy estimate of zero and the out-of-sample figure is another. The two differ by noise alone."
+        : "Picking the best of " + N + " rules on nothing produced an in-sample Sharpe ratio of " + r.isSR.toFixed(2) + ". The same rule earned " + r.oosSR.toFixed(2) + " afterwards, a drop of " + gap.toFixed(2) + ". The first number measures how hard you looked; the second measures what was there.";
+    }, 20);
+  }
+
+  var t = QT.selfTest();
+  self.textContent = t.ok
+    ? "The generator's six properties pass in this browser, so the figures above are the figures any correct run gives. Synthetic data only: nothing here describes a real market, and nothing here is investment advice."
+    : "The generator's self test did not pass in this browser, so nothing above should be believed.";
+
+  selN.addEventListener("change", render);
+  selT.addEventListener("change", render);
+  render();
+})();
+</script>
+<style>
+  #a1-bestof .sql-code { border: 1px solid var(--hairline); border-radius: 8px; max-width: 24rem; }
+  #a1-bestof table.sql-table { margin: .6rem 0 .2rem; font-size: .85rem; }
+  #a1-bestof .a1-oos { color: var(--amber); }
+</style>
+</body>
+</html>

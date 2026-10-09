@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Practitioner session 10 of 10. The whole generator live in the page: pick the best of N rules on nothing or on a planted edge, deflate it, charge costs, shuffle the split and watch the leak appear. An anti-lever and a break button. Synthetic data only, not investment advice.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="The backtest bench - learn quant with phoebe">
+<meta property="og:description" content="Practitioner session 10 of 10. Deploy the best in-sample rule and the out-of-sample figure is lower on every rung. Shuffle time order and a zero-alpha rule reports 0.65.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/courses/p10-the-backtest-bench.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The backtest bench - learn quant with phoebe">
+<meta name="twitter:description" content="Every ladder, driven by you, with the truth as a dial.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Practitioner session 10 · The backtest bench - learn quant with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-quant-trading-with-phoebe</a> / Practitioner session 10 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Quant Trading with Phoebe · Practitioner session 10 of 10</div>
+    <h1>The backtest <span class="accent">bench</span></h1>
+    <p class="sub">Nine sessions took the backtest apart one fault at a time. This one puts the whole generator in front of you with every dial exposed. Choose how many rules to try, whether one of them is real and how real, what a trade costs, and how the split is made; then read the in-sample figure beside the out-of-sample one, the deflated verdict beside the naive one, and the share of worlds where the real rule was the one you kept. There is a button that deploys the best in-sample rule, which is the mistake, and a button that shuffles time order inside the split, which breaks the bench on purpose and proves what it measures. Synthetic data only; nothing here is investment advice.</p>
+    <div class="chip-row">
+      <span class="chip level">🔴 Hardest</span>
+      <span class="chip audience">Anyone who will build or check a backtest</span>
+      <span class="chip audience">Anyone who has to defend one of its numbers</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-18 · The selection bench</span>
+      <span class="a3" style="flex:4">18-34 · The split bench</span>
+      <span class="a4" style="flex:3">34-45 · Write the brief and close</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Where this lands</h2>
+    </div>
+    <p class="lede">Session 1 built the null and session 2 the strategy. Sessions 3 and 4 measured the best of N and implemented the deflated Sharpe ratio; 5 and 6 made the split respect time and planted a real signal; 7, 8 and 9 charged costs, planted survivorship and lookahead, and sized the position until the mean and the median parted. Everything below runs from the same <span class="mono">assets/qt-live.js</span>, whose six properties are checked on load, including the one that only exists because it caught a purge that had quietly become a no-op.</p>
+
+    <div class="legend">
+      <span class="pill">Live = worked through in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with today.</strong> Two numbers you can quote from memory because you produced them: what the best of a hundred rules reports on nothing, and what a real edge of 1.5 is worth after a hundred competitors and a deflation. A feel for which dials move the answer and which do nothing, which is the difference between understanding a method and having read about it. The reason a shuffled split lifts a zero-alpha rule to 0.65 and a walk-forward split does not. And a short written brief for a backtest, in the form somebody else could check. Nothing here is advice on what to buy, sell or trade.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>What the two benches recompute on every press<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The selection bench builds a world, builds N rules, scores each on the first two thirds of the days, keeps the best, scores that one on the last third, and asks two questions of it: is its in-sample figure significant against zero, and is it significant against the expected maximum of N null trials. It does this for as many worlds as you ask and reports means with the count. If you plant a real rule, it also reports how often the rule you kept was the real one.</p>
+        <p>The split bench holds N at 100 and alpha at zero and changes only how the days are divided into training and test: by time, by contiguous blocks, or by shuffling, with and without a purge and an embargo. Nothing here describes a real market. The worlds are generated, the alpha is a dial, and the only real things in the page are the algorithms run over them.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · the selection bench</span>
+      <h2>What the best of N is worth, before and after the haircut</h2>
+      <span class="tag build">15 min hands on</span>
+    </div>
+    <p class="lede">Four dials. Change one at a time and predict the direction before you press. A dial whose sign you cannot predict is one you do not yet understand, and finding that out here costs a second rather than a quarter.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 440" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn schematic of the selection bench. A hatched pile on the left labelled N rules, one of them possibly real. An arrow into a gate box labelled keep the best on the first 503 days. From the gate, two dials: the in-sample dial reads 1.80 and the out-of-sample dial reads minus 0.06, labelled best of 100 on nothing. Below, a haircut bar: the deflation threshold SR star of 1.80 drawn as a steel bar the in-sample reading has to clear, with the verdict 0 of 200 worlds pass. A steel button labelled deploy the best in-sample is the anti-lever. A measured band underneath lists the ladder: in-sample 1.04, 1.80, 2.33 for N of 10, 100, 1,000 against out-of-sample 0.14, minus 0.06, 0.02, and the planted ladder where a real 1.5 among 100 is kept 32 percent of the time and almost never survives deflation.">
+        <defs>
+          <filter id="p10aSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="61" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p10aHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#7A1F3D" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p10aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p10aH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .p10aL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .p10aS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .p10aB { font: 800 11px Inter, sans-serif; fill: #2A5068; }
+          .p10aA { font: 700 11px Inter, sans-serif; fill: #7A1F3D; }
+          .p10aV { font: 800 18px Inter, sans-serif; fill: #4A1024; }
+          .p10aW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p10aN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="p10aH" x="30" y="26">THE SELECTION BENCH: A PILE, A GATE, TWO DIALS AND A HAIRCUT</text>
+
+        <g filter="url(#p10aSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- the pile -->
+          <path d="M40 200 C58 140 112 122 152 144 C184 162 196 186 200 200 Z" fill="url(#p10aHc)"/>
+          <!-- one real rule in the pile, a small steel dot -->
+          <circle cx="150" cy="178" r="6" fill="#3B6E8F" stroke="#3B6E8F"/>
+          <!-- arrow to the gate -->
+          <path d="M206 172 L250 172" marker-end="url(#p10aAr)"/>
+          <!-- the gate -->
+          <rect x="254" y="140" width="170" height="64" rx="7" transform="rotate(-0.7 339 172)" fill="#FFFFFF"/>
+          <!-- arrows to the dials -->
+          <path d="M428 160 C470 130 490 110 520 100" marker-end="url(#p10aAr)"/>
+          <path d="M428 184 C470 214 490 234 520 244" marker-end="url(#p10aAr)"/>
+          <!-- in-sample dial -->
+          <circle cx="580" cy="90" r="36" fill="#FAF0F3"/>
+          <path d="M580 90 L604 68" stroke="#7A1F3D" stroke-width="2.6"/>
+          <!-- out-of-sample dial -->
+          <circle cx="580" cy="250" r="36" fill="#EAF1F6" stroke="#3B6E8F"/>
+          <path d="M580 250 L554 258" stroke="#3B6E8F" stroke-width="2.6"/>
+          <!-- the haircut bar: threshold -->
+          <rect x="660" y="60" width="26" height="110" rx="4" transform="rotate(0.8 673 115)" fill="#3B6E8F" stroke="#3B6E8F"/>
+          <!-- the in-sample reading as a burgundy bar beside it, same height -->
+          <rect x="700" y="60" width="26" height="110" rx="4" transform="rotate(-0.6 713 115)" fill="#7A1F3D" stroke="#7A1F3D"/>
+          <path d="M640 170 L750 170" stroke-width="2.5"/>
+          <!-- the anti-lever button -->
+          <rect x="650" y="228" width="200" height="40" rx="20" transform="rotate(-0.5 750 248)" fill="#3B6E8F" stroke="#3B6E8F"/>
+          <!-- measured band -->
+          <rect x="30" y="300" width="820" height="118" rx="8" transform="rotate(0.2 440 359)" fill="#FAF0F3"/>
+        </g>
+
+        <text class="p10aL" x="120" y="222" text-anchor="middle">N rules, scored on 503 days</text>
+        <text class="p10aB" x="120" y="238" text-anchor="middle">the steel dot is the one real rule, if any</text>
+        <text class="p10aL" x="339" y="168" text-anchor="middle">keep the best</text>
+        <text class="p10aS" x="339" y="184" text-anchor="middle">by in-sample Sharpe ratio</text>
+
+        <text class="p10aV" x="580" y="40" text-anchor="middle">1.80</text>
+        <text class="p10aS" x="580" y="142" text-anchor="middle">in-sample, best of 100 on nothing</text>
+        <text class="p10aV" x="580" y="304" text-anchor="middle">-0.06</text>
+        <text class="p10aS" x="580" y="206" text-anchor="middle">the same rule, next 252 days</text>
+
+        <text class="p10aB" x="673" y="50" text-anchor="middle">SR*</text>
+        <text class="p10aA" x="713" y="50" text-anchor="middle">best</text>
+        <text class="p10aS" x="770" y="90">the haircut:</text>
+        <text class="p10aS" x="770" y="106">in-sample must</text>
+        <text class="p10aS" x="770" y="122">clear SR*, the</text>
+        <text class="p10aS" x="770" y="138">expected best</text>
+        <text class="p10aS" x="770" y="154">of N on nothing</text>
+        <text class="p10aB" x="770" y="174">1.80 vs 1.80</text>
+        <text class="p10aB" x="695" y="190" text-anchor="middle">0 of 200 worlds pass</text>
+        <text class="p10aW" x="750" y="253" text-anchor="middle">deploy the best in-sample</text>
+        <text class="p10aS" x="750" y="286" text-anchor="middle">the anti-lever: out of sample is lower on every rung</text>
+
+        <text class="p10aB" x="46" y="324">MEASURED, 200 WORLDS PER RUNG, WALK-FORWARD 503 THEN 252 DAYS</text>
+        <text class="p10aS" x="46" y="346">On nothing: best in-sample 1.04, 1.80, 2.33 for N of 10, 100, 1,000. Out of sample 0.14, -0.06, 0.02. Deflated passes: 0, 0, 0.</text>
+        <text class="p10aS" x="46" y="366">A real 1.5 among 100: kept in 32.5 percent of worlds, out of sample 0.46, deflated passes 0. A real 3.0: kept 90.5 percent, passes 34.5 percent.</text>
+        <text class="p10aA" x="46" y="388">Every rule that ever passed the deflated test was the real one. Deflation keeps its promise on false positives and pays for it in power.</text>
+        <text class="p10aS" x="46" y="406">The cure for the power is history: the same real 1.5 among 100 passes 94 percent of the time on 24 years, and 3 percent on 3 (100 worlds each).</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the two bars on the right are the same height by construction: the expected best of N on nothing is exactly what the best of N on nothing reports.</figcaption>
+    </figure>
+
+    <div class="wk" id="p10-a">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">The generator, the rules, the selection, the probabilistic and deflated Sharpe ratios, running in this page. Means over the worlds you choose; at the canon settings the box prints the canon numbers.</span>
+      </div>
+      <div class="wk-body">
+        <label class="sql-label" for="p10a-n">Rules tried, N</label>
+        <select class="sql-code" id="p10a-n">
+          <option value="1">1</option>
+          <option value="10">10</option>
+          <option value="100" selected>100</option>
+          <option value="1000">1,000</option>
+        </select>
+        <label class="sql-label" for="p10a-alpha">Real Sharpe ratio of one planted rule (0 means nothing is real)</label>
+        <select class="sql-code" id="p10a-alpha">
+          <option value="0" selected>0, nothing is real</option>
+          <option value="0.5">0.5</option>
+          <option value="1">1.0</option>
+          <option value="1.5">1.5</option>
+          <option value="2">2.0</option>
+          <option value="3">3.0</option>
+        </select>
+        <label class="sql-label" for="p10a-cost">Cost per unit of position change: <b id="p10a-cost-val">0</b> basis points</label>
+        <input class="sql-code" id="p10a-cost" type="range" min="0" max="20" step="1" value="0">
+        <label class="sql-label" for="p10a-trials">Worlds to average over</label>
+        <select class="sql-code" id="p10a-trials">
+          <option value="20" selected>20, quick</option>
+          <option value="50">50</option>
+          <option value="200">200, the full canon (a few seconds at 1,000 rules)</option>
+        </select>
+        <div style="margin:.6rem 0 .2rem"><button class="btn primary" id="p10a-deploy" type="button">Deploy the best in-sample rule</button></div>
+        <div id="p10a-out"></div>
+        <p class="sql-note" id="p10a-verdict">...</p>
+      </div>
+      <div class="wk-foot" id="p10a-self">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The five runs worth doing first<span class="mini">5 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Leave everything alone and press deploy.</strong> 100 rules, nothing real, no cost. At 200 worlds the kept rule reports 1.80 in-sample and -0.06 out of sample, the naive test passes in 99.5 percent of worlds and the deflated test in none. The deploy button prints the two Sharpe figures side by side with the drop between them, which is what funding the best in-sample rule costs.</li>
+          <li><strong>Take N to 1,000.</strong> In-sample 2.33, out of sample 0.02. The first number is a function of how hard you looked. The second is a function of what was there.</li>
+          <li><strong>Plant a real 1.5 and keep N at 100.</strong> The real rule is the one you keep in 32.5 percent of worlds; the kept rule earns 0.46 out of sample; the deflated test passes in 0 percent of worlds. The haircut that killed every false positive also killed the real one.</li>
+          <li><strong>Plant a real 3.0.</strong> Kept 90.5 percent of the time, out of sample 2.71, deflated passes 34.5 percent. And every world where the deflated test passed, the rule that passed was the real one: the false discovery rate after deflation is 0.000 on every planted rung.</li>
+          <li><strong>Set N to 1, alpha to 1.0, and drag the cost to 20.</strong> A real edge of 1.0 with no competition reads 1.01 gross, 0.69 at 5 basis points, 0.37 at 10, and -0.30 at 20. Costs do to a real edge what selection does to a false one, from the other side.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Why the false discovery rate after deflation is exactly zero here<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Across every planted rung, every rule that cleared the deflated test was the planted one. That is not a coincidence of seeds. The deflated threshold is the expected maximum of N null trials, and a random rule has to beat not only that threshold but every other random rule to be the one kept. The two filters compound, and on this generator the product is zero false discoveries in 1,000 planted worlds.</p>
+        <p>The price is power. A real 1.5 among 100 competitors on two years of training data passes the deflated test in none of 200 worlds (1.5 to 3 percent on two other seed ranges); it needs to be the best of the hundred and clear 1.84, and it is only the best a third of the time. The ladder with more history shows the only cure: on 12 years the same real rule passes 45 percent of the time, on 24 years 94 percent. History cannot be manufactured, which is the whole content of the minimum backtest length in the 2014 Notices paper.</p>
+        <p>Be careful with the sentence "deflation works". It works at the thing it promises, which is false positives. A desk that reads "0 passes" as "there is nothing here" has confused a power problem with an absence. The honest sentence is: at this N and this sample length the test cannot distinguish a real 1.5 from noise, and no test can.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The canon seeds, so your 200 worlds are the canon 200 worlds<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Every canon rung was run with a fixed first seed, and the box uses the same one whenever your settings match a canon rung: 10,000 times N for nothing real and no cost; 50,000 plus ten times the planted Sharpe for one real rule among 100; 60,000 plus N for a real 1.5 against a crowd; 70,000 plus the cost for a real 1.0 alone. Any other combination uses seed 12,345 and the box says so. At 200 worlds the canon cells print the canon figures to the last digit, and the Python reference reproduces them to 3.3e-13.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · the split bench</span>
+      <h2>What shuffling time order leaks, and what purging recovers</h2>
+      <span class="tag build">16 min hands on</span>
+    </div>
+    <p class="lede">Hold N at 100 and alpha at zero, so that the honest out-of-sample answer is known to be nothing. Then change only how the days are divided. One of the settings is the default of every tabular machine-learning tool, and it is the one that reports a finding.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 452" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn schematic of three ways to split 755 observations. Top row, walk-forward: a long bar with the first two thirds marked train and the last third marked test, separated by a gap. Middle row, shuffled k-fold: the same bar diced into small alternating train and test pieces; under three of the pieces, five-day spans are drawn as overlapping brackets, and where a test span overlaps a train span the overlap is hatched in steel and labelled shared days. Bottom row, the purge: the same shuffled bar with the training pieces next to each test piece struck out, labelled removed because their span touches a test span. A measured band says that with five-day observations the shuffled split reports 0.65 out of sample on nothing, the walk-forward split minus 0.07, and purging brings the shuffled split back to minus 0.02 while leaving 141 of 601 training observations.">
+        <defs>
+          <filter id="p10bSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="67" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p10bHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3B6E8F" stroke-width="1" opacity=".5"/></pattern>
+        </defs>
+        <style>
+          .p10bH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .p10bL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .p10bS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .p10bB { font: 800 11px Inter, sans-serif; fill: #2A5068; }
+          .p10bA { font: 700 11px Inter, sans-serif; fill: #7A1F3D; }
+          .p10bW { font: 800 11px Inter, sans-serif; fill: #FFFFFF; }
+          .p10bN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="p10bH" x="30" y="26">THREE WAYS TO DIVIDE THE SAME 755 OBSERVATIONS, AND WHAT EACH ONE LETS THROUGH</text>
+
+        <g filter="url(#p10bSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- row 1: walk-forward -->
+          <rect x="150" y="56" width="440" height="30" rx="4" transform="rotate(-0.3 370 71)" fill="#FAF0F3"/>
+          <rect x="606" y="56" width="214" height="30" rx="4" transform="rotate(0.4 713 71)" fill="#EAF1F6" stroke="#3B6E8F"/>
+          <!-- row 2: shuffled -->
+          <rect x="150" y="136" width="56" height="30" rx="3" fill="#FAF0F3"/>
+          <rect x="210" y="136" width="30" height="30" rx="3" fill="#EAF1F6" stroke="#3B6E8F"/>
+          <rect x="244" y="136" width="70" height="30" rx="3" fill="#FAF0F3"/>
+          <rect x="318" y="136" width="30" height="30" rx="3" fill="#EAF1F6" stroke="#3B6E8F"/>
+          <rect x="352" y="136" width="44" height="30" rx="3" fill="#FAF0F3"/>
+          <rect x="400" y="136" width="30" height="30" rx="3" fill="#EAF1F6" stroke="#3B6E8F"/>
+          <rect x="434" y="136" width="90" height="30" rx="3" fill="#FAF0F3"/>
+          <rect x="528" y="136" width="30" height="30" rx="3" fill="#EAF1F6" stroke="#3B6E8F"/>
+          <rect x="562" y="136" width="258" height="30" rx="3" fill="#FAF0F3"/>
+          <!-- spans under three pieces: a train span and a test span overlapping -->
+          <path d="M186 184 L186 194 L246 194 L246 184"/>
+          <path d="M214 200 L214 210 L274 210 L274 200" stroke="#3B6E8F"/>
+          <rect x="214" y="186" width="32" height="6" fill="url(#p10bHc)" stroke="none"/>
+          <path d="M376 184 L376 194 L436 194 L436 184"/>
+          <path d="M404 200 L404 210 L464 210 L464 200" stroke="#3B6E8F"/>
+          <rect x="404" y="186" width="32" height="6" fill="url(#p10bHc)" stroke="none"/>
+          <!-- row 3: purged shuffled -->
+          <rect x="150" y="266" width="56" height="30" rx="3" fill="#FAF0F3"/>
+          <rect x="210" y="266" width="30" height="30" rx="3" fill="#EAF1F6" stroke="#3B6E8F"/>
+          <rect x="244" y="266" width="70" height="30" rx="3" fill="#FFFFFF" stroke="#DCC9CF"/>
+          <rect x="318" y="266" width="30" height="30" rx="3" fill="#EAF1F6" stroke="#3B6E8F"/>
+          <rect x="352" y="266" width="44" height="30" rx="3" fill="#FFFFFF" stroke="#DCC9CF"/>
+          <rect x="400" y="266" width="30" height="30" rx="3" fill="#EAF1F6" stroke="#3B6E8F"/>
+          <rect x="434" y="266" width="90" height="30" rx="3" fill="#FAF0F3"/>
+          <rect x="528" y="266" width="30" height="30" rx="3" fill="#EAF1F6" stroke="#3B6E8F"/>
+          <rect x="562" y="266" width="258" height="30" rx="3" fill="#FAF0F3"/>
+          <!-- strike-outs on the removed training pieces -->
+          <path d="M150 262 L206 300" stroke="#7A1F3D" stroke-width="1.6" data-strike="1"/>
+          <path d="M244 262 L314 300" stroke="#7A1F3D" stroke-width="1.6" data-strike="1"/>
+          <path d="M352 262 L396 300" stroke="#7A1F3D" stroke-width="1.6" data-strike="1"/>
+          <path d="M434 262 L470 300" stroke="#7A1F3D" stroke-width="1.6" data-strike="1"/>
+          <path d="M562 262 L598 300" stroke="#7A1F3D" stroke-width="1.6" data-strike="1"/>
+          <!-- measured band -->
+          <rect x="30" y="330" width="820" height="106" rx="8" transform="rotate(-0.2 440 383)" fill="#FAF0F3"/>
+        </g>
+
+        <text class="p10bL" x="40" y="76">walk-forward</text>
+        <text class="p10bS" x="370" y="106" text-anchor="middle">train, 503 observations in time order</text>
+        <text class="p10bB" x="713" y="106" text-anchor="middle">test, the next 252</text>
+
+        <text class="p10bL" x="40" y="156">shuffled k-fold</text>
+        <text class="p10bS" x="40" y="172">the tool default</text>
+        <text class="p10bA" x="500" y="208">a five-day test span shares four days with its train neighbour</text>
+        <text class="p10bS" x="500" y="224">the kept rule was chosen on those shared days, then scored on them again</text>
+
+        <text class="p10bL" x="40" y="286">shuffled, purged</text>
+        <text class="p10bS" x="40" y="302">neighbours removed</text>
+        <text class="p10bA" x="500" y="318">struck: training rows whose span touches a test span</text>
+
+        <text class="p10bB" x="46" y="354">MEASURED, 100 WORLDS PER ROW, 100 RULES, NOTHING REAL, FIVE-DAY OBSERVATIONS</text>
+        <text class="p10bS" x="46" y="376">Walk-forward: out of sample -0.07. Blocked folds, no purge: -0.05. Shuffled folds, no purge: 0.65. Shuffled, purged: -0.02 with 141 of 601 training rows left.</text>
+        <text class="p10bS" x="46" y="396">Blocked, purged: 0.06. Blocked, purged, embargo of 5: -0.10. With one-day observations the shuffled split leaks nothing visible: 0.10 against -0.05.</text>
+        <text class="p10bA" x="46" y="418">The leak needs overlap. The purge removes it on any split; on a shuffled split it also removes three quarters of the data.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the steel hatching under the middle row is the whole mechanism: days that were used to choose the rule and then used again to score it.</figcaption>
+    </figure>
+
+    <div class="wk" id="p10-b">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">100 rules on nothing, 755 observations, divided the way you choose. The out-of-sample figure should be zero. When it is not, the split let something through.</span>
+      </div>
+      <div class="wk-body">
+        <label class="sql-label" for="p10b-method">How the observations are divided</label>
+        <select class="sql-code" id="p10b-method">
+          <option value="walkforward" selected>Walk-forward, first two thirds then the rest</option>
+          <option value="blocked">Blocked k-fold, five contiguous blocks</option>
+          <option value="shuffled">Shuffled k-fold, five random folds</option>
+        </select>
+        <label class="sql-label" for="p10b-h">Days each position is held, so observations overlap when above 1: <b id="p10b-h-val">1</b></label>
+        <input class="sql-code" id="p10b-h" type="range" min="1" max="10" step="1" value="1">
+        <label class="sql-label" for="p10b-purge">Purge training observations whose span touches a test span</label>
+        <select class="sql-code" id="p10b-purge">
+          <option value="0" selected>No</option>
+          <option value="1">Yes</option>
+        </select>
+        <label class="sql-label" for="p10b-embargo">Embargo, extra training observations dropped after each test block: <b id="p10b-embargo-val">0</b></label>
+        <input class="sql-code" id="p10b-embargo" type="range" min="0" max="10" step="1" value="0">
+        <label class="sql-label" for="p10b-trials">Worlds to average over</label>
+        <select class="sql-code" id="p10b-trials">
+          <option value="20" selected>20, quick</option>
+          <option value="100">100, the full canon</option>
+        </select>
+        <div style="margin:.6rem 0 .2rem"><button class="btn primary" id="p10b-break" type="button">Break it: shuffle time order on five-day observations</button></div>
+        <div id="p10b-out"></div>
+        <p class="sql-note" id="p10b-verdict">...</p>
+      </div>
+      <div class="wk-foot" id="p10b-self">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The four runs worth doing first<span class="mini">5 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Leave everything alone.</strong> Walk-forward, one-day holds, 100 worlds. The kept rule reports 1.78 in-sample and -0.05 out of sample: a search found the best of a hundred coin flips and the coin kept flipping.</li>
+          <li><strong>Press the break button.</strong> It sets shuffled folds, five-day holds, no purge. Out of sample climbs to 0.65 on nothing. The split did not create alpha; it let the rule be scored on days it was chosen on. This is the setting every tabular tool produces by default, and it is the one that reports a finding.</li>
+          <li><strong>Switch the purge on, leaving the shuffle.</strong> Out of sample falls back to -0.02 and the training set falls from 601 to 141 observations. The in-sample figure jumps to 2.77, because the best of a hundred estimates on 141 observations is a large number. Purging a shuffled split is correct and expensive.</li>
+          <li><strong>Choose blocked folds, purge on, hold at 5.</strong> Out of sample 0.06, training 597. The purge costs four observations instead of 460. Then add an embargo of 5 and watch it change nothing measurable: the signal's serial correlation is already handled by the span-level purge on this world, and the honest statement is that the bench cannot show the embargo's effect here.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Reading the leak as a mechanism, not a number<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>An observation with a five-day hold earns the sum of the next five days' returns. Two observations one day apart share four of those five days, and with an AR(1) signal they usually hold the same position, so their pnl is nearly the same number twice. Shuffle the days into folds and about a fifth of every test observation's neighbours are in the training set. The rule that was picked for doing well on those neighbours does well on the test observation for the same reason, and the out-of-sample figure stops measuring the future.</p>
+        <p>Set the hold to 1 and shuffle and nothing visible happens (0.10 against -0.05, within trial noise), because one-day observations share no days. The leak is not a property of shuffling. It is a property of shuffling observations that overlap, which is why the fix is the purge: remove from training anything whose span touches a test span, which is what Lopez de Prado's purged k-fold does, described in his 2018 book and implemented here from that description.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>What the bench cannot show, and says so<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The embargo exists to absorb serial correlation that outlives the span: features whose influence carries past the label window. On this generator the signal's memory is inside the span the purge already removes, so the embargo rows read -0.10 against 0.06, which is trial noise at 100 worlds. The right sentence is that the bench cannot show the embargo's effect on this world, not that the embargo does nothing. A world with slower features would show it, and building one is the homework.</p>
+        <p>The same honesty applies to the blocked split without a purge: -0.05, indistinguishable from the walk-forward's -0.07. The leak at block edges is real and too small to see at this size. A bench that reported it as zero would be reporting a limit of its own resolution as a fact about the method.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · the brief</span>
+      <h2>What you write down</h2>
+      <span class="tag demo">11 min live</span>
+    </div>
+    <p class="lede">Both benches point at the same discipline: the number you present has to arrive with the things that bound it. Ten minutes, on a backtest you actually have, in four lines somebody else could check.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn brief card with four ruled lines. Line one, the count: N rules tried, including the discarded, and the expected best of N on nothing at this sample length. Line two, the split: time order, hold length, purge and embargo stated. Line three, the costs: basis points per trade and turnover, with the net figure beside the gross. Line four, the size: leverage, the median path and the drawdown, never the mean alone. A stamp on the right reads synthetic data, not advice.">
+        <defs>
+          <filter id="p10cSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="71" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p10cHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#7A1F3D" stroke-width="1" opacity=".5"/></pattern>
+        </defs>
+        <style>
+          .p10cH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .p10cL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .p10cS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .p10cB { font: 800 11px Inter, sans-serif; fill: #2A5068; }
+          .p10cN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="p10cH" x="30" y="26">THE BRIEF: FOUR LINES, EACH WITH A NUMBER AND THE THING THAT BOUNDS IT</text>
+
+        <g filter="url(#p10cSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="34" y="46" width="640" height="212" rx="8" transform="rotate(-0.4 354 152)" fill="#FFFFFF"/>
+          <path d="M60 96 L650 96" stroke="#DCC9CF"/>
+          <path d="M60 140 L650 140" stroke="#DCC9CF"/>
+          <path d="M60 184 L650 184" stroke="#DCC9CF"/>
+          <path d="M60 228 L650 228" stroke="#DCC9CF"/>
+          <!-- the stamp -->
+          <rect x="700" y="100" width="150" height="90" rx="8" transform="rotate(-6 775 145)" fill="url(#p10cHc)" stroke="#7A1F3D"/>
+        </g>
+
+        <text class="p10cL" x="60" y="72">1 · The count.</text>
+        <text class="p10cS" x="170" y="72">N rules tried, discarded ones included. Expected best of N on nothing at this length.</text>
+        <text class="p10cL" x="60" y="116">2 · The split.</text>
+        <text class="p10cS" x="170" y="116">Time order or not. Hold length. Purge and embargo, stated or absent.</text>
+        <text class="p10cL" x="60" y="160">3 · The costs.</text>
+        <text class="p10cS" x="170" y="160">Basis points per trade and turnover. Net figure beside the gross, never alone.</text>
+        <text class="p10cL" x="60" y="204">4 · The size.</text>
+        <text class="p10cS" x="170" y="204">Leverage, median path and drawdown. The mean alone is not a number.</text>
+        <text class="p10cB" x="60" y="248">A line without its bound is a claim. A line with one can be checked by a stranger.</text>
+        <text class="p10cB" x="775" y="134" text-anchor="middle" transform="rotate(-6 775 134)">synthetic data</text>
+        <text class="p10cB" x="775" y="164" text-anchor="middle" transform="rotate(-6 775 164)">not advice</text>
+
+        <text class="p10cN" x="30" y="286">Write it before the decision, while nothing is riding on it. The version written during an incident protects the number rather than the reader.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - each line pairs a figure with the thing that bounds it, which is the only form in which a backtest number can be read.</figcaption>
+    </figure>
+
+    <div class="steps">
+      <div class="step"><div>
+        <h4>State the count and the expected best of that many</h4>
+        <p>Not "a strategy with a Sharpe ratio of 1.8" but "the best of about 100 configurations on two years, where the expected best of 100 on nothing is 1.80". One sentence. If the count is unknown, write unknown, and notice that the number cannot then be read at all.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>State the split and what it respects</h4>
+        <p>"Walk-forward, train 503 days then test 252, five-day holds, purged at the boundary, no embargo." The second half of that sentence is the one that gets omitted, and it is the one that fails: a shuffled split on overlapping observations reports 0.65 on nothing.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>State the costs and the net figure</h4>
+        <p>"Gross 1.01, at 5 basis points per unit of turnover and 0.41 units a day, net 0.69." A real edge of 1.0 is gone by 15 basis points. The gross figure on its own is a number about a world without trading in it.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>State the size and the median path</h4>
+        <p>"At leverage 6 the mean terminal wealth over three years is 14.6 and the median is 4.8, with 98.5 percent of paths having lost half at some point." The mean alone, at leverage 12, is 71.5 with a median of 1.45. Which of those two numbers goes in the deck is the entire ethics of the job.</p>
+      </div></div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The two benches, on one card<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>Selection.</strong> The best of N on nothing climbs with N and never stops: 1.04, 1.80, 2.33 for 10, 100, 1,000. The deflated test kills every one of them and, on two years of data, kills a real 1.5 too. The only input that restores power is history, which cannot be manufactured.</p>
+        <p><strong>Splits.</strong> Shuffling time order lets a rule be scored on days it was chosen on, but only when observations overlap. The purge removes the leak on any split, and on a shuffled one it also removes most of the data. The cheap correct setting is blocked folds with a purge.</p>
+        <p>Both have the same shape: a quantity you can measure precisely, governed by a parameter you did not report, with a silent failure in between. That is the honest summary of working with a backtest, and it is more useful than either enthusiasm or dismissal.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">After the course</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">About an hour, on something real.</p>
+    <div class="steps">
+      <div class="step"><div>
+        <h4>Find N</h4>
+        <p>For one backtest your organisation has funded, find the number of configurations tried before it. If nobody can produce one, that is the finding, and it means the headline was read without its bound.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Build the world that shows the embargo</h4>
+        <p>Give the generator a signal whose influence outlives the hold: make the returns lean on the signal from two days back as well as one. Re-run the split bench and write down whether blocked-and-purged now leaks without an embargo. The bench on this page cannot show it; yours should.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Turn one defence off</h4>
+        <p>Pick a control that is producing a clean result in a pipeline you own and disable the other one. If the result does not move, you have found out something true about your own system for the price of one run.</p>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">You press "deploy the best in-sample rule" at N = 100 with nothing real. In-sample reads 1.80, out of sample reads -0.06. What does the drop measure?</p>
+      <div class="qopt">A · A change in the market between the two periods</div>
+      <div class="qopt">B · The selection itself: the first number is the expected maximum of 100 null estimates, which is what you get for looking, and the second is what was there, which was nothing</div>
+      <div class="qopt">C · A bug in the out-of-sample scorer</div>
+      <q class="qwhy">The world is a random walk with no regime change, and the scorer is the same function on both halves. The in-sample figure equals the deflation threshold SR* by construction, because both are the expected best of N on nothing. The drop is the price of having chosen.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">The break button sets shuffled folds, five-day holds and no purge, and the out-of-sample figure on nothing becomes 0.65. Set the hold to one day and the figure returns to noise. Why?</p>
+      <div class="qopt">A · Because one-day strategies trade too often for the leak to matter</div>
+      <div class="qopt">B · Because shuffling only works on long holds</div>
+      <div class="qopt">C · Because the leak needs overlap: a five-day test observation shares four days with a training neighbour, so the rule chosen on those days is scored on them again, while one-day observations share no days</div>
+      <q class="qwhy">The shuffle does not create alpha. It lets the same returns appear on both sides of the split, which only happens when observations span more than one day. The purge removes exactly those neighbours, which is why it brings the figure back to -0.02.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">A real 1.5 is planted among 100 rules on two years of training data. The deflated test passes in 0 of 200 worlds. What is the right reading?</p>
+      <div class="qopt">A · At this N and sample length the test cannot distinguish a real 1.5 from noise; the fix is more history, since the same rule passes 94 percent of the time on 24 years, and a 3-year sample almost never will</div>
+      <div class="qopt">B · Deflation is too strict and should be loosened until the real rule passes</div>
+      <div class="qopt">C · The planted rule was not really there</div>
+      <q class="qwhy">The rule is there by construction. Loosening the test would re-admit the false positives it was built to stop, and the bench shows it admitted none. Power comes from independent observations, which is the minimum backtest length argument, and nothing else supplies it.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered today</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Both benches driven by the reader</span><span class="note">N, planted alpha, cost, split method, hold, purge and embargo, all exposed as controls.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The anti-lever</span><span class="note">Deploy the best in-sample rule: out of sample lower on every rung above N = 1, by 1.9 at N = 100.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The break button</span><span class="note">Shuffled folds on five-day holds lift nothing to 0.65; one-day holds do not; the purge recovers it at the cost of three quarters of the data.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Deflation's promise and its price</span><span class="note">0 false discoveries on every planted rung; a real 1.5 among 100 passes 0 percent of 200 worlds on 3 years and 94 percent of 100 on 24.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Costs against a real edge</span><span class="note">A real 1.0 reads 0.69 at 5 basis points and -0.30 at 20, at 0.41 units of turnover a day.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">A written brief with four required lines</span><span class="note">The count, the split, the costs, the size, each with the thing that bounds it.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">The embargo's effect</span><span class="note">Implemented as described; the bench cannot show it on this world, and says so. The homework builds the world that can.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Memory in the series</span><span class="note">None in the generator, so overfit rules earn zero here rather than less than zero.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Rolling-origin forecast evaluation</span><span class="note">Lives in learn-timeseries-forecasting-with-phoebe, builder session 8.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Any market, price, instrument or trade</span><span class="note">Out of scope by design. Nothing here is investment advice, and no figure describes a real market.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>The best of N.</strong> 1.04, 1.80, 2.33 in-sample for 10, 100, 1,000 on nothing. Out of sample: noise around zero.</div>
+      <div class="cheat-item"><strong>The threshold.</strong> SR* is the expected best of N on nothing. On two years it equals the best of N on nothing, by construction.</div>
+      <div class="cheat-item"><strong>The promise.</strong> False discoveries after deflation: 0 on every planted rung. The price: a real 1.5 among 100 passes 0 to 3 percent of the time on 3 years.</div>
+      <div class="cheat-item"><strong>The cure.</strong> History. The same real 1.5 passes 45 percent on 12 years and 94 percent on 24. It cannot be manufactured.</div>
+      <div class="cheat-item"><strong>The leak.</strong> Shuffled folds on overlapping observations: 0.65 on nothing. One-day holds: no leak. The purge: back to -0.02.</div>
+      <div class="cheat-item"><strong>The cheap correct setting.</strong> Blocked folds with a purge: four observations lost instead of 460.</div>
+      <div class="cheat-item"><strong>The costs.</strong> About 0.32 of Sharpe per 5 basis points at 0.41 units of turnover a day. A real 1.0 is negative at 20.</div>
+      <div class="cheat-item"><strong>The brief.</strong> Count, split, costs, size. Each with its bound. Written before the decision.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Practitioner session 10 of 10 · learn-quant-trading-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="p9-sizing-and-drawdown.html">← Practitioner session 9 · Sizing and drawdown</a>
+        <a href="../index.html">All sessions →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/qt-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof QT === "undefined") return;
+
+  /* ---------- bench A: selection ---------- */
+  var aN = document.getElementById("p10a-n");
+  var aAlpha = document.getElementById("p10a-alpha");
+  var aCost = document.getElementById("p10a-cost");
+  var aCostVal = document.getElementById("p10a-cost-val");
+  var aTrials = document.getElementById("p10a-trials");
+  var aDeploy = document.getElementById("p10a-deploy");
+  var aOut = document.getElementById("p10a-out");
+  var aVerdict = document.getElementById("p10a-verdict");
+  var deployed = false;
+
+  /* the canon seed rule, so that a canon cell prints the course map's figures */
+  function seedA(N, S, c) {
+    if (S === 0 && c === 0) return { s: 10000 * N, canon: true };
+    if (N === 100 && c === 0 && [0.5, 1, 1.5, 2, 3].indexOf(S) >= 0) return { s: 50000 + Math.round(S * 10), canon: true };
+    if (S === 1.5 && c === 0) return { s: 60000 + N, canon: true };
+    if (N === 1 && S === 1 && [0, 1, 2, 5, 10, 20].indexOf(c) >= 0) return { s: 70000 + c, canon: true };
+    return { s: 12345, canon: false };
+  }
+
+  function renderA() {
+    var N = Number(aN.value), S = Number(aAlpha.value), c = Number(aCost.value), trials = Number(aTrials.value);
+    aCostVal.textContent = String(c);
+    aOut.innerHTML = '<p class="sql-note">Running ' + trials + ' worlds with ' + N + ' rules each...</p>';
+    setTimeout(function () {
+      var sd = seedA(N, S, c);
+      var r = QT.ladderRung({ N: N, trueSR: S, costBp: c, method: "walkforward" }, trials, sd.s);
+      var html = '<table class="sql-table"><thead><tr><th>Quantity</th><th>Value</th><th>What it is</th></tr></thead><tbody>';
+      html += "<tr><td>Best in-sample Sharpe ratio</td><td><b>" + r.isSR.toFixed(2) + "</b></td><td>the number that gets presented</td></tr>";
+      if (deployed) {
+        html += '<tr><td>The deployed rule, out of sample</td><td><b class="p10-bad">' + r.oosSR.toFixed(2) + "</b></td><td>what it earned on the 252 days it never saw, a drop of " + (r.isSR - r.oosSR).toFixed(2) + "</td></tr>";
+      }
+      html += "<tr><td>SR*, the expected best of " + N + " on nothing</td><td>" + r.srStar.toFixed(2) + "</td><td>the deflation threshold, from the spread of the " + N + " estimates</td></tr>";
+      html += "<tr><td>Naive test passes (PSR against 0 at 0.95)</td><td>" + (r.naiveDiscovery * 100).toFixed(1) + " percent</td><td>of worlds" + (S === 0 ? ", all of them false" : "") + "</td></tr>";
+      html += '<tr><td>Deflated test passes (PSR against SR* at 0.95)</td><td><b class="p10-ok">' + (r.deflatedDiscovery * 100).toFixed(1) + " percent</b></td><td>of worlds" + (S === 0 ? ", all of them false" : "") + "</td></tr>";
+      if (S > 0) {
+        html += "<tr><td>Worlds where the kept rule was the real one</td><td>" + (r.pickedPlant * 100).toFixed(1) + " percent</td><td>the real " + S.toFixed(1) + " had " + (N - 1) + " random competitors</td></tr>";
+        html += "<tr><td>False discovery rate after deflation</td><td><b>" + r.fdrAfterDeflation.toFixed(3) + "</b></td><td>deflated passes that were not the real rule, over all deflated passes</td></tr>";
+      }
+      html += "<tr><td>Worlds averaged</td><td>" + trials + "</td><td>" + (sd.canon ? (trials === 200 ? "a canon cell at the canon count" : "a canon cell; 200 worlds prints the canon figure") : "not a canon cell, seed 12,345") + "</td></tr>";
+      html += "</tbody></table>";
+      aOut.innerHTML = html;
+
+      var msg;
+      if (S === 0) {
+        msg = "Nothing is real, so every pass is false. The naive test passed in " + (r.naiveDiscovery * 100).toFixed(1) + " percent of worlds and the deflated test in " + (r.deflatedDiscovery * 100).toFixed(1) + " percent."
+          + (deployed ? " Deploying the best in-sample rule turned " + r.isSR.toFixed(2) + " into " + r.oosSR.toFixed(2) + "." : " Press deploy to see what the kept rule earned afterwards.");
+      } else {
+        msg = "A real " + S.toFixed(1) + " among " + N + " was the rule you kept in " + (r.pickedPlant * 100).toFixed(1) + " percent of worlds, and the deflated test passed in " + (r.deflatedDiscovery * 100).toFixed(1) + " percent."
+          + (r.deflatedDiscovery > 0 ? " False discovery rate among those passes: " + r.fdrAfterDeflation.toFixed(3) + "." : " Zero passes is a power problem at this sample length, not an absence.")
+          + (deployed ? " The kept rule earned " + r.oosSR.toFixed(2) + " out of sample against " + r.isSR.toFixed(2) + " in-sample." : "");
+      }
+      if (c > 0) msg += " Costs of " + c + " basis points per unit of turnover are charged on every observation.";
+      aVerdict.textContent = msg;
+    }, 20);
+  }
+
+  aDeploy.addEventListener("click", function () { deployed = true; aDeploy.textContent = "Deployed: both figures shown"; renderA(); });
+  aN.addEventListener("change", renderA);
+  aAlpha.addEventListener("change", renderA);
+  aCost.addEventListener("input", renderA);
+  aTrials.addEventListener("change", renderA);
+
+  /* ---------- bench B: splits ---------- */
+  var bMethod = document.getElementById("p10b-method");
+  var bH = document.getElementById("p10b-h");
+  var bHVal = document.getElementById("p10b-h-val");
+  var bPurge = document.getElementById("p10b-purge");
+  var bEmb = document.getElementById("p10b-embargo");
+  var bEmbVal = document.getElementById("p10b-embargo-val");
+  var bTrials = document.getElementById("p10b-trials");
+  var bBreak = document.getElementById("p10b-break");
+  var bOut = document.getElementById("p10b-out");
+  var bVerdict = document.getElementById("p10b-verdict");
+
+  /* ladder D's canon rows and their first seeds */
+  var CANON_D = [
+    { method: "walkforward", h: 1, purge: false, embargo: 0, seed0: 80000 },
+    { method: "shuffled", h: 1, purge: false, embargo: 0, seed0: 81000 },
+    { method: "walkforward", h: 5, purge: false, embargo: 0, seed0: 82000 },
+    { method: "blocked", h: 5, purge: false, embargo: 0, seed0: 83000 },
+    { method: "shuffled", h: 5, purge: false, embargo: 0, seed0: 84000 },
+    { method: "shuffled", h: 5, purge: true, embargo: 0, seed0: 85000 },
+    { method: "blocked", h: 5, purge: true, embargo: 0, seed0: 86000 },
+    { method: "blocked", h: 5, purge: true, embargo: 5, seed0: 87000 }
+  ];
+  function seedB(method, h, purge, embargo) {
+    for (var i = 0; i < CANON_D.length; i++) {
+      var c = CANON_D[i];
+      if (c.method === method && c.h === h && c.purge === purge && c.embargo === embargo) return { s: c.seed0, canon: true };
+    }
+    return { s: 12345, canon: false };
+  }
+
+  function renderB() {
+    var method = bMethod.value, h = Number(bH.value), purge = bPurge.value === "1", emb = Number(bEmb.value), trials = Number(bTrials.value);
+    bHVal.textContent = String(h); bEmbVal.textContent = String(emb);
+    bOut.innerHTML = '<p class="sql-note">Running ' + trials + ' worlds...</p>';
+    setTimeout(function () {
+      var sd = seedB(method, h, purge, emb);
+      var r = QT.ladderRung({ N: 100, trueSR: 0, method: method, h: h, purge: purge, embargo: emb, k: 5 }, trials, sd.s);
+      var html = '<table class="sql-table"><thead><tr><th>Quantity</th><th>Value</th><th>What it is</th></tr></thead><tbody>';
+      html += "<tr><td>Best in-sample Sharpe ratio</td><td>" + r.isSR.toFixed(2) + "</td><td>the best of 100 on the training part</td></tr>";
+      html += '<tr><td>The kept rule, out of sample</td><td><b class="' + (r.oosSR > 0.3 ? "p10-bad" : "p10-ok") + '">' + r.oosSR.toFixed(2) + "</b></td><td>should be noise around zero; nothing is real</td></tr>";
+      html += "<tr><td>Training observations per fold</td><td>" + r.trainSize + "</td><td>" + (purge ? "after the purge" + (emb ? " and the embargo" : "") : "no purge") + "</td></tr>";
+      html += "<tr><td>Test observations per fold</td><td>" + r.testSize + "</td><td>" + (method === "walkforward" ? "one fold, the last third" : "five folds, each scored in turn") + "</td></tr>";
+      html += "<tr><td>Worlds averaged</td><td>" + trials + "</td><td>" + (sd.canon ? (trials === 100 ? "a canon row at the canon count" : "a canon row; 100 worlds prints the canon figure") : "not a canon row, seed 12,345") + "</td></tr>";
+      html += "</tbody></table>";
+      bOut.innerHTML = html;
+
+      var msg;
+      if (method === "shuffled" && h > 1 && !purge) {
+        msg = "Shuffled folds on " + h + "-day observations: the kept rule reads " + r.oosSR.toFixed(2) + " out of sample on nothing. A test observation shares " + (h - 1) + " of its " + h + " days with a training neighbour, so the rule chosen on those days is scored on them again. The split, not the rule, produced the number.";
+      } else if (method === "shuffled" && h > 1 && purge) {
+        msg = "Purged: " + r.oosSR.toFixed(2) + " out of sample, back to noise, with " + r.trainSize + " training observations left of the " + (r.trainSize + r.testSize * 0 + 0) + " plus whatever the purge removed. Correct, and expensive: the in-sample figure of " + r.isSR.toFixed(2) + " is the best of 100 estimates on a small sample.";
+      } else if (method === "shuffled" && h === 1) {
+        msg = "Shuffled folds on one-day observations: " + r.oosSR.toFixed(2) + " out of sample, within trial noise of zero. Observations that share no days cannot leak through a shuffle. The leak needs overlap.";
+      } else if (method === "blocked") {
+        msg = "Blocked folds" + (purge ? " with a purge" : "") + (emb ? " and an embargo of " + emb : "") + ": " + r.oosSR.toFixed(2) + " out of sample, within trial noise of zero, with " + r.trainSize + " training observations. The purge at block edges costs a handful of observations rather than hundreds.";
+      } else {
+        msg = "Walk-forward: " + r.oosSR.toFixed(2) + " out of sample, noise around zero. A search found the best of a hundred coin flips, and the coin kept flipping on the days it had not seen.";
+      }
+      bVerdict.textContent = msg;
+    }, 20);
+  }
+
+  bBreak.addEventListener("click", function () {
+    bMethod.value = "shuffled"; bH.value = "5"; bPurge.value = "0"; bEmb.value = "0";
+    renderB();
+  });
+  bMethod.addEventListener("change", renderB);
+  bH.addEventListener("input", renderB);
+  bPurge.addEventListener("change", renderB);
+  bEmb.addEventListener("input", renderB);
+  bTrials.addEventListener("change", renderB);
+
+  /* ---------- self test, reported on both benches ---------- */
+  var t = QT.selfTest();
+  var note = t.ok
+    ? "The generator's six properties pass in this browser, including the one that fails when the purge is a no-op. Synthetic data only: nothing here describes a real market, and nothing here is investment advice."
+    : "The generator's self test did not pass in this browser, so nothing above should be believed.";
+  document.getElementById("p10a-self").textContent = note;
+  document.getElementById("p10b-self").textContent = note;
+
+  renderA();
+  renderB();
+})();
+</script>
+<style>
+  #p10-a .sql-code, #p10-b .sql-code { border: 1px solid var(--hairline); border-radius: 8px; max-width: 28rem; }
+  #p10-a input[type="range"], #p10-b input[type="range"] { max-width: 20rem; padding: 0; }
+  #p10-a table.sql-table, #p10-b table.sql-table { margin: .6rem 0 .2rem; font-size: .85rem; }
+  #p10-a .p10-ok, #p10-b .p10-ok { color: var(--indigo); }
+  #p10-a .p10-bad, #p10-b .p10-bad { color: var(--amber); }
+</style>
+</body>
+</html>

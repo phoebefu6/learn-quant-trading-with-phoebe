@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Practitioner session 3 of 10. Pick the best of N rules on pure noise and measure what it prints: 1.04, 1.80 and 2.33 for N of 10, 100 and 1,000 over 200 worlds each, then hold the growth of the maximum against equation 1 and the sqrt(2 ln N) bound. Synthetic data only.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="The max of N - learn quant with phoebe">
+<meta property="og:description" content="Practitioner session 3 of 10. The best of 100 rules on nothing reports a Sharpe ratio of 1.80 in-sample and -0.06 on the days it never saw, averaged over 200 worlds. Measured.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/courses/p3-the-max-of-n.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The max of N - learn quant with phoebe">
+<meta name="twitter:description" content="The best of N is a different statistic from one estimate. Measure how fast it grows, and what it earns afterwards.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Practitioner session 3 · The max of N - learn quant with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-quant-trading-with-phoebe</a> / Practitioner session 3 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Quant Trading with Phoebe · Practitioner session 3 of 10</div>
+    <h1>The <span class="accent">max of N</span></h1>
+    <p class="sub">Session 1 measured the noise in one estimate. Session 2 built the estimate. Tonight asks the question nobody puts on the slide: what was it the best of? Try N rules on a world with nothing in it, keep the one with the highest Sharpe ratio, and measure what it reports and what it earns on days it never saw. Then measure how fast that maximum grows with N, and hold the measurement against the published formula and the published bound. The data is synthetic throughout, and nothing here is investment advice.</p>
+    <div class="chip-row">
+      <span class="chip level">🟠 Working depth</span>
+      <span class="chip audience">Anyone who will build or check a backtest</span>
+      <span class="chip audience">Comfortable with a browser console</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:3">3-15 · Best of N on nothing</span>
+      <span class="a3" style="flex:3">15-27 · How the maximum grows</span>
+      <span class="a4" style="flex:4">27-45 · Build-along and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Marlow Street's 1.8, and what it was the best of</h2>
+    </div>
+    <p class="lede">Marlow Street is a constructed research desk, four people and a head who funds two strategies a year. The head has been handed a backtest with an annualised Sharpe ratio of 1.8 and asked whether to fund it. Session 1 said a single estimate on two years of nothing has a standard deviation of 0.71, so 1.8 is about two and a half of those out. That would be a strong reading for one rule. It is an ordinary reading for the best of many, and tonight measures exactly how ordinary.</p>
+
+    <div class="legend">
+      <span class="pill">Live = presented in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with tonight.</strong> The best-of-N ladder measured on pure noise at 200 worlds per rung: best in-sample Sharpe ratios of 1.04, 1.80 and 2.33 for 10, 100 and 1,000 rules, and out-of-sample figures of 0.14, -0.06 and 0.02 for the same kept rules. The reason those out-of-sample figures sit at zero rather than below it on this generator. Equation 1 of the deflated Sharpe paper, read term by term, and the sqrt(2 ln N) bound, each held against the measured maximum. And the habit of asking, before reading any backtest, how many things were tried to get it.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why the best of N is a different statistic<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>One rule's Sharpe ratio on a zero-alpha world is a draw from a bell centred on zero with a standard deviation of 0.71 on 503 days. The best of N rules is not a draw from that bell. It is the largest of N draws, and the largest of N draws has its own distribution, sitting further right the more draws there are. Reading the maximum as if it were one draw is the whole error, and it needs no fraud and no bug. It needs only a loop that tries things and keeps the winner.</p>
+        <p>The fix starts with a number nobody likes to report: N. With N in hand, the maximum can be compared to what the maximum of N draws on nothing looks like. Without it, the 1.8 cannot be read at all.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>At Marlow Street, constructed like the rest, the head asked the researcher who brought the 1.8 how many variants had been run before it. The answer, after some reconstruction from old notebooks, was about a hundred: lookback lengths, thresholds, holding periods. Nobody had lied. Each variant was a reasonable idea. The question tonight is what the best of a hundred reasonable ideas reports on a world where none of them can work.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The words that keep coming back<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>N.</strong> The number of rules tried before one was kept. On this bench the N rules are independent random signals; in practice they are variants, and counting them honestly is session 4's problem.</li>
+          <li><strong>Best in-sample.</strong> The highest Sharpe ratio among the N, measured on the 503 training days. The number that gets presented.</li>
+          <li><strong>Out of sample.</strong> The kept rule's Sharpe ratio on the next 252 days, which played no part in choosing it.</li>
+          <li><strong>The ruler.</strong> The standard deviation of one estimate on 503 days: 0.71 annualised. Part 2 measures the maximum in rulers.</li>
+          <li><strong>Equation 1.</strong> The expected maximum of N independent null trials in the deflated Sharpe paper, built from the normal quantile function and gamma, about 0.5772.</li>
+          <li><strong>sqrt(2 ln N).</strong> An upper bound to that expected maximum, in units of one estimate's standard deviation. A bound, not an estimate.</li>
+          <li><strong>SR*.</strong> Equation 1 applied with the measured spread of the N estimates, annualised. Session 4 uses it as the threshold.</li>
+          <li><strong>Naive discovery.</strong> The share of worlds where the kept rule's probabilistic Sharpe ratio against zero reaches 0.95. On zero alpha, every one is false.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The sources behind tonight's numbers<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li>Bailey, D. H., Borwein, J. M., Lopez de Prado, M., and Zhu, Q. J. (2014). "Pseudo-Mathematics and Financial Charlatanism: The Effects of Backtest Overfitting on Out-of-Sample Performance." Notices of the American Mathematical Society 61(5), 458-471. DOI 10.1090/noti1105. Read at source: https://www.ams.org/notices/201405/rnoti-p458.pdf</li>
+          <li>Bailey, D. H., and Lopez de Prado, M. (2014). "The Deflated Sharpe Ratio: Correcting for Selection Bias, Backtest Overfitting and Non-Normality." The Journal of Portfolio Management 40(5). Read at source from the SSRN text, abstract id 2460551 (version of July 31, 2014).</li>
+          <li>Fisher-Tippett-Gnedenko theorem and Gumbel distribution, Wikipedia, read 2026-10-08, for the normal-maximum normalisation and the Gumbel mean.</li>
+        </ul>
+        <p>Every Sharpe figure on the page is a mean over 200 generated worlds per rung at the canon seeds, computed in node from the same engine this page loads and reproduced by an independent Python implementation to 3.3e-13. None of it describes a market.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers best-of-N on pure noise</span>
+      <h2>Keep the best of N on nothing, then look again</h2>
+      <span class="tag concept">12 min live</span>
+    </div>
+    <p class="lede">The experiment is three lines. Generate a world with no alpha. Generate N random rules and score each on the first 503 days. Keep the highest, and score that one rule again on the next 252 days. Repeat for 200 worlds and average. The first number is what a backtest presents; the second is what the rule actually had. The selection loop runs on the same days it is scored on, which is why the first number tells you about the loop and nothing about the rule.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 448" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn diagram of the selection loop on a zero-alpha world. On the left, a panel labelled in-sample holds four hatched bells of noise, one per rule, rule 1, rule 2, rule 3 and rule N, each with a tick where that rule's Sharpe estimate landed. The rightmost tick on the last bell is circled in steel and labelled the max of N. A steel arrow carries it to a middle box labelled keep the max, 1.80, best of 100. A dashed arrow loops from that box back into the in-sample panel, labelled picked and scored on the same 503 days. A second arrow carries the kept rule to the right panel, labelled out of sample, the next 252 days, where it lands as a steel dot near zero on a wider bell, labelled the kept rule, -0.06. Notes give the measured means over 200 worlds: best in-sample 1.04, 1.80 and 2.33 for N of 10, 100 and 1,000; out of sample 0.14, -0.06 and 0.02.">
+        <defs>
+          <filter id="p3aSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="53" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p3aHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#7A1F3D" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p3aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+          <marker id="p3aArS" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#3B6E8F" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p3aH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .p3aL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .p3aS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .p3aB { font: 800 11px Inter, sans-serif; fill: #2A5068; }
+          .p3aV { font: 800 18px Inter, sans-serif; fill: #4A1024; }
+          .p3aA { font: 700 11px Inter, sans-serif; fill: #7A1F3D; }
+          .p3aN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="p3aH" x="30" y="26">THE SELECTION LOOP: KEEP THE MAX OF N ON 503 DAYS, THEN SCORE IT ON DAYS IT NEVER SAW</text>
+
+        <g filter="url(#p3aSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- panel A: in-sample -->
+          <rect x="34" y="96" width="356" height="276" rx="8" transform="rotate(-0.5 212 234)" fill="#FAF0F3"/>
+          <!-- panel B: out of sample -->
+          <rect x="522" y="96" width="330" height="276" rx="8" transform="rotate(0.6 687 234)" fill="#FFFFFF"/>
+          <!-- four bells of noise, one per rule, centre x 189 -->
+          <path d="M84 160 C128 160 156 126 189 126 C222 126 250 160 294 160 Z" fill="url(#p3aHc)" stroke="#7A1F3D"/>
+          <path d="M84 206 C128 206 156 172 189 172 C222 172 250 206 294 206 Z" fill="url(#p3aHc)" stroke="#7A1F3D"/>
+          <path d="M84 252 C128 252 156 218 189 218 C222 218 250 252 294 252 Z" fill="url(#p3aHc)" stroke="#7A1F3D"/>
+          <path d="M84 298 C128 298 156 264 189 264 C222 264 250 298 294 298 Z" fill="url(#p3aHc)" stroke="#7A1F3D"/>
+          <!-- where each rule's estimate landed -->
+          <path d="M165 148 L165 166"/>
+          <path d="M214 194 L214 212"/>
+          <path d="M180 240 L180 258"/>
+          <path d="M266 286 L266 304" stroke="#3B6E8F" stroke-width="2.8"/>
+          <!-- the zero tick -->
+          <path d="M189 298 L189 306"/>
+          <!-- magnifier on the max: the doodle anchor -->
+          <circle cx="266" cy="292" r="12" stroke="#3B6E8F" stroke-width="2.2"/>
+          <path d="M275 301 L284 310" stroke="#3B6E8F" stroke-width="2.4"/>
+          <!-- the kept rule travels to the middle box -->
+          <path d="M280 286 C330 278 360 245 398 238" stroke="#3B6E8F" marker-end="url(#p3aArS)"/>
+          <!-- middle box: keep the max -->
+          <rect x="402" y="196" width="106" height="76" rx="6" transform="rotate(1 455 234)" fill="#EAF1F6" stroke="#3B6E8F"/>
+          <!-- the loop that runs backwards: picked and scored on the same days -->
+          <path d="M455 194 C455 96 420 80 362 108" stroke-dasharray="6 5" marker-end="url(#p3aAr)"/>
+          <!-- on to fresh days -->
+          <path d="M512 250 C580 284 650 284 692 268" marker-end="url(#p3aAr)"/>
+          <!-- panel B: one wider bell, the kept rule lands near zero -->
+          <path d="M580 260 C640 260 670 170 705 170 C740 170 770 260 830 260" fill="#FFFFFF"/>
+          <path d="M570 260 L840 260"/>
+          <path d="M705 260 L705 268"/>
+          <circle cx="701" cy="260" r="6" fill="#3B6E8F" stroke="#3B6E8F"/>
+        </g>
+
+        <text class="p3aA" x="470" y="84">picked and scored on the same 503 days</text>
+
+        <text class="p3aH" x="48" y="115">IN-SAMPLE: N RULES, 503 DAYS</text>
+        <text class="p3aS" x="46" y="158">rule 1</text>
+        <text class="p3aS" x="46" y="204">rule 2</text>
+        <text class="p3aS" x="46" y="250">rule 3</text>
+        <text class="p3aS" x="46" y="296">rule N</text>
+        <text class="p3aS" x="189" y="320" text-anchor="middle">0</text>
+        <text class="p3aB" x="266" y="330" text-anchor="middle">the max of N</text>
+        <text class="p3aS" x="48" y="356">each bell: one rule, sd 0.71, centred on 0</text>
+
+        <text class="p3aL" x="455" y="220" text-anchor="middle">keep the max</text>
+        <text class="p3aV" x="455" y="246" text-anchor="middle">1.80</text>
+        <text class="p3aS" x="455" y="262" text-anchor="middle">best of 100</text>
+
+        <text class="p3aH" x="536" y="115">OUT OF SAMPLE: THE NEXT 252 DAYS</text>
+        <text class="p3aS" x="705" y="282" text-anchor="middle">0</text>
+        <text class="p3aB" x="705" y="304" text-anchor="middle">the kept rule: -0.06</text>
+        <text class="p3aS" x="705" y="326" text-anchor="middle">a wider bell: 252 days, not 503</text>
+        <text class="p3aS" x="705" y="346" text-anchor="middle">near zero, not below: no memory here</text>
+
+        <text class="p3aN" x="30" y="398">Measured over 200 worlds per N, for N = 10, 100 and 1,000: best in-sample 1.04, 1.80 and 2.33.</text>
+        <text class="p3aN" x="30" y="416">The same kept rules out of sample: 0.14, -0.06 and 0.02, within noise of zero on every rung.</text>
+        <text class="p3aA" x="30" y="438">No memory in the generator: overfit rules earn about zero here, not less than zero (AMS 2014).</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the dashed arrow is the error: the same 503 days choose the rule and then grade it, so the grade measures the choosing.</figcaption>
+    </figure>
+
+    <div class="wk" id="p3-max">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">The generator, running in this page. N random rules on 200 zero-alpha worlds at the canon seeds; keep the best in-sample rule in each world and score it again on the next 252 days. The box prints the canon figures.</span>
+      </div>
+      <div class="wk-body">
+        <label class="sql-label" for="p3-max-n">Rules tried in each world, N</label>
+        <select class="sql-code" id="p3-max-n">
+          <option value="1">1, no selection</option>
+          <option value="10" selected>10</option>
+          <option value="100">100, the Marlow Street count (about a second)</option>
+        </select>
+        <div style="margin:.6rem 0 .2rem"><button class="btn primary" id="p3-max-run" type="button">Run N = 1,000 (many seconds in a browser)</button></div>
+        <div id="p3-max-out"></div>
+        <p class="sql-note" id="p3-max-verdict">...</p>
+      </div>
+      <div class="wk-foot" id="p3-max-self">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Reading the box, rung by rung<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>N = 1.</strong> No selection. The mean in-sample figure is -0.01, out of sample -0.07, and the naive test passes in 6.0 percent of worlds, which is the ordinary false-positive rate of a one-sided 95 percent test within trial noise. Session 1's baseline, reproduced.</p>
+        <p><strong>N = 10.</strong> The kept rule reports 1.04 in-sample and 0.14 out of sample. The naive test now passes in 32.5 percent of worlds. Nothing changed about the rules; only the act of keeping the best one.</p>
+        <p><strong>N = 100.</strong> 1.80 in-sample, -0.06 out of sample, and the naive test passes in 99.5 percent of worlds. This is Marlow Street's number, produced by a loop over a hundred rules that know nothing.</p>
+        <p><strong>N = 1,000.</strong> 2.33 in-sample, 0.02 out of sample, naive passes in every one of the 200 worlds. The in-sample figure is a function of how hard someone looked. The out-of-sample figure is a function of what was there.</p>
+        <p>The drop from in-sample to out of sample is 0.9 at N = 10, 1.9 at N = 100 and 2.3 at N = 1,000. Every one of those drops is the selection loop's contribution, and none of it is the rule's.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>What the 2014 Notices paper already measured<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Bailey, Borwein, Lopez de Prado and Zhu made the same argument in the Notices of the American Mathematical Society in 2014, with three illustrations worth carrying around:</p>
+        <ul>
+          <li><strong>Twenty trials.</strong> At a 5 percent false-positive rate, after only twenty trials the researcher is expected to find one specification that passes. The test is working; the twenty is the problem.</li>
+          <li><strong>Seven trials, two years.</strong> After seven independent configurations, the expected maximum in-sample Sharpe ratio on a two-year backtest is 1, while the expected out-of-sample figure is 0. The bench's 1.04 at N = 10 on 503 training days is the same shape at a slightly larger N.</li>
+          <li><strong>128 trials.</strong> Seven binary choices give 2 to the 7, or 128 combinations, with an expected maximum Sharpe ratio above 2.6. Seven yes-or-no design decisions is an ordinary week.</li>
+        </ul>
+        <p>The paper's figures come from its own setup; the bench's come from this generator. They agree on the mechanism and on the order of magnitude, which is the point of running both.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Marlow Street's researcher, constructed, objected that the hundred variants were not independent: many shared a lookback and differed only in a threshold. That is a fair objection and it cuts both ways. Correlated variants make the effective N smaller than a hundred, so the maximum is less inflated than the bench's 1.80. But nobody at the desk can say how much smaller without counting, and counting is session 4's work. Until then the head reads the 1.8 against the best of 100 on nothing, which is 1.80.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Zero, not negative: the limit of this bench<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Look again at the out-of-sample column: 0.14, -0.06, 0.02. None of them is reliably below zero. That is not luck and it is not a property of overfitting in general. It is a property of this generator, which has no memory: each day's return is independent of every earlier one, so the rule that happened to fit the first 503 days carries nothing, good or bad, into the next 252.</p>
+        <p>The AMS paper is explicit about this. Without memory there is no reason to expect overfitting to produce negative performance. With memory there is a compensation effect: the configuration that fits a stretch of history best is the one most likely to be positioned wrongly when that stretch reverses, so it is selected in-sample only to underperform out of sample. The bench cannot show that case. The honest sentence is that an overfit rule earns nothing, or worse if the series has memory, which this bench does not model.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Why the naive test passes 99.5 percent of the time<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The naive test is a probabilistic Sharpe ratio against a benchmark of zero, declared a finding at 0.95. Applied to one rule it does what it promises: about 5 percent of null worlds pass, and the bench measures 6.0 percent over 200. Applied to the kept rule it is answering a question nobody asked. It asks whether this one estimate is far from zero, when the estimate was chosen precisely for being far from zero.</p>
+        <p>The fix is not a stricter p-value picked by feel. It is to move the benchmark from zero to what the maximum of N looks like on nothing, which is what Part 2 measures and what session 4 turns into the deflated Sharpe ratio. As a preview, the same 200 worlds per rung pass that deflated test in 0.000 of worlds at N = 10, 100 and 1,000.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers how the maximum grows</span>
+      <h2>How fast the maximum grows with N</h2>
+      <span class="tag concept">12 min live</span>
+    </div>
+    <p class="lede">Take the best in-sample figures from Part 1 and divide out the ruler, so that each maximum is counted in units of one estimate's standard deviation. Now the numbers no longer depend on the sample length, and they can be held against two published predictions: equation 1 of the deflated Sharpe paper, which is meant to estimate the expected maximum, and sqrt(2 ln N), which the AMS paper gives as an upper bound to it. The measured column goes beside both, every time.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 488" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn chart of the expected maximum of N null trials, in units of one estimate's standard deviation, against N on a log scale at N of 10, 100 and 1,000. A dashed line for sqrt(2 ln N), the upper bound, runs at 2.146, 3.035 and 3.717. A solid ink line for equation 1 runs at 1.575, 2.531 and 3.255. Steel dots for the measured mean maximum over 200 worlds sit at 1.475, 2.539 and 3.291. The region between the bound and equation 1 is hatched. A bracket at N of 100 marks the gap between the bound at 3.035 and the measured 2.539. Notes say equation 1 is over by 0.10 at N of 10 and within 0.04 at N of 1,000. A note says one unit is 0.71 annualised on 503 days, so 2.539 units is the 1.80 of Part 1.">
+        <defs>
+          <filter id="p3bSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="59" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p3bHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#7A1F3D" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p3bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p3bH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .p3bL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .p3bS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .p3bB { font: 800 11px Inter, sans-serif; fill: #2A5068; }
+          .p3bA { font: 700 11px Inter, sans-serif; fill: #7A1F3D; }
+          .p3bN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="p3bH" x="30" y="26">HOW FAST THE MAXIMUM GROWS: MEASURED AGAINST EQUATION 1 AND THE sqrt(2 ln N) BOUND</text>
+        <text class="p3bB" x="98" y="68">the maximum of N, in rulers (one estimate's sd)</text>
+
+        <g filter="url(#p3bSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- axes -->
+          <path d="M90 80 L90 340 L720 340" stroke-width="2.4"/>
+          <path d="M84 330 L90 330 M84 250 L90 250 M84 170 L90 170 M84 90 L90 90"/>
+          <path d="M170 340 L170 346 M420 340 L420 346 M670 340 L670 346"/>
+          <!-- the gap between the bound and equation 1, hatched -->
+          <path d="M170 238 L420 167 L670 113 L670 150 L420 207 L170 284 Z" fill="url(#p3bHc)" stroke="none"/>
+          <!-- sqrt(2 ln N): the upper bound, dashed -->
+          <path d="M170 238 L420 167 L670 113" stroke="#7A1F3D" stroke-width="2.2" stroke-dasharray="8 6"/>
+          <!-- equation 1: solid ink -->
+          <path d="M170 284 L420 207 L670 150" stroke-width="2.2"/>
+          <rect x="165" y="279" width="10" height="10" fill="#FFFFFF"/>
+          <rect x="415" y="202" width="10" height="10" fill="#FFFFFF"/>
+          <rect x="665" y="145" width="10" height="10" fill="#FFFFFF"/>
+          <!-- measured: steel dots, the thing the figure is about -->
+          <circle cx="170" cy="292" r="6" fill="#3B6E8F" stroke="#3B6E8F"/>
+          <circle cx="420" cy="207" r="6" fill="#3B6E8F" stroke="#3B6E8F"/>
+          <circle cx="670" cy="147" r="6" fill="#3B6E8F" stroke="#3B6E8F"/>
+          <!-- bracket at N = 100: bound against measured -->
+          <path d="M432 168 L440 168 L440 206 L432 206"/>
+          <!-- legend swatches -->
+          <path d="M480 264 L512 264" stroke="#7A1F3D" stroke-width="2.2" stroke-dasharray="8 6"/>
+          <path d="M480 286 L512 286" stroke-width="2.2"/>
+          <rect x="491" y="281" width="10" height="10" fill="#FFFFFF"/>
+          <circle cx="496" cy="308" r="6" fill="#3B6E8F" stroke="#3B6E8F"/>
+        </g>
+
+        <text class="p3bS" x="80" y="334" text-anchor="end">1</text>
+        <text class="p3bS" x="80" y="254" text-anchor="end">2</text>
+        <text class="p3bS" x="80" y="174" text-anchor="end">3</text>
+        <text class="p3bS" x="80" y="94" text-anchor="end">4</text>
+
+        <text class="p3bA" x="400" y="128" text-anchor="end">the bound runs high:</text>
+        <text class="p3bA" x="400" y="144" text-anchor="end">3.035 against a measured 2.539 at N = 100</text>
+        <text class="p3bS" x="184" y="318">equation 1 over by 0.10 here</text>
+        <text class="p3bS" x="686" y="132">equation 1 within</text>
+        <text class="p3bS" x="686" y="146">0.04 of measured</text>
+
+        <text class="p3bS" x="522" y="268">sqrt(2 ln N): an upper bound (AMS 2014)</text>
+        <text class="p3bS" x="522" y="290">equation 1 (Bailey and Lopez de Prado 2014)</text>
+        <text class="p3bB" x="522" y="312">measured mean maximum, 200 worlds per N</text>
+
+        <text class="p3bL" x="170" y="362" text-anchor="middle">N = 10</text>
+        <text class="p3bL" x="420" y="362" text-anchor="middle">N = 100</text>
+        <text class="p3bL" x="670" y="362" text-anchor="middle">N = 1,000</text>
+        <text class="p3bS" x="720" y="380" text-anchor="end">rules tried, log scale</text>
+
+        <text class="p3bB" x="170" y="402" text-anchor="middle">measured 1.475</text>
+        <text class="p3bL" x="170" y="418" text-anchor="middle">equation 1 1.575</text>
+        <text class="p3bS" x="170" y="434" text-anchor="middle">bound 2.146</text>
+        <text class="p3bB" x="420" y="402" text-anchor="middle">measured 2.539</text>
+        <text class="p3bL" x="420" y="418" text-anchor="middle">equation 1 2.531</text>
+        <text class="p3bS" x="420" y="434" text-anchor="middle">bound 3.035</text>
+        <text class="p3bB" x="670" y="402" text-anchor="middle">measured 3.291</text>
+        <text class="p3bL" x="670" y="418" text-anchor="middle">equation 1 3.255</text>
+        <text class="p3bS" x="670" y="434" text-anchor="middle">bound 3.717</text>
+
+        <text class="p3bN" x="30" y="458">One ruler is the standard deviation of one estimate on 503 days: 0.71 annualised.</text>
+        <text class="p3bN" x="30" y="476">Times 0.71, the measured 2.539 is the 1.80 that the best of 100 prints in Part 1.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the steel dots sit on equation 1 and well under the dashed bound: sqrt(2 ln N) tells you how fast the maximum grows, not where it is.</figcaption>
+    </figure>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Equation 1, read term by term<span class="mini">5 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Bailey and Lopez de Prado (2014) give the expected maximum of N independent null trials as the square root of V times a blend of two normal quantiles: (1 - gamma) times Z<sup>-1</sup>[1 - 1/N], plus gamma times Z<sup>-1</sup>[1 - 1/(N e)]. V is the variance of the trials' estimated Sharpe ratios, Z<sup>-1</sup> is the inverse of the standard normal distribution function, e is the base of the natural log, and gamma is the Euler-Mascheroni constant, about 0.5772. The paper's own code snippet computes exactly this, and so does <span class="mono">QT.expectedMaxSR</span>.</p>
+        <ul>
+          <li><strong>Z<sup>-1</sup>[1 - 1/N].</strong> The level that one draw in N is expected to exceed. For N = 100 it is the 99th percentile of a normal. This is where the maximum lives, roughly.</li>
+          <li><strong>Z<sup>-1</sup>[1 - 1/(N e)].</strong> The same quantile pushed a little further out. The distance between the two quantiles is the spread of the maximum.</li>
+          <li><strong>The blend.</strong> (1 - gamma) a + gamma b is the same as a + gamma (b - a): a location plus gamma times a scale. That is the mean of a Gumbel distribution, mu + beta gamma, which is the limiting distribution of the maximum of many normals (Fisher-Tippett-Gnedenko, read on the Wikipedia pages). Equation 1 is the Gumbel mean with the normal's own location and scale plugged in.</li>
+          <li><strong>sqrt(V).</strong> Everything above is in units of one estimate's standard deviation. Multiply by the spread of the estimates and you have a Sharpe ratio. With V = 1 the equation returns rulers, which is how Part 2 reads it.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Measured against both predictions<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The bench's maximum, in rulers, is the mean best in-sample per-day Sharpe ratio times the square root of 503. Over 200 worlds per rung:</p>
+        <ul>
+          <li><strong>N = 10.</strong> Measured 1.475, equation 1 1.575, sqrt(2 ln N) 2.146.</li>
+          <li><strong>N = 100.</strong> Measured 2.539, equation 1 2.531, sqrt(2 ln N) 3.035.</li>
+          <li><strong>N = 1,000.</strong> Measured 3.291, equation 1 3.255, sqrt(2 ln N) 3.717.</li>
+        </ul>
+        <p>Equation 1 lands within 0.1 of the measurement at N = 10 and within 0.04 at N = 100 and 1,000. The paper's own Exhibit 3.1 note reports the formula overestimating the empirical maximum by less than 0.05 below about 50 trials for a process with variance 1, and by as little as 0.006 by 1,000 trials. The bench's gap at N = 10 is larger than that, and it is a mean of maxima over only 200 worlds whose estimates are not exactly unit-variance normals; treat it as what this bench measured, not as a correction to the paper.</p>
+        <p>The bound is another matter. It sits well above the measurement on every rung, 2.146 against 1.475 at N = 10 and still 3.717 against 3.291 at N = 1,000. It was never meant to sit on it. The AMS paper offers sqrt(2 ln N) as an upper bound to the expected maximum, and as a bound it holds on every rung.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where serious people disagree<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Read a few papers and talks on backtest overfitting and sqrt(2 ln N) turns up in two different roles. In the AMS paper it is written down as an upper bound to the expected maximum, and its Theorem 2 uses it to bound the minimum backtest length. In looser speech it is the expected maximum, or the rate at which the maximum grows, and people quote it as if it were the number to compare a backtest against.</p>
+        <p>The case for the loose reading: the normalising constant of the maximum of n normals is approximately sqrt(2 ln n), so as N grows the maximum really does grow like sqrt(2 ln N), and a one-line formula is easier to carry into a meeting than equation 1. The case against: at the N anyone actually tries, the bound overstates the maximum by about half a ruler, 3.035 against a measured 2.539 at N = 100, and a threshold set at the bound kills real findings that equation 1 would let through.</p>
+        <p>Both are describing the same mathematics at different resolutions. The measurements here take no side on which one a desk should say aloud. They do insist on one thing: when sqrt(2 ln N) is quoted, call it a bound, and put the measured column next to it.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>From rulers back to Sharpe ratios<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A ruler is 0.71 annualised on 503 daily observations: one over the square root of 503 per day, times the square root of 252. Multiply any figure in rulers by 0.71 and you have the annualised figure Part 1 printed: 1.475 rulers is the 1.04, 2.539 is the 1.80, 3.291 is the 2.33. The ruler shrinks as the history grows, which is why the same N inflates a short backtest more than a long one, and why session 4's ladder with more years is the only cure the haircut has.</p>
+        <p>The SR* row in the box is equation 1 with V measured from the spread of the N estimates in each world, then annualised: 1.07, 1.80 and 2.31 for N of 10, 100 and 1,000. It tracks the best in-sample figure closely on every rung, which is the point: the expected best of N on nothing is what the best of N on nothing reports.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>The Marlow Street head, constructed, now has a sentence for the funding memo. The backtest reports 1.8 after about a hundred variants on two years of training data. The expected best of a hundred rules on nothing, measured over 200 generated worlds at that length, is 1.80. The backtest is exactly as good as nothing, and the next question is not whether to fund it but how many of the hundred were really independent.</p>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · build-along</span>
+      <h2>Measure the maximum in rulers, by hand</h2>
+      <span class="tag build">18 min hands on</span>
+    </div>
+    <p class="lede">Open this page's console. The engine is already loaded as <span class="mono">QT</span>. Six steps take you from the two formulas to the measured ladder and back to annualised Sharpe ratios. The formula steps are arithmetic with no seed in them; the ladder steps use the canon seeds, so your numbers will match for the same seed.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn ruler for the build-along. Top row: a box for ladderRung returning r.isPerObs, an arrow labelled times sqrt(503) into a box for the measured maximum in rulers, and a box for expectedMaxSR with V of 1 pointing back at it with the word compare. Below, a ruler from 0 to 4 rulers, where 1 ruler is 0.71 annualised on 503 days. Three steel pins mark the measured mean maximum: best of 10 at 1.475 rulers, which is 1.04 annualised; best of 100 at 2.539, which is 1.80; best of 1,000 at 3.291, which is 2.33.">
+        <defs>
+          <filter id="p3cSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="61" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p3cHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#7A1F3D" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p3cAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+          <marker id="p3cArS" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#3B6E8F" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p3cH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .p3cL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .p3cS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .p3cB { font: 800 11px Inter, sans-serif; fill: #2A5068; }
+          .p3cA { font: 700 11px Inter, sans-serif; fill: #7A1F3D; }
+          .p3cN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="p3cH" x="30" y="26">THE RULER: ONE ESTIMATE'S SD ON 503 DAYS IS 0.71, AND THE MAX OF N IS COUNTED IN RULERS</text>
+
+        <g filter="url(#p3cSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- row 1: the arithmetic -->
+          <rect x="34" y="44" width="200" height="50" rx="6" transform="rotate(-0.8 134 69)" fill="#FAF0F3"/>
+          <path d="M236 69 L266 69" marker-end="url(#p3cAr)"/>
+          <rect x="270" y="44" width="170" height="50" rx="6" transform="rotate(0.6 355 69)" fill="#FFFFFF"/>
+          <path d="M442 69 L472 69" marker-end="url(#p3cAr)"/>
+          <rect x="476" y="44" width="150" height="50" rx="6" transform="rotate(-0.6 551 69)" fill="#EAF1F6" stroke="#3B6E8F"/>
+          <path d="M688 76 L632 76" marker-end="url(#p3cAr)"/>
+          <rect x="690" y="44" width="160" height="50" rx="6" transform="rotate(0.8 770 69)" fill="#FFFFFF"/>
+          <!-- row 2: the ruler, the doodle anchor -->
+          <rect x="80" y="150" width="720" height="40" rx="4" transform="rotate(-0.3 440 170)" fill="#FAF0F3"/>
+          <path d="M100 150 L100 172 M260 150 L260 172 M420 150 L420 172 M580 150 L580 172 M740 150 L740 172"/>
+          <path d="M180 150 L180 162 M340 150 L340 162 M500 150 L500 162 M660 150 L660 162" stroke-width="1.6"/>
+          <!-- steel pins: the measured maxima -->
+          <path d="M336 116 L336 146" stroke="#3B6E8F" stroke-width="2.4" marker-end="url(#p3cArS)"/>
+          <path d="M506 116 L506 146" stroke="#3B6E8F" stroke-width="2.4" marker-end="url(#p3cArS)"/>
+          <path d="M627 116 L627 146" stroke="#3B6E8F" stroke-width="2.4" marker-end="url(#p3cArS)"/>
+          <path d="M336 194 L336 232 M506 194 L506 232 M627 194 L627 232" stroke="#3B6E8F" stroke-width="1.4" stroke-dasharray="3 4"/>
+        </g>
+
+        <text class="p3cL" x="134" y="66" text-anchor="middle">ladderRung(...)</text>
+        <text class="p3cS" x="134" y="83" text-anchor="middle">r.isPerObs, per day</text>
+        <text class="p3cL" x="355" y="66" text-anchor="middle">times sqrt(503)</text>
+        <text class="p3cS" x="355" y="83" text-anchor="middle">per day into rulers</text>
+        <text class="p3cL" x="551" y="66" text-anchor="middle">measured max</text>
+        <text class="p3cB" x="551" y="83" text-anchor="middle">in rulers</text>
+        <text class="p3cA" x="660" y="64" text-anchor="middle">compare</text>
+        <text class="p3cL" x="770" y="66" text-anchor="middle">expectedMaxSR(1, N)</text>
+        <text class="p3cS" x="770" y="83" text-anchor="middle">equation 1, V = 1</text>
+
+        <text class="p3cB" x="336" y="110" text-anchor="middle">best of 10</text>
+        <text class="p3cB" x="506" y="110" text-anchor="middle">best of 100</text>
+        <text class="p3cB" x="627" y="110" text-anchor="middle">best of 1,000</text>
+
+        <text class="p3cS" x="100" y="208" text-anchor="middle">0</text>
+        <text class="p3cL" x="260" y="208" text-anchor="middle">1 ruler</text>
+        <text class="p3cS" x="420" y="208" text-anchor="middle">2</text>
+        <text class="p3cS" x="580" y="208" text-anchor="middle">3</text>
+        <text class="p3cS" x="740" y="208" text-anchor="middle">4</text>
+        <text class="p3cA" x="200" y="226" text-anchor="middle">= 0.71 annualised</text>
+
+        <text class="p3cB" x="336" y="248" text-anchor="middle">1.475 = 1.04</text>
+        <text class="p3cB" x="506" y="248" text-anchor="middle">2.539 = 1.80</text>
+        <text class="p3cB" x="627" y="248" text-anchor="middle">3.291 = 2.33</text>
+
+        <text class="p3cN" x="30" y="274">Each pin is a measured mean maximum over 200 worlds, in rulers, with its annualised Sharpe ratio beside it.</text>
+        <text class="p3cN" x="30" y="292">Rulers times 0.71 gives the annualised figure; equation 1 with V = 1 is already in rulers.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - three pins on one ruler: the best of 1,000 rules on nothing sits more than three rulers out, where one honest estimate almost never goes.</figcaption>
+    </figure>
+
+    <div class="steps">
+      <div class="step"><div>
+        <h4>Start with the bound</h4>
+        <p>sqrt(2 ln N) at N = 100. This is arithmetic with no seed in it, so it prints 3.035 in every browser. Keep it in mind as the ceiling, not the estimate.</p>
+        <div class="prompt-box good"><span class="label">console</span>QT.sqrt2lnN(100).toFixed(3)</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Then equation 1, in rulers</h4>
+        <p>expectedMaxSR takes the variance of the trials' estimates and N. With V = 1 it returns the expected maximum in units of one estimate's standard deviation: 1.575, 2.531 and 3.255 for N of 10, 100 and 1,000. Again arithmetic, again the same everywhere. Note that every value sits under the bound from step 1.</p>
+        <div class="prompt-box good"><span class="label">console</span>[10, 100, 1000].map(function (n) { return QT.expectedMaxSR(1, n).toFixed(3); })</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Run the best of 10 on 200 zero-alpha worlds</h4>
+        <p>The canon seed rule for this ladder is seed0 = 10,000 times N, so N = 10 starts at 100,000. The rung prints the mean best in-sample figure and its out-of-sample figure over 200 worlds: 1.04 and 0.14. Your numbers will match for the same seed, to every digit.</p>
+        <div class="prompt-box good"><span class="label">console</span>var r = QT.ladderRung({ N: 10, trueSR: 0, method: "walkforward" }, 200, 100000);
+[r.isSR.toFixed(2), r.oosSR.toFixed(2), r.naiveDiscovery.toFixed(3)]</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Put the measurement in rulers and compare</h4>
+        <p>r.isPerObs is the mean best in-sample Sharpe ratio per day. Times the square root of 503 it is in rulers: 1.475 against equation 1's 1.575 and the bound's 2.146. Your numbers will match for the same seed.</p>
+        <div class="prompt-box good"><span class="label">console</span>[(r.isPerObs * Math.sqrt(503)).toFixed(3), QT.expectedMaxSR(1, 10).toFixed(3), QT.sqrt2lnN(10).toFixed(3)]</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Now the best of 100: Marlow Street's count</h4>
+        <p>Same call with N = 100 and seed0 = 1,000,000. Expect about a second. It prints 1.80 in-sample, -0.06 out of sample, SR* of 1.80, and 2.539 rulers against equation 1's 2.531. Your numbers will match for the same seed.</p>
+        <div class="prompt-box good"><span class="label">console</span>var r100 = QT.ladderRung({ N: 100, trueSR: 0, method: "walkforward" }, 200, 1000000);
+[r100.isSR.toFixed(2), r100.oosSR.toFixed(2), r100.srStar.toFixed(2), (r100.isPerObs * Math.sqrt(503)).toFixed(3)]</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Turn rulers back into a Sharpe ratio, and decide about N = 1,000</h4>
+        <p>Multiply the rulers by the square root of 252 over 503, the 0.71, and you get the annualised figure back. The N = 1,000 rung with seed0 = 10,000,000 prints 2.33, 0.02 and 3.291 rulers, but at 200 worlds it takes many seconds in a browser, and the tab will look frozen while it runs. Run it when you have the time, not mid-session.</p>
+        <div class="prompt-box good"><span class="label">console</span>(r100.isPerObs * Math.sqrt(503) * Math.sqrt(252 / 503)).toFixed(2)
+// optional, slow: var r1k = QT.ladderRung({ N: 1000, trueSR: 0, method: "walkforward" }, 200, 10000000);</div>
+      </div></div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> Never read a Sharpe ratio without the N it was the best of. Divide out the ruler, hold the result against equation 1 for that N, and if the two are close, the backtest has told you how many things were tried and nothing else.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">At 200 worlds per rung the kept rule's out-of-sample Sharpe ratio is 0.14, -0.06 and 0.02 for N of 10, 100 and 1,000. Why is it about zero here rather than reliably negative?</p>
+      <div class="qopt">A · Because the kept rule secretly has a small real edge that cancels the overfitting</div>
+      <div class="qopt">B · Because the generator has no memory: each day is independent of the last, so a rule fitted to the first 503 days carries nothing into the next 252, and the AMS paper's compensation effect needs memory to make overfit rules lose</div>
+      <div class="qopt">C · Because 200 worlds is too few to see the loss that overfitting always causes</div>
+      <q class="qwhy">Without memory there is no reason to expect overfitting to produce negative performance (AMS 2014). With memory, the configuration that fit history best is the one most likely to be wrong when it reverses. This bench models only the first case, so the honest sentence is "earns nothing, or worse with memory".</q>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">What is sqrt(2 ln N) in the AMS paper, and how does it compare with the bench at N = 100?</p>
+      <div class="qopt">A · The exact expected maximum of N null trials, and the bench matches it to three decimals</div>
+      <div class="qopt">B · The minimum Sharpe ratio a strategy must report to be funded</div>
+      <div class="qopt">C · An upper bound to the expected maximum in units of one estimate's standard deviation; at N = 100 it is 3.035 against a measured 2.539 and equation 1's 2.531</div>
+      <q class="qwhy">The paper writes it as an upper bound, and on every rung it sits above the measurement. It describes how fast the maximum grows, which is why it is quoted loosely as the maximum itself. Quote it as a bound with the measured column beside it.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">Marlow Street's backtest reports 1.8 on two years of training data, after about a hundred variants. Why is that exactly what the best of 100 on nothing prints?</p>
+      <div class="qopt">A · Because ladder A measures the best in-sample Sharpe ratio of 100 rules with no alpha at 1.80 over 200 worlds of the same length, and SR*, the expected best of 100 from equation 1, is also 1.80, so the backtest sits exactly where noise plus selection puts it</div>
+      <div class="qopt">B · Because 1.8 is above the 95 percent line of 1.17, so it is a genuine finding</div>
+      <div class="qopt">C · Because any Sharpe ratio above 1 is unusual on two years of data</div>
+      <q class="qwhy">1.17 is the 95 percent line for one estimate. The 1.8 is the best of about a hundred, and the best of a hundred on nothing averages 1.80 at this sample length. The backtest is indistinguishable from the selection loop running on an empty world.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before session 4</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">About forty minutes, in the console or in Python.</p>
+    <div class="steps">
+      <div class="step"><div>
+        <h4>Change the history and watch the ruler move</h4>
+        <p>Run the N = 100 rung with <span class="mono">days: 1512</span> added to the options and a seed0 of your own, so 1,007 training observations instead of 503. Your numbers will differ from any canon figure. Convert the best in-sample figure to rulers with the square root of 1,007 and check whether the maximum in rulers stayed near equation 1 while the annualised figure fell.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Count your own N</h4>
+        <p>Take one analysis you shipped in the last year, in any field, and reconstruct how many variants were tried before the one you reported: features, filters, windows, thresholds. Write the number down, then write down how many of those were genuinely different. Session 4 needs both numbers.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Read the twenty-trials paragraph at source</h4>
+        <p>Open the AMS paper and find the passage on twenty trials and the 5 percent false-positive rate, and the one on seven configurations and a two-year backtest. Note which assumptions each illustration makes that this generator also makes, and which it does not.</p>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Best of N on pure noise</span><span class="note">Best in-sample 1.04, 1.80 and 2.33 for N of 10, 100 and 1,000; out of sample 0.14, -0.06 and 0.02; 200 worlds each.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The naive test applied to the maximum</span><span class="note">False discovery 0.060, 0.325, 0.995 and 1.000 for N of 1, 10, 100 and 1,000.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Zero, not negative, without memory</span><span class="note">The AMS compensation effect needs memory; the generator has none, so the kept rule earns about nothing.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The 2014 Notices illustrations</span><span class="note">Twenty trials to a false pass at 5 percent; seven trials to an in-sample 1 on two years; 128 trials to above 2.6.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Equation 1 and the Gumbel mean</span><span class="note">A location plus gamma times a scale, gamma about 0.5772; measured 1.475, 2.539 and 3.291 against 1.575, 2.531 and 3.255.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">sqrt(2 ln N) as a bound</span><span class="note">2.146, 3.035 and 3.717: above the measurement on every rung, quoted beside it.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The ruler</span><span class="note">0.71 annualised per standard deviation on 503 days; rulers times 0.71 gives the Sharpe ratio back.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">The deflated Sharpe ratio</span><span class="note">SR* printed tonight and the 0.000 deflated pass rate previewed. Session 4 implements it.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Counting the effective N</span><span class="note">Correlated variants make N smaller than the count. Named tonight, handled in session 4.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">One model against a challenger</span><span class="note">Live in <a href="https://phoebefu6.github.io/learn-model-risk-with-phoebe/courses/p5-benchmarks-and-challengers.html">learn-model-risk-with-phoebe, practitioner session 5</a>. Here the challenger is a crowd of random rules.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Any market, price or instrument</span><span class="note">Out of scope by design. Synthetic data only, and nothing here is investment advice.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>The one sentence.</strong> The best of N is a different statistic from one estimate, and it cannot be read without N.</div>
+      <div class="cheat-item"><strong>The ladder.</strong> Best of 10, 100 and 1,000 on nothing: 1.04, 1.80, 2.33 in-sample; 0.14, -0.06, 0.02 out of sample; 200 worlds each.</div>
+      <div class="cheat-item"><strong>The loop.</strong> The same days choose the rule and grade it, so the grade measures the choosing.</div>
+      <div class="cheat-item"><strong>The limit.</strong> No memory in the generator, so overfit rules earn about zero here, not less than zero. Say so.</div>
+      <div class="cheat-item"><strong>Equation 1.</strong> sqrt(V) times ((1 - gamma) Z<sup>-1</sup>[1 - 1/N] + gamma Z<sup>-1</sup>[1 - 1/(N e)]), gamma about 0.5772: a Gumbel mean.</div>
+      <div class="cheat-item"><strong>The bound.</strong> sqrt(2 ln N) is an upper bound: 3.035 against a measured 2.539 at N = 100. Quote both.</div>
+      <div class="cheat-item"><strong>The ruler.</strong> One estimate's standard deviation on 503 days is 0.71 annualised. Rulers times 0.71 is a Sharpe ratio.</div>
+      <div class="cheat-item"><strong>The question.</strong> Before reading any backtest, ask what it was the best of, and how many of those were really different.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Practitioner session 3 of 10 · learn-quant-trading-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="p2-a-strategy-as-a-function.html">← Practitioner session 2 · A strategy as a function</a>
+        <a href="p4-the-deflated-sharpe-haircut.html">Practitioner session 4 · The deflated Sharpe haircut →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/qt-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof QT === "undefined") return;
+  var selN = document.getElementById("p3-max-n");
+  var runBtn = document.getElementById("p3-max-run");
+  var out = document.getElementById("p3-max-out");
+  var verdict = document.getElementById("p3-max-verdict");
+  var self = document.getElementById("p3-max-self");
+  var TRIALS = 200;
+  var pendingN = 10;
+
+  /* canon seeds: ladder A uses seed0 = 10000 * N, 200 worlds per rung */
+  function render() {
+    var N = pendingN;
+    var seed0 = 10000 * N;
+    var r = QT.ladderRung({ N: N, trueSR: 0, method: "walkforward" }, TRIALS, seed0);
+    var rulers = r.isPerObs * Math.sqrt(r.trainSize);
+    var eq1 = QT.expectedMaxSR(1, N);
+    var bound = QT.sqrt2lnN(N);
+    var nLabel = N === 1000 ? "1,000" : String(N);
+
+    var html = '<table class="sql-table"><thead><tr><th>Quantity</th><th>Value</th><th>What it is</th></tr></thead><tbody>';
+    html += "<tr><td>Best in-sample Sharpe ratio (503 days)</td><td><b>" + r.isSR.toFixed(2) + "</b></td><td>" + (N === 1 ? "one rule, nothing selected" : "the best of " + nLabel + " rules that know nothing") + "</td></tr>";
+    html += '<tr><td>The same rule, out of sample (next 252 days)</td><td><b class="p3-hi">' + r.oosSR.toFixed(2) + "</b></td><td>what it earned on days it never saw</td></tr>";
+    html += "<tr><td>SR*, equation 1 with the measured spread</td><td>" + r.srStar.toFixed(2) + "</td><td>" + (N === 1 ? "no maximum to expect with one rule" : "the expected best of " + nLabel + " on nothing, annualised") + "</td></tr>";
+    html += '<tr><td>Measured maximum, in rulers</td><td><b class="p3-hi">' + rulers.toFixed(3) + "</b></td><td>per-day Sharpe ratio times sqrt(" + r.trainSize + ")</td></tr>";
+    html += "<tr><td>Equation 1 with V = 1, in rulers</td><td>" + (N === 1 ? "n/a" : eq1.toFixed(3)) + "</td><td>Bailey and Lopez de Prado 2014</td></tr>";
+    html += "<tr><td>sqrt(2 ln N), in rulers</td><td>" + (N === 1 ? "n/a" : bound.toFixed(3)) + "</td><td>an upper bound (AMS 2014), not an estimate</td></tr>";
+    html += "<tr><td>Naive discovery share</td><td><b>" + (r.naiveDiscovery * 100).toFixed(1) + " percent</b></td><td>of worlds, every one of them false</td></tr>";
+    html += "<tr><td>Worlds averaged</td><td>" + TRIALS + "</td><td>canon seeds, first seed " + (seed0 + 1).toLocaleString("en-US") + "</td></tr>";
+    html += "</tbody></table>";
+    out.innerHTML = html;
+
+    if (N === 1) {
+      verdict.textContent = "With one rule there is no selection. The rule reported " + r.isSR.toFixed(2) + " in-sample and " + r.oosSR.toFixed(2) + " out of sample, and the ordinary test passed in " + (r.naiveDiscovery * 100).toFixed(1) + " percent of worlds, which is the 5 percent a 95 percent test promises, within trial noise.";
+    } else {
+      verdict.textContent = "The best of " + nLabel + " rules on nothing reported " + r.isSR.toFixed(2) + " in-sample and " + r.oosSR.toFixed(2) + " on the days it never saw, a drop of " + (r.isSR - r.oosSR).toFixed(2) + " that is all selection. In rulers the maximum is " + rulers.toFixed(3) + "; equation 1 says " + eq1.toFixed(3) + " and the bound says " + bound.toFixed(3) + ", which is why it is a bound. The naive test called " + (r.naiveDiscovery * 100).toFixed(1) + " percent of these empty worlds a finding.";
+    }
+  }
+
+  function start(N, note) {
+    pendingN = N;
+    out.innerHTML = '<p class="sql-note">' + note + "</p>";
+    verdict.textContent = "...";
+    /* give the note a frame to paint, then compute */
+    setTimeout(function () { setTimeout(render, 0); }, 20);
+  }
+
+  var t = QT.selfTest();
+  self.textContent = t.ok
+    ? "The generator's six properties pass in this browser, so the figures above are the figures any correct run gives. Synthetic data only: nothing here describes a real market, and nothing here is investment advice."
+    : "The generator's self test did not pass in this browser, so nothing above should be believed.";
+
+  selN.addEventListener("change", function () {
+    var N = Number(selN.value);
+    start(N, "Running " + TRIALS + " worlds with " + N + " rules each...");
+  });
+  runBtn.addEventListener("click", function () {
+    start(1000, "Running " + TRIALS + " worlds with 1,000 rules each. This takes many seconds and the page will pause while it runs...");
+  });
+  render();
+})();
+</script>
+<style>
+  #p3-max .sql-code { border: 1px solid var(--hairline); border-radius: 8px; max-width: 26rem; }
+  #p3-max table.sql-table { margin: .6rem 0 .2rem; font-size: .85rem; }
+  #p3-max .p3-hi { color: var(--amber); }
+</style>
+</body>
+</html>

@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Practitioner session 2 of 10. Write a strategy as a function from what was knowable at t to a position of +1 or -1, charge the cost on the change, and build the Sharpe ratio from a mean and a standard deviation, annualised by the square root of 252 over h. Synthetic data only.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="A strategy as a function - learn quant with phoebe">
+<meta property="og:description" content="Practitioner session 2 of 10. Signal, position, PnL, Sharpe ratio: four lines of arithmetic, read exactly, and the one assumption hiding inside the square root of time.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/courses/p2-a-strategy-as-a-function.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="A strategy as a function - learn quant with phoebe">
+<meta name="twitter:description" content="If you cannot write the strategy as a function of what was knowable at t, you cannot check its Sharpe ratio. Write it.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Practitioner session 2 · A strategy as a function - learn quant with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-quant-trading-with-phoebe</a> / Practitioner session 2 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Quant Trading with Phoebe · Practitioner session 2 of 10</div>
+    <h1>A strategy <span class="accent">as a function</span></h1>
+    <p class="sub">A backtest number is the output of four small pieces of arithmetic: a signal, a position, a profit and loss line, and a ratio. Most arguments about a backtest are really arguments about one of the four that nobody wrote down. Tonight writes all four down, reads the engine's own lines for each, and finds the one assumption that hides inside the square root of time. The data is synthetic throughout, and nothing here is investment advice.</p>
+    <div class="chip-row">
+      <span class="chip level">🟡 Foundations</span>
+      <span class="chip audience">Anyone who will build or check a backtest</span>
+      <span class="chip audience">Comfortable with a browser console</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:3">3-13 · Signal to PnL</span>
+      <span class="a3" style="flex:3">13-23 · Sharpe from scratch</span>
+      <span class="a4" style="flex:6">23-45 · Build-along and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Marlow Street asks for the function, not the number</h2>
+    </div>
+    <p class="lede">Marlow Street is a constructed research desk, four people and a head who has been handed a backtest with an annualised Sharpe ratio of 1.8 and asked whether to fund it. Session 1 built the world where nothing is there. Tonight the head asks a narrower question before any statistics: write the strategy down as a function. What does it read, what position does it take, how long does it hold, what does a change of mind cost, and how does the ratio get from one number per day to one number per year? Every number on this page comes from a seeded generator of synthetic data, and nothing here is investment advice.</p>
+
+    <div class="legend">
+      <span class="pill">Live = presented in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with tonight.</strong> A strategy written as a function from what was knowable at t to a position of +1 or -1, held for h days, with the engine's own <span class="mono">pnl()</span> read line by line. A cost line that is charged on the change in position, never on the position. A Sharpe ratio built from scratch with <span class="mono">moments()</span> and <span class="mono">annualise()</span>, and the reason the scale is the square root of 252 over h. And one honest caveat: the square root of time assumes independent observations, and five-day windows that overlap are not independent.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why write the strategy as a function<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A function has a domain and a range, and both are checkable. The domain is everything the strategy was allowed to know when it decided: the signal up to the close of day t and nothing after. The range is a position: +1, long one unit, or -1, short one unit. Everything a reviewer needs to ask about leakage, costs and scaling is a question about one of those two sides.</p>
+        <p>Written this way the strategy stops being a chart and becomes four lines anyone can re-run. That is the point. A number that cannot be recomputed from a written function cannot be reviewed, only believed.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The words that keep coming back<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Signal.</strong> A number per day the strategy reads. Here, an AR(1) series with phi 0.8, one per strategy, that knows nothing about the returns unless it is the planted one.</li>
+          <li><strong>Position.</strong> The sign of the signal: +1 when it is zero or above, -1 below. One unit, no sizing until session 9.</li>
+          <li><strong>Hold, h.</strong> How many days each observation's return covers. h = 1 is a daily strategy; h = 5 earns a five-day forward return per observation.</li>
+          <li><strong>Observation.</strong> One value of the PnL line, y[t]. With h = 1 there are 755 of them on a 756-day world; with h = 5, 751.</li>
+          <li><strong>Cost line.</strong> Basis points charged per unit of position change. A flip from +1 to -1 is two units.</li>
+          <li><strong>Per-observation Sharpe.</strong> Mean of y over its sample standard deviation, with no time scale attached.</li>
+          <li><strong>Annualised Sharpe.</strong> The per-observation figure times the square root of 252 over h.</li>
+          <li><strong>Knowledge cut-off.</strong> The close of day t. A signal that reads anything after it is the lookahead fault session 8 plants.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>What session 1 left for tonight<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Session 1 used <span class="mono">pnl</span>, <span class="mono">moments</span> and <span class="mono">annualise</span> as black boxes to measure the noise in one estimate on the null. Tonight opens all three. The null stays switched on: every world on this page has trueSR 0, so whatever the function earns is noise, and the arithmetic can be checked without any edge getting in the way.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers signal, position and PnL</span>
+      <h2>From what was knowable at t to one observation of profit and loss</h2>
+      <span class="tag concept">10 min live</span>
+    </div>
+    <p class="lede">The engine's strategy is four steps and each one is a single line. Read a signal at the close of day t. Take its sign. Hold that position for the next h days and collect their summed return. Subtract a cost for every unit the position moved since the last observation. The result is one number per day, y[t], and every statistic in the next eight sessions is computed from that line and nothing else.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 450" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn pipeline of a strategy as a function. Five boxes left to right: a signal x at day t, AR(1) with phi 0.8; its sign, plus or minus one; the position, held for h days; the forward return, r at t plus 1 through r at t plus h; and y at t, the PnL, minus the cost line. Below, a day line from t minus 3 to t plus 6. A hatched block covers what is knowable at t, up to the close of day t. A steel dashed vertical line marks the knowledge cut-off at the close of day t. To its right a block covers the five-day forward window, r at t plus 1 through r at t plus 5. Under the day line a curved arrow from day t plus 1 back across the cut-off is struck out, labelled a shift of minus one that would let day t plus 1 in, planted in session 8. At the bottom, a step line of the position at plus one, then minus one, then plus one, with circles at the two flips, each labelled two units of cost, and a note that holding costs nothing.">
+        <defs>
+          <filter id="p2aSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="52" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p2aHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#7A1F3D" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p2aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p2aH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .p2aL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .p2aS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .p2aB { font: 800 11px Inter, sans-serif; fill: #2A5068; }
+          .p2aA { font: 700 11px Inter, sans-serif; fill: #7A1F3D; }
+          .p2aN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="p2aH" x="30" y="26">A STRATEGY AS A FUNCTION: WHAT IS KNOWABLE AT t GOES IN, ONE OBSERVATION COMES OUT</text>
+
+        <g filter="url(#p2aSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- pipeline -->
+          <rect x="30" y="44" width="150" height="52" rx="6" transform="rotate(-0.8 105 70)" fill="#FAF0F3"/>
+          <path d="M182 70 L206 70" marker-end="url(#p2aAr)"/>
+          <rect x="210" y="44" width="110" height="52" rx="6" transform="rotate(0.7 265 70)" fill="#FFFFFF"/>
+          <path d="M322 70 L346 70" marker-end="url(#p2aAr)"/>
+          <rect x="350" y="44" width="130" height="52" rx="6" transform="rotate(-0.5 415 70)" fill="#FFFFFF"/>
+          <path d="M482 70 L506 70" marker-end="url(#p2aAr)"/>
+          <rect x="510" y="44" width="170" height="52" rx="6" transform="rotate(0.6 595 70)" fill="#FFFFFF"/>
+          <path d="M682 70 L706 70" marker-end="url(#p2aAr)"/>
+          <rect x="710" y="44" width="150" height="52" rx="6" transform="rotate(-0.7 785 70)" fill="#FAF0F3"/>
+
+          <!-- clock doodle: the close of day t -->
+          <circle cx="842" cy="132" r="10"/>
+          <path d="M842 132 L842 125 M842 132 L848 134" stroke-width="1.6"/>
+
+          <!-- day line panel -->
+          <rect x="60" y="166" width="278" height="28" rx="4" transform="rotate(-0.4 199 180)" fill="url(#p2aHc)" stroke="#7A1F3D" stroke-width="1.4"/>
+          <rect x="354" y="166" width="372" height="28" rx="4" transform="rotate(0.4 540 180)" fill="#FAF0F3"/>
+          <path d="M60 222 L840 222" stroke-width="2.4"/>
+          <path d="M80 216 L80 228 M156 216 L156 228 M232 216 L232 228 M308 216 L308 228 M384 216 L384 228 M460 216 L460 228 M536 216 L536 228 M612 216 L612 228 M688 216 L688 228 M764 216 L764 228"/>
+          <!-- the knowledge cut-off -->
+          <path d="M346 122 L346 262" stroke="#3B6E8F" stroke-width="2.4" stroke-dasharray="7 5"/>
+          <!-- the shift that would let tomorrow in, struck out -->
+          <path d="M392 256 C372 282 330 282 314 262" stroke="#7A1F3D" stroke-dasharray="5 4" marker-end="url(#p2aAr)"/>
+          <path data-strike="1" d="M340 264 L360 288" stroke="#7A1F3D" stroke-width="2.6"/>
+
+          <!-- position step line and the cost marks -->
+          <path d="M60 346 L270 346 L270 386 L574 386 L574 346 L840 346" stroke-width="2.4"/>
+          <circle cx="270" cy="366" r="7" fill="#FAF0F3" stroke="#7A1F3D"/>
+          <circle cx="574" cy="366" r="7" fill="#FAF0F3" stroke="#7A1F3D"/>
+        </g>
+
+        <text class="p2aL" x="105" y="66" text-anchor="middle">a signal x[t]</text>
+        <text class="p2aS" x="105" y="83" text-anchor="middle">AR(1), phi 0.8</text>
+        <text class="p2aL" x="265" y="66" text-anchor="middle">sign</text>
+        <text class="p2aS" x="265" y="83" text-anchor="middle">+1 or -1</text>
+        <text class="p2aL" x="415" y="66" text-anchor="middle">position[t]</text>
+        <text class="p2aS" x="415" y="83" text-anchor="middle">held for h days</text>
+        <text class="p2aL" x="595" y="66" text-anchor="middle">forward return</text>
+        <text class="p2aS" x="595" y="83" text-anchor="middle">r[t+1] + ... + r[t+h]</text>
+        <text class="p2aL" x="785" y="66" text-anchor="middle">y[t], the PnL</text>
+        <text class="p2aS" x="785" y="83" text-anchor="middle">minus the cost line</text>
+
+        <text class="p2aA" x="30" y="136">ONE OBSERVATION, h = 5</text>
+        <text class="p2aB" x="356" y="136">knowledge cut-off: close of day t</text>
+        <text class="p2aL" x="199" y="158" text-anchor="middle">what is knowable at t</text>
+        <text class="p2aL" x="540" y="158" text-anchor="middle">the h-day forward window</text>
+        <text class="p2aS" x="540" y="184" text-anchor="middle">r[t+1] + r[t+2] + r[t+3] + r[t+4] + r[t+5]</text>
+        <text class="p2aS" x="80" y="244" text-anchor="middle">t-3</text>
+        <text class="p2aS" x="156" y="244" text-anchor="middle">t-2</text>
+        <text class="p2aS" x="232" y="244" text-anchor="middle">t-1</text>
+        <text class="p2aS" x="308" y="244" text-anchor="middle">t</text>
+        <text class="p2aS" x="384" y="244" text-anchor="middle">t+1</text>
+        <text class="p2aS" x="460" y="244" text-anchor="middle">t+2</text>
+        <text class="p2aS" x="536" y="244" text-anchor="middle">t+3</text>
+        <text class="p2aS" x="612" y="244" text-anchor="middle">t+4</text>
+        <text class="p2aS" x="688" y="244" text-anchor="middle">t+5</text>
+        <text class="p2aS" x="764" y="244" text-anchor="middle">t+6</text>
+        <text class="p2aA" x="404" y="286">a shift of -1 lets day t+1 in: struck out here, planted in session 8</text>
+
+        <text class="p2aA" x="30" y="318">THE POSITION, AND WHERE THE COST IS CHARGED</text>
+        <text class="p2aS" x="62" y="336">position[t] = sign(x[t])</text>
+        <text class="p2aS" x="640" y="336">holding costs nothing</text>
+        <text class="p2aS" x="50" y="350" text-anchor="end">+1</text>
+        <text class="p2aS" x="50" y="390" text-anchor="end">-1</text>
+        <text class="p2aA" x="284" y="370">a flip: 2 units of cost</text>
+        <text class="p2aA" x="588" y="370">and 2 more on the way back</text>
+
+        <text class="p2aN" x="30" y="416">Observation t earns position[t] times r[t+1] + ... + r[t+h], less the cost times |position[t] - position[t-1]|.</text>
+        <text class="p2aN" x="30" y="434">With h = 5, observation t+1's window shares four of these five days. Part 2 prices that in.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the steel line is the whole contract: the position may read everything to its left and must earn only what lies to its right.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The signal: an AR(1) that knows nothing<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><span class="mono">makeStrategies(world, { N, seed })</span> makes N signals, one per strategy, from its own seed: the world seed plus 1000 by convention. Each starts at a standard normal and then follows x[t] = 0.8 times x[t-1] plus 0.6 times a fresh normal. The 0.6 is the square root of one minus 0.8 squared, which keeps the signal's variance at one every day.</p>
+        <p>None of these signals is computed from the returns. They are drawn from a different random stream, so on a zero-alpha world every one of them is a coin flip dressed up as a rule. The only exception is the planted one: when <span class="mono">plantIndex</span> is set, that strategy's signal is the world's hidden signal itself, the one the returns lean on. Session 6 switches that on; tonight it stays off.</p>
+        <p>Why AR(1) and not plain noise? Because 0.8 makes the sign persist. The probability that an AR(1) with phi 0.8 changes sign on a given day is arccos(0.8) over pi, about 0.205, so a position lasts a few days on average. That persistence is what makes the cost line and overlapping windows mean something.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The position: a sign, held for h days<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Inside <span class="mono">pnl()</span> the position at observation t is <span class="mono">signal[t] &gt;= 0 ? 1 : -1</span>. A signal of exactly zero goes long; that tie never matters on continuous data but it is written down, which is the point. There is no sizing: every position is one unit. Session 9 multiplies it by a leverage and watches the mean and the median part ways.</p>
+        <p>The position reads <span class="mono">signal[t - shift]</span>, and the shift defaults to zero. That one parameter is the knowledge cut-off in code. With shift 0 the signal at the close of day t trades days t+1 onwards. With shift -1 it would read day t+1's signal before trading day t+1, which is tomorrow leaking into today. Session 8 plants exactly that fault in a five-day momentum rule and, over 200 worlds of nothing, the Sharpe ratio goes from 0.02 to 6.11.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Marlow Street, constructed like the rest, asked the author of the 1.8 backtest to fill in a one-page template: inputs, the cut-off, the position rule, h, the cost. The first draft could not be filled in. Its position for a day read a column that the data team updated the morning after. Nobody had lied. The function had simply never been written, so nobody had looked at which side of the steel line each input sat on.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The PnL: one observation per day, overlapping when h &gt; 1<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><span class="mono">pnl(world, signal, { h, costBp, shift })</span> makes T = days minus h observations. For each t from 0 to T - 1 it takes the position, sums the next h returns r[t+1] to r[t+h] into a forward return, multiplies, and subtracts the cost line. That is the whole function. On a 756-day world, h = 1 gives 755 observations and h = 5 gives 751.</p>
+        <p>With h = 1 each observation earns one new day and no two observations share a day. With h = 5 observation t earns days t+1 to t+5 and observation t+1 earns days t+2 to t+6: four of the five days are the same. The engine still makes one observation per day, so 751 observations are built from the same 755 days a daily strategy uses. They are not 751 independent five-day bets.</p>
+        <p>Overlap is not a bug. It is how a strategy that holds for a week is honestly scored every day. It becomes a bug in two places: when the observations are counted as if they were independent (Part 2), and when a shuffled split puts observation t in training and t+1 in testing, so the test shares four days with the training set (session 5).</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The cost line: charged on the change, not the position<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The engine's line is <span class="mono">y[t] = pos * fwd - cost * Math.abs(pos - prev)</span>, where cost is costBp over 10,000 and prev is the previous observation's position. Holding the same position costs nothing. Flipping from +1 to -1 is a change of two units and pays twice the cost. The first observation starts from prev = 0, so it pays one unit to open.</p>
+        <p>The arithmetic follows from the signal. A sign change on about 20.5 percent of days, at two units a flip, is about 0.41 units of position change a day. Each 5 basis points then costs about 0.32 of annualised Sharpe at one percent daily volatility. Session 7 measures the consequence on a real edge: a planted Sharpe of 1.0 falls to 0.69 in-sample at 5 basis points, a mean over 200 worlds, and is negative at 20.</p>
+        <p>The cost is charged once per observation, at the moment the position changes, also when h = 5. That is a choice, written down, and a reviewer can disagree with it. What a reviewer cannot do is check a cost that was never placed on a specific line.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the Sharpe ratio from scratch</span>
+      <h2>Mean over standard deviation, then one square root</h2>
+      <span class="tag concept">10 min live</span>
+    </div>
+    <p class="lede">The Sharpe ratio is two lines in the engine. <span class="mono">moments()</span> takes the PnL line and returns its mean, its sample standard deviation and their ratio, which is the Sharpe ratio per observation. <span class="mono">annualise()</span> multiplies that by the square root of 252 over h. The first line is plain arithmetic. The second carries an assumption, and the assumption is exactly what overlapping windows break.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 496" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn arithmetic of the Sharpe ratio. Top row: a strip of twenty PnL bars with a dashed mean line and a bracket of one standard deviation, labelled 503 observations; an arrow into a fraction box, mean of y over sd of y, the sr per observation; an arrow into a steel box, times the square root of 252 over h, which is times 15.87 at h equal 1 and times 7.10 at h equal 5; an arrow into a box labelled annualised Sharpe ratio. Bottom: two panels side by side. Left, h equal 1: a row of ten days, each covered by its own short bracket, labelled 755 observations, 755 days, every observation is new evidence. Right, h equal 5: the same ten days with six staggered five-day brackets that overlap, labelled 751 observations, still 755 days, neighbours share four of five days; a struck out line reads 751 times 5 equals 3,755 days of evidence; under it, 755 days hold 151 non-overlapping windows.">
+        <defs>
+          <filter id="p2bSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="57" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p2bHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#7A1F3D" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p2bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p2bH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .p2bL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .p2bS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .p2bB { font: 800 11px Inter, sans-serif; fill: #2A5068; }
+          .p2bA { font: 700 11px Inter, sans-serif; fill: #7A1F3D; }
+          .p2bW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p2bN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="p2bH" x="30" y="26">SHARPE FROM SCRATCH: MEAN OVER SD, THEN A SCALE THAT ASSUMES INDEPENDENT OBSERVATIONS</text>
+
+        <g filter="url(#p2bSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- the PnL strip -->
+          <path d="M34 108 L296 108" stroke-width="1.4"/>
+          <path d="M40 108 L40 90 M53 108 L53 118 M66 108 L66 102 M79 108 L79 130 M92 108 L92 94 M105 108 L105 99 M118 108 L118 114 M131 108 L131 83 M144 108 L144 123 M157 108 L157 104 M170 108 L170 96 M183 108 L183 116 M196 108 L196 88 M209 108 L209 120 M222 108 L222 101 M235 108 L235 126 M248 108 L248 98 M261 108 L261 105 M274 108 L274 117 M287 108 L287 93" stroke-width="3"/>
+          <path d="M34 104 L296 104" stroke="#7A1F3D" stroke-dasharray="5 4"/>
+          <path d="M300 84 L306 84 L306 128 L300 128"/>
+          <path d="M312 98 L330 98" marker-end="url(#p2bAr)"/>
+          <!-- the fraction -->
+          <rect x="334" y="56" width="150" height="84" rx="6" transform="rotate(-0.8 409 98)" fill="#FFFFFF"/>
+          <path d="M374 90 L444 90" stroke-width="1.8"/>
+          <path d="M486 98 L512 98" marker-end="url(#p2bAr)"/>
+          <!-- the scale: the one thing -->
+          <rect x="516" y="52" width="170" height="92" rx="6" transform="rotate(0.6 601 98)" fill="#3B6E8F"/>
+          <path d="M688 98 L714 98" marker-end="url(#p2bAr)"/>
+          <rect x="718" y="66" width="142" height="60" rx="6" transform="rotate(-0.6 789 96)" fill="#FAF0F3"/>
+          <!-- pencil doodle -->
+          <path d="M800 176 L846 160 L850 168 L804 184 Z M800 176 L794 186 L804 184" stroke-width="1.6"/>
+
+          <!-- left panel: h = 1 -->
+          <rect x="30" y="196" width="400" height="246" rx="8" transform="rotate(-0.4 230 319)" fill="#FFFFFF"/>
+          <rect x="50" y="236" width="340" height="26" rx="3" fill="url(#p2bHc)" stroke="#7A1F3D" stroke-width="1.4"/>
+          <path d="M84 236 L84 262 M118 236 L118 262 M152 236 L152 262 M186 236 L186 262 M220 236 L220 262 M254 236 L254 262 M288 236 L288 262 M322 236 L322 262 M356 236 L356 262" stroke-width="1.2"/>
+          <path d="M53 290 L81 290 M53 285 L53 295 M81 285 L81 295 M87 290 L115 290 M87 285 L87 295 M115 285 L115 295 M121 290 L149 290 M121 285 L121 295 M149 285 L149 295 M155 290 L183 290 M155 285 L155 295 M183 285 L183 295 M189 290 L217 290 M189 285 L189 295 M217 285 L217 295 M223 290 L251 290 M223 285 L223 295 M251 285 L251 295 M257 290 L285 290 M257 285 L257 295 M285 285 L285 295 M291 290 L319 290 M291 285 L291 295 M319 285 L319 295 M325 290 L353 290 M325 285 L325 295 M353 285 L353 295 M359 290 L387 290 M359 285 L359 295 M387 285 L387 295"/>
+
+          <!-- right panel: h = 5 -->
+          <rect x="450" y="196" width="410" height="246" rx="8" transform="rotate(0.4 655 319)" fill="#FFFFFF"/>
+          <rect x="470" y="236" width="340" height="26" rx="3" fill="url(#p2bHc)" stroke="#7A1F3D" stroke-width="1.4"/>
+          <path d="M504 236 L504 262 M538 236 L538 262 M572 236 L572 262 M606 236 L606 262 M640 236 L640 262 M674 236 L674 262 M708 236 L708 262 M742 236 L742 262 M776 236 L776 262" stroke-width="1.2"/>
+          <path d="M473 284 L637 284 M473 279 L473 289 M637 279 L637 289" stroke="#7A1F3D"/>
+          <path d="M507 296 L671 296 M507 291 L507 301 M671 291 L671 301" stroke="#7A1F3D"/>
+          <path d="M541 308 L705 308 M541 303 L541 313 M705 303 L705 313"/>
+          <path d="M575 320 L739 320 M575 315 L575 325 M739 315 L739 325"/>
+          <path d="M609 332 L773 332 M609 327 L609 337 M773 327 L773 337"/>
+          <path d="M643 344 L807 344 M643 339 L643 349 M807 339 L807 349"/>
+          <path data-strike="1" d="M466 406 L686 406" stroke="#7A1F3D" stroke-width="2.2"/>
+        </g>
+
+        <text class="p2bL" x="34" y="62">the PnL strip</text>
+        <text class="p2bS" x="34" y="150">503 observations y[t]</text>
+        <text class="p2bS" x="34" y="166">dashed: the mean; bracket: one sd</text>
+        <text class="p2bL" x="409" y="82" text-anchor="middle">mean(y)</text>
+        <text class="p2bL" x="409" y="108" text-anchor="middle">sd(y)</text>
+        <text class="p2bS" x="409" y="128" text-anchor="middle">sr per observation</text>
+        <text class="p2bW" x="601" y="80" text-anchor="middle">times sqrt(252 / h)</text>
+        <text class="p2bW" x="601" y="102" text-anchor="middle">h = 1: times 15.87</text>
+        <text class="p2bW" x="601" y="122" text-anchor="middle">h = 5: times 7.10</text>
+        <text class="p2bL" x="789" y="92" text-anchor="middle">annualised</text>
+        <text class="p2bS" x="789" y="110" text-anchor="middle">Sharpe ratio</text>
+
+        <text class="p2bL" x="50" y="222">h = 1: one day per observation</text>
+        <text class="p2bL" x="50" y="372">755 observations, 755 days</text>
+        <text class="p2bS" x="50" y="390">every observation is new evidence</text>
+        <text class="p2bB" x="50" y="410">t = SR times sqrt(T) reads as written</text>
+
+        <text class="p2bL" x="470" y="222">h = 5: five days per observation</text>
+        <text class="p2bL" x="470" y="372">751 observations, still 755 days</text>
+        <text class="p2bS" x="470" y="390">neighbours share four of five days</text>
+        <text class="p2bA" x="470" y="410">751 x 5 = 3,755 days of evidence</text>
+        <text class="p2bB" x="470" y="430">755 days hold 151 non-overlapping windows</text>
+
+        <text class="p2bN" x="30" y="466">Sharpe 1994: t equals the Sharpe ratio times the square root of T. Read T as independent observations.</text>
+        <text class="p2bN" x="30" y="484">Overlapping windows are not independent, so counting all 751 of them overstates the evidence.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the scale is right for the units and wrong for the evidence: five-day windows that share four days are not five times the data.</figcaption>
+    </figure>
+
+    <div class="wk" id="p2-fn">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">The engine, running in this page. One random rule on one zero-alpha world, put through pnl, moments and annualise with the hold and cost you choose; then the canon mean over 200 worlds.</span>
+      </div>
+      <div class="wk-body">
+        <label class="sql-label" for="p2-h">Hold, h (days each observation earns)</label>
+        <select class="sql-code" id="p2-h">
+          <option value="1" selected>h = 1, daily</option>
+          <option value="5">h = 5, overlapping five-day windows</option>
+        </select>
+        <label class="sql-label" for="p2-cost">Cost per unit of position change</label>
+        <select class="sql-code" id="p2-cost">
+          <option value="0" selected>0 basis points</option>
+          <option value="5">5 basis points</option>
+        </select>
+        <label class="sql-label" for="p2-seed">Which world (the seed)</label>
+        <select class="sql-code" id="p2-seed">
+          <option value="10001" selected>World 1</option>
+          <option value="10002">World 2</option>
+          <option value="10003">World 3</option>
+          <option value="10004">World 4</option>
+          <option value="10005">World 5</option>
+        </select>
+        <div id="p2-fn-out"></div>
+        <p class="sql-note" id="p2-fn-verdict">...</p>
+      </div>
+      <div class="wk-foot" id="p2-fn-self">...</div>
+    </div>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>moments(): the ratio per observation<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><span class="mono">moments(y)</span> computes the mean of y, then the sample variance with n - 1 in the denominator, its square root as sd, and sr = mean over sd. It also returns skewness and kurtosis (not excess) from the population moments, which session 4 feeds into the probabilistic Sharpe ratio. Nothing else. There is no risk-free rate to subtract: the position is long or short one unit with no financing, so the PnL line is already the excess return the ratio wants.</p>
+        <p>Read the box above with World 1, h = 1 and no cost. The per-observation mean is a few hundredths of a percent, the standard deviation sits near the one percent daily volatility, and their ratio is a small number with no time unit. That small number is the Sharpe ratio. Everything after it is a change of units.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>annualise(): why the square root of 252 over h<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>If observations were independent with mean m and standard deviation s, a year of them would have mean m times the count and standard deviation s times the square root of the count. Their ratio grows by the square root of the count. With h = 1 a year holds 252 observations, so the scale is the square root of 252, about 15.87. With h = 5 each observation spans five days, so a year holds 252 over 5 non-overlapping ones and the scale is the square root of 50.4, about 7.10. That is the engine's <span class="mono">annualise(sr, h) = sr * Math.sqrt(252 / h)</span>.</p>
+        <p>The scale puts h = 1 and h = 5 on the same yearly footing for the size of the ratio. It does nothing about the evidence. The same square root reappears in Sharpe 1994 as the link to significance: the t-statistic equals the Sharpe ratio times the square root of T. With 751 overlapping observations, T is not 751. On 755 days there are 151 non-overlapping five-day windows, and any test that counts 751 treats one week's evidence as if it were seen five times.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Marlow Street, constructed, rebuilt the 1.8 from its spreadsheet. The strategy held for a week and was scored daily, which is fine, but the ratio had been annualised by the square root of 252, as if each five-day observation were one day. That inflates the figure by the square root of 5, about 2.24, before anyone has asked a statistical question. Writing the function with h as a named input made the mistake impossible to miss, and the head stopped reading the number until it was recomputed.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Sharpe 1966 and 1994: the name, ex ante and ex post<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Sharpe's 1994 paper recalls that he introduced the measure in 1966 as the "reward-to-variability ratio", and adopts the name Sharpe Ratio from the usage that had grown up around it. It separates two versions. Ex ante: the expected differential return over its predicted standard deviation, a forecast. Ex post: the historic average differential return over its historic standard deviation, a measurement. Every number a backtest prints is ex post. Funding a strategy is a bet on the ex ante figure. The gap between the two is what the next eight sessions are about.</p>
+        <p>Two sentences from the paper carry tonight. First, "The Sharpe Ratio is not independent of the time period over which it is measured", which is why a ratio quoted without its h and its annualisation cannot be compared with another. Second, "The t-statistic will equal the Sharpe Ratio times the square root of T", which ties the ratio to significance and to the sample length, and is why session 1's ruler was 0.71 by the formula, the square root of 252 over 503.</p>
+        <p class="mono">Sharpe, W. F. (1994). "The Sharpe Ratio." The Journal of Portfolio Management, Fall 1994. Read at source: https://web.stanford.edu/~wfsharpe/art/sr/sr.htm</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where serious people disagree<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>The case for the square root of time.</strong> Annualising by the square root of the number of periods in a year is the convention almost every report uses. It puts strategies scored at different frequencies on one scale, it is exact when observations are independent with a stable mean and variance, and a reader who knows the convention can undo it. A convention everyone applies the same way is useful even where it is imperfect.</p>
+        <p><strong>The case against.</strong> The rule is only exact under independence, and many series are not independent: overlapping windows like h = 5 here, positions that persist, returns with memory. Sharpe 1994 itself warns that the ratio "is not independent of the time period over which it is measured". On this view a ratio should be reported at the frequency it was measured, with the sample length and the overlap stated, and any yearly figure treated as a unit conversion rather than as evidence.</p>
+        <p>Both positions are held by careful people and the literature has not settled which reporting rule is better. The engine takes the first position for the scale and teaches the second for the evidence: <span class="mono">annualise()</span> multiplies by the square root of 252 over h, and session 5 removes the overlap from training sets by purging rather than pretending it is not there. That is a stated choice, not a resolution.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · build-along</span>
+      <h2>Write the function, score it, then score it the canon way</h2>
+      <span class="tag build">22 min hands on</span>
+    </div>
+    <p class="lede">Open this page's console. The engine is loaded as <span class="mono">QT</span>. Six steps take one random rule on one zero-alpha world from a seed to an annualised Sharpe ratio, twice, then repeat the first version over 200 worlds. This is the exercise Marlow Street, constructed, now asks of every backtest before it is discussed: same function, re-run by someone else, same number.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 332" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn map from console calls to outputs. Row one: makeWorld with seed 10001, makeStrategies with N 1 and seed plus 1000, pnl with h 1 and no cost, moments on the first 503 observations, annualise times the square root of 252, giving one world's figure. Row two branches from makeStrategies: pnl with h 5 and 5 basis points, moments on the first 503 observations, annualise times the square root of 50.4, giving a second single-world figure. Row three: ladderRung with N 1 and trueSR 0 over 200 worlds, seed0 10000, worlds 10001 to 10200, with a long arrow to a steel box reading minus 0.01, the canon mean.">
+        <defs>
+          <filter id="p2cSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="61" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p2cHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#7A1F3D" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p2cAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p2cH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .p2cL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .p2cS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .p2cW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p2cN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="p2cH" x="30" y="26">FROM CONSOLE TO CHART: SIX CALLS, TWO SINGLE WORLDS, ONE CANON MEAN</text>
+
+        <g filter="url(#p2cSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- prompt doodle -->
+          <path d="M818 14 L826 20 L818 26 M830 27 L844 27" stroke-width="1.8"/>
+          <!-- row 1 -->
+          <rect x="30" y="48" width="120" height="46" rx="6" transform="rotate(-0.8 90 71)" fill="#FAF0F3"/>
+          <path d="M152 71 L174 71" marker-end="url(#p2cAr)"/>
+          <rect x="178" y="48" width="130" height="46" rx="6" transform="rotate(0.6 243 71)" fill="#FFFFFF"/>
+          <path d="M310 71 L328 71" marker-end="url(#p2cAr)"/>
+          <rect x="332" y="48" width="110" height="46" rx="6" transform="rotate(-0.5 387 71)" fill="#FFFFFF"/>
+          <path d="M444 71 L462 71" marker-end="url(#p2cAr)"/>
+          <rect x="466" y="48" width="120" height="46" rx="6" transform="rotate(0.5 526 71)" fill="#FFFFFF"/>
+          <path d="M588 71 L606 71" marker-end="url(#p2cAr)"/>
+          <rect x="610" y="48" width="124" height="46" rx="6" transform="rotate(-0.6 672 71)" fill="#FFFFFF"/>
+          <path d="M736 71 L750 71" marker-end="url(#p2cAr)"/>
+          <rect x="754" y="48" width="110" height="46" rx="6" transform="rotate(0.8 809 71)" fill="url(#p2cHc)" stroke="#7A1F3D"/>
+          <!-- branch to row 2 -->
+          <path d="M243 96 C243 132 290 163 328 163" marker-end="url(#p2cAr)"/>
+          <!-- row 2 -->
+          <rect x="332" y="140" width="110" height="46" rx="6" transform="rotate(0.6 387 163)" fill="#FFFFFF"/>
+          <path d="M444 163 L462 163" marker-end="url(#p2cAr)"/>
+          <rect x="466" y="140" width="120" height="46" rx="6" transform="rotate(-0.5 526 163)" fill="#FFFFFF"/>
+          <path d="M588 163 L606 163" marker-end="url(#p2cAr)"/>
+          <rect x="610" y="140" width="124" height="46" rx="6" transform="rotate(0.7 672 163)" fill="#FFFFFF"/>
+          <path d="M736 163 L750 163" marker-end="url(#p2cAr)"/>
+          <rect x="754" y="140" width="110" height="46" rx="6" transform="rotate(-0.7 809 163)" fill="url(#p2cHc)" stroke="#7A1F3D"/>
+          <!-- row 3 -->
+          <rect x="30" y="226" width="330" height="48" rx="6" transform="rotate(-0.4 195 250)" fill="#FAF0F3"/>
+          <path d="M362 250 L748 250" marker-end="url(#p2cAr)"/>
+          <rect x="754" y="226" width="110" height="48" rx="6" transform="rotate(0.6 809 250)" fill="#3B6E8F"/>
+        </g>
+
+        <text class="p2cL" x="90" y="67" text-anchor="middle">makeWorld</text>
+        <text class="p2cS" x="90" y="84" text-anchor="middle">seed 10001</text>
+        <text class="p2cL" x="243" y="67" text-anchor="middle">makeStrategies</text>
+        <text class="p2cS" x="243" y="84" text-anchor="middle">N 1, seed + 1000</text>
+        <text class="p2cL" x="387" y="67" text-anchor="middle">pnl</text>
+        <text class="p2cS" x="387" y="84" text-anchor="middle">h 1, no cost</text>
+        <text class="p2cL" x="526" y="67" text-anchor="middle">moments</text>
+        <text class="p2cS" x="526" y="84" text-anchor="middle">first 503 obs</text>
+        <text class="p2cL" x="672" y="67" text-anchor="middle">annualise</text>
+        <text class="p2cS" x="672" y="84" text-anchor="middle">times sqrt(252)</text>
+        <text class="p2cL" x="809" y="67" text-anchor="middle">one world</text>
+        <text class="p2cS" x="809" y="84" text-anchor="middle">h 1, no cost</text>
+
+        <text class="p2cL" x="387" y="159" text-anchor="middle">pnl</text>
+        <text class="p2cS" x="387" y="176" text-anchor="middle">h 5, cost 5 bp</text>
+        <text class="p2cL" x="526" y="159" text-anchor="middle">moments</text>
+        <text class="p2cS" x="526" y="176" text-anchor="middle">first 503 obs</text>
+        <text class="p2cL" x="672" y="159" text-anchor="middle">annualise</text>
+        <text class="p2cS" x="672" y="176" text-anchor="middle">times sqrt(50.4)</text>
+        <text class="p2cL" x="809" y="159" text-anchor="middle">one world</text>
+        <text class="p2cS" x="809" y="176" text-anchor="middle">h 5, 5 bp</text>
+
+        <text class="p2cL" x="195" y="246" text-anchor="middle">ladderRung(N 1, trueSR 0), 200 worlds</text>
+        <text class="p2cS" x="195" y="264" text-anchor="middle">seed0 10000: worlds 10001 to 10200</text>
+        <text class="p2cS" x="555" y="240" text-anchor="middle">the first row, 200 times over, averaged</text>
+        <text class="p2cW" x="809" y="246" text-anchor="middle">-0.01</text>
+        <text class="p2cW" x="809" y="264" text-anchor="middle">canon mean</text>
+
+        <text class="p2cN" x="30" y="300">Rows one and two are single worlds: your console prints a figure, and it differs by seed.</text>
+        <text class="p2cN" x="30" y="318">Row three is the canon: a mean over 200 worlds, and the only kind of figure quoted on this page.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - two hatched boxes are single draws; the steel box is a measurement.</figcaption>
+    </figure>
+
+    <div class="steps">
+      <div class="step"><div>
+        <h4>Make one world and one rule</h4>
+        <p>Seed 10001 is World 1 in the box above, and the first world of the canon rung in step 6. The rule's seed is the world seed plus 1000, the convention every page uses. Your numbers will match for the same seed.</p>
+        <div class="prompt-box good"><span class="label">console</span>var w = QT.makeWorld({ trueSR: 0, seed: 10001 });
+var x = QT.makeStrategies(w, { N: 1, seed: w.seed + 1000 })[0];
+x.slice(0, 5)</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Turn the rule into a PnL line</h4>
+        <p>h = 1 and no cost. Check the length: 755 observations from 756 days, because the last day has no tomorrow to earn.</p>
+        <div class="prompt-box good"><span class="label">console</span>var y = QT.pnl(w, x, { h: 1 });
+y.length</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Take the moments of the first 503 observations</h4>
+        <p>Mean, sample standard deviation and their ratio, the per-observation Sharpe ratio. Your console prints the same figures as the box's top rows for World 1, h = 1, no cost; another seed prints other figures.</p>
+        <div class="prompt-box good"><span class="label">console</span>var m = QT.moments(y.slice(0, 503));
+[m.n, m.mean.toFixed(5), m.sd.toFixed(5), m.sr.toFixed(4)]</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Annualise it, in and out of sample</h4>
+        <p>Multiply by the square root of 252 over h, with h = 1. Then do the same on observations 503 onwards, the out-of-sample stretch. Your numbers will match for the same seed; the figures themselves are one draw and mean nothing alone.</p>
+        <div class="prompt-box good"><span class="label">console</span>var mOut = QT.moments(y.slice(503));
+[QT.annualise(m.sr, 1).toFixed(2), QT.annualise(mOut.sr, 1).toFixed(2)]</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Same rule, h = 5 and 5 basis points</h4>
+        <p>Four fewer observations, a five-day forward return each, a cost on every change. Annualise with h = 5 this time. Then count the units of position change per observation and compare with the arithmetic in Part 1, about 0.41 a day.</p>
+        <div class="prompt-box good"><span class="label">console</span>var y5 = QT.pnl(w, x, { h: 5, costBp: 5 });
+var m5 = QT.moments(y5.slice(0, 503));
+var turn = 0, prev = 0;
+for (var t = 0; t &lt; y5.length; t++) { var p = x[t] &gt;= 0 ? 1 : -1; turn += Math.abs(p - prev); prev = p; }
+[y5.length, QT.annualise(m5.sr, 5).toFixed(2), (turn / y5.length).toFixed(2)]</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Now the canon: 200 worlds</h4>
+        <p>ladderRung repeats steps 1 to 4 over seeds 10001 to 10200 (seed0 10000, the canon seed for this rung) and reports means. It prints -0.01 in-sample and -0.07 out of sample. Your numbers will match, exactly, because the seeds are the canon seeds.</p>
+        <div class="prompt-box good"><span class="label">console</span>var r = QT.ladderRung({ N: 1, trueSR: 0, method: "walkforward" }, 200, 10000);
+[r.trainSize, r.isSR.toFixed(2), r.oosSR.toFixed(2)]</div>
+      </div></div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> Before you argue about a Sharpe ratio, write the function that produced it: the cut-off, the position rule, h, the cost line and the annualisation. Then have someone else re-run it from the seed. If either step fails, the number is not ready to be discussed.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">Why does the engine annualise a per-observation Sharpe ratio by the square root of 252 over h?</p>
+      <div class="qopt">A · Because 252 over h is the number of observations the engine produces per year, overlapping or not</div>
+      <div class="qopt">B · Because a year holds 252 over h non-overlapping h-day periods, and for independent observations the ratio grows with the square root of their count</div>
+      <div class="qopt">C · Because it makes h = 5 strategies look better than daily ones</div>
+      <q class="qwhy">The engine makes one observation per day whatever h is, so A is wrong about the count. The scale assumes independent periods: the mean grows with the count and the standard deviation with its square root. That puts the size of the ratio on a yearly footing; it does not make overlapping observations independent.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">In <span class="mono">pnl()</span>, what is the cost line charged on?</p>
+      <div class="qopt">A · The change in position, |position[t] - position[t-1]| times the cost, so holding costs nothing and a flip from +1 to -1 pays two units</div>
+      <div class="qopt">B · The position itself, every day it is held</div>
+      <div class="qopt">C · The size of the forward return</div>
+      <q class="qwhy">A trade happens when the position changes, so that is where the cost goes. With phi 0.8 the sign changes on about 20.5 percent of days, about 0.41 units of change a day, which is why a few basis points move the ratio as much as session 7 shows.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">Why do the observations overlap when h = 5?</p>
+      <div class="qopt">A · Because the engine draws five returns per day when h = 5</div>
+      <div class="qopt">B · Because the cost line is charged five times</div>
+      <div class="qopt">C · Because observation t earns days t+1 to t+5 and observation t+1 earns days t+2 to t+6, so neighbours share four of five days, and 751 observations are built from the same 755 days</div>
+      <q class="qwhy">The world has the same 756 daily returns whatever h is. Scoring a five-day hold every day reuses each day in up to five observations, so the observations are correlated and 751 of them are nowhere near 751 independent five-day bets; 755 days hold 151 non-overlapping windows.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before session 3</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">About forty minutes, in the console or in Python.</p>
+    <div class="steps">
+      <div class="step"><div>
+        <h4>Write pnl() yourself from the description</h4>
+        <p>In Python or plain JavaScript, from Part 1's words alone: T = days minus h observations, sign with ties to +1, the forward sum, the cost on the change with the first position opened from zero. Feed it World 1's returns and signal and match the console's PnL line to every printed digit, at h = 1 and h = 5.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Measure the overlap on one world</h4>
+        <p>With <span class="mono">QT.corr(y5.slice(0, -1), y5.slice(1))</span>, compute the correlation of neighbouring observations at h = 5, then the same at h = 1. Write down what you think T should be in t = SR times the square root of T for each, and why. Your numbers will differ by seed; the reasoning should not.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Interrogate the number you brought</h4>
+        <p>Take the backtest Sharpe ratio from session 1's homework and write its function: cut-off, position rule, h, cost line, annualisation. Mark every one you had to guess. Session 3 asks what it was the best of.</p>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">A strategy as a function</span><span class="note">From what was knowable at the close of day t to a position of +1 or -1, held h days; makeStrategies() and pnl() read line by line.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The signal</span><span class="note">An AR(1) with phi 0.8 that knows nothing about the returns; sign changes on about 20.5 percent of days.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The cost line</span><span class="note">Charged on the change in position, a flip is two units; about 0.41 units of change a day.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Overlapping windows when h &gt; 1</span><span class="note">751 observations from 755 days at h = 5; neighbours share four of five days.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The Sharpe ratio from scratch</span><span class="note">moments() gives mean over sample sd per observation; annualise() multiplies by sqrt(252 / h).</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Sharpe 1966 and 1994</span><span class="note">The reward-to-variability ratio, the adopted name, ex ante against ex post, and t equals SR times sqrt(T). Read at source.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The canon null mean</span><span class="note">-0.01 in-sample and -0.07 out of sample, over 200 worlds at h = 1 with no cost.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">The square root of time</span><span class="note">Taught as a disagreement: right for the units, wrong for the evidence when observations overlap. Session 5 purges.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">The knowledge cut-off and the shift</span><span class="note">Named and drawn tonight. Session 8 plants the one-day shift and catches it.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Forecast error metrics and rolling-origin evaluation</span><span class="note">Live in <a href="https://phoebefu6.github.io/learn-timeseries-forecasting-with-phoebe/courses/b8-backtesting-metrics.html">learn-timeseries-forecasting-with-phoebe, builder session 8</a>.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Any market, price or instrument</span><span class="note">Out of scope by design. Synthetic data only, and nothing here is investment advice.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>The one sentence.</strong> A strategy is a function from what was knowable at t to a position; if it cannot be written that way, it cannot be checked.</div>
+      <div class="cheat-item"><strong>The cut-off.</strong> The close of day t. The position reads to its left and earns to its right. A shift of -1 crosses it.</div>
+      <div class="cheat-item"><strong>The position.</strong> sign(x[t]): +1 at zero or above, -1 below. One unit, held h days.</div>
+      <div class="cheat-item"><strong>The PnL line.</strong> y[t] = position[t] times r[t+1] + ... + r[t+h], less the cost on the change. T = days minus h.</div>
+      <div class="cheat-item"><strong>The cost.</strong> Charged on |position[t] - position[t-1]|. Holding is free; a flip is two units; about 0.41 units a day here.</div>
+      <div class="cheat-item"><strong>The ratio.</strong> Mean over sample sd, per observation. No risk-free rate: the long or short unit is already an excess return.</div>
+      <div class="cheat-item"><strong>The scale.</strong> Times sqrt(252 / h): 15.87 at h = 1, 7.10 at h = 5. Right for units, silent on evidence.</div>
+      <div class="cheat-item"><strong>The caveat.</strong> t = SR times sqrt(T) (Sharpe 1994) needs independent observations. At h = 5, 755 days hold 151 non-overlapping windows, not 751.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Practitioner session 2 of 10 · learn-quant-trading-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="p1-the-honest-null.html">← Practitioner session 1 · Generating the honest null</a>
+        <a href="p3-the-max-of-n.html">Practitioner session 3 · The max of N →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/qt-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof QT === "undefined") return;
+  var selH = document.getElementById("p2-h");
+  var selC = document.getElementById("p2-cost");
+  var selS = document.getElementById("p2-seed");
+  var out = document.getElementById("p2-fn-out");
+  var verdict = document.getElementById("p2-fn-verdict");
+  var self = document.getElementById("p2-fn-self");
+
+  /* canon seeds: ladder A's N = 1 rung uses seed0 = 10000 (h = 1, no cost, 200 worlds).
+     About 25 ms in node, so it runs once on load. */
+  var canon = QT.ladderRung({ N: 1, trueSR: 0, method: "walkforward" }, 200, 10000);
+
+  function oneWorld(seed, h, costBp) {
+    var w = QT.makeWorld({ trueSR: 0, seed: seed });
+    var x = QT.makeStrategies(w, { N: 1, seed: w.seed + 1000 })[0];
+    var y = QT.pnl(w, x, { h: h, costBp: costBp });
+    var turn = 0, prev = 0, t, p;
+    for (t = 0; t < y.length; t++) { p = x[t] >= 0 ? 1 : -1; turn += Math.abs(p - prev); prev = p; }
+    return { n: y.length, mIS: QT.moments(y.slice(0, 503)), mOOS: QT.moments(y.slice(503)), turnover: turn / y.length };
+  }
+
+  function render() {
+    var h = Number(selH.value), c = Number(selC.value), seed = Number(selS.value);
+    var a = oneWorld(seed, h, c);
+    var free = oneWorld(seed, h, 0);
+    var annIS = QT.annualise(a.mIS.sr, h), annOOS = QT.annualise(a.mOOS.sr, h);
+
+    var html = '<table class="sql-table"><thead><tr><th>Quantity</th><th>Value</th><th>What it is</th></tr></thead><tbody>';
+    html += "<tr><td>Observations, in-sample / out of sample</td><td>503 / " + (a.n - 503) + "</td><td>days minus h in all</td></tr>";
+    html += "<tr><td>Per-observation mean, in-sample</td><td>" + a.mIS.mean.toFixed(5) + "</td><td>one random rule on nothing</td></tr>";
+    html += "<tr><td>Per-observation standard deviation</td><td>" + a.mIS.sd.toFixed(5) + "</td><td>sample sd, n - 1</td></tr>";
+    html += "<tr><td>Per-observation Sharpe ratio</td><td>" + a.mIS.sr.toFixed(4) + "</td><td>mean over sd, no time unit</td></tr>";
+    html += "<tr><td>Annualised, in-sample</td><td><b>" + annIS.toFixed(2) + "</b></td><td>times sqrt(252 / " + h + ") = " + Math.sqrt(252 / h).toFixed(2) + "</td></tr>";
+    html += "<tr><td>Annualised, out of sample</td><td>" + annOOS.toFixed(2) + "</td><td>the same rule, the next stretch</td></tr>";
+    html += "<tr><td>Units of position change per observation</td><td>" + a.turnover.toFixed(2) + "</td><td>where the cost line bites</td></tr>";
+    html += '<tr><td>Canon mean over 200 worlds, h = 1, no cost</td><td><b class="p2-canon">' + canon.isSR.toFixed(2) + " in, " + canon.oosSR.toFixed(2) + " out</b></td><td>ladder A, N = 1, the canon seeds</td></tr>";
+    html += "</tbody></table>";
+    out.innerHTML = html;
+
+    var msg = "One world, h = " + h + ", cost " + c + " basis points: the rule reports " + annIS.toFixed(2) + " in-sample and " + annOOS.toFixed(2) + " out of sample. That is one draw; across 200 worlds the mean is " + canon.isSR.toFixed(2) + ".";
+    if (c > 0) msg += " The cost line moved the per-observation mean from " + free.mIS.mean.toFixed(5) + " to " + a.mIS.mean.toFixed(5) + ".";
+    if (h > 1) msg += " At h = " + h + " neighbouring observations share " + (h - 1) + " of " + h + " days, so these 503 are far fewer independent pieces of evidence than they look.";
+    verdict.textContent = msg;
+  }
+
+  var t = QT.selfTest();
+  self.textContent = t.ok
+    ? "The generator's six properties pass in this browser, so the figures above are the figures any correct run gives. Synthetic data only: nothing here describes a real market, and nothing here is investment advice."
+    : "The generator's self test did not pass in this browser, so nothing above should be believed.";
+
+  selH.addEventListener("change", render);
+  selC.addEventListener("change", render);
+  selS.addEventListener("change", render);
+  render();
+})();
+</script>
+<style>
+  #p2-fn .sql-code { border: 1px solid var(--hairline); border-radius: 8px; max-width: 24rem; }
+  #p2-fn table.sql-table { margin: .6rem 0 .2rem; font-size: .85rem; }
+  #p2-fn .p2-canon { color: var(--amber); }
+</style>
+</body>
+</html>

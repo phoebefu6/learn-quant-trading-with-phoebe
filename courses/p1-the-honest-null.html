@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Practitioner session 1 of 10. Build the zero-alpha random walk every later number is measured against: a seeded generator, a hidden signal switched off, and the noise in one Sharpe estimate measured rather than assumed. Synthetic data only.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="Generating the honest null - learn quant with phoebe">
+<meta property="og:description" content="Practitioner session 1 of 10. One Sharpe estimate on two years of nothing has a standard deviation of 0.71, and 6 worlds in 100 pass a 95 percent test. Measured.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/courses/p1-the-honest-null.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Generating the honest null - learn quant with phoebe">
+<meta name="twitter:description" content="Before you can say a backtest found something, you need to know what finding nothing looks like. Build it.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Practitioner session 1 · Generating the honest null - learn quant with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-quant-trading-with-phoebe</a> / Practitioner session 1 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Quant Trading with Phoebe · Practitioner session 1 of 10</div>
+    <h1>Generating the <span class="accent">honest null</span></h1>
+    <p class="sub">Every claim in the next nine sessions is held against one object: a series with nothing in it. Not a quiet market, not a bad year, nothing. A seeded random walk whose alpha is exactly zero because the generator has a dial for alpha and the dial is at zero. Tonight builds that generator, reads its parts, and measures the one number every backtest is secretly compared to: how big a Sharpe ratio pure noise produces on two years of daily data. The data is synthetic throughout, and nothing here is investment advice.</p>
+    <div class="chip-row">
+      <span class="chip level">🟡 Foundations</span>
+      <span class="chip audience">Anyone who will build or check a backtest</span>
+      <span class="chip audience">Comfortable with a browser console</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:3">3-15 · The generator</span>
+      <span class="a3" style="flex:3">15-27 · The noise in one estimate</span>
+      <span class="a4" style="flex:4">27-45 · Build-along and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Marlow Street, before the first backtest</h2>
+    </div>
+    <p class="lede">Marlow Street is a constructed research desk, four people and a head who funds two strategies a year. Its first good decision, which it reached late, was to build the thing it would compare every backtest to before building any backtest at all. That thing is a generator with the truth as a parameter. When the alpha dial is at zero the series contains nothing, and whatever a method reports on it is, by construction, noise. Tonight is that generator, line by line, and the first measurement taken with it.</p>
+
+    <div class="legend">
+      <span class="pill">Live = presented in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with tonight.</strong> A seeded generator you can read in full, with every random number traceable to a seed and every return traceable to the numbers that made it. The reason the alpha is planted through a hidden signal rather than added as a drift, which matters for every later session. A measured answer to "how big is a Sharpe ratio on nothing": a standard deviation of 0.70 measured over 200 worlds against 0.71 from the formula, annualised on 503 daily observations, and 6 worlds in 100 clearing a 95 percent test. And the habit of running every method on the null first.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why the null has to be built, not assumed<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A data scientist checking a classifier has a confusion matrix and a holdout set. A researcher checking a backtest has one path of history and no second one. The only way to know what a method reports when there is nothing to find is to make a world where there is nothing to find and run the method on it. That is not a simulation of a market. It is a calibration of the method.</p>
+        <p>Synthetic data is a deliberate choice. A real series would leave the truth unknown, so every figure would be an opinion. A generated series has its alpha as a parameter, so every figure is a measurement of the method against a known answer. The cost is that no number here describes any market, and the pages say so wherever it could be mistaken.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Marlow Street's second researcher, constructed like the rest, brought a rule with a Sharpe ratio of 0.9 and called it modest but real. The head asked what the same rule reported on the null. Nobody had run it. When they did, across 200 generated worlds, a rule with no information reported above 0.9 in 17 of them. The rule was not wrong. It was unread, because the ruler had never been built.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The words that keep coming back<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Seed.</strong> One integer that fixes every random number the generator will ever produce. Same seed, same world, in node, in the browser and in the Python reference.</li>
+          <li><strong>Random walk.</strong> A series whose increments are independent draws with no exploitable structure. Here: daily returns of volatility one percent.</li>
+          <li><strong>Hidden signal.</strong> An AR(1) series the returns lean on when alpha is planted. With alpha at zero its weight is exactly zero and the returns are pure noise.</li>
+          <li><strong>Alpha.</strong> Here, the annualised Sharpe ratio a strategy trading the hidden signal's sign would earn in expectation. A dial on the generator, nothing more.</li>
+          <li><strong>Position.</strong> Plus one or minus one: long or short one unit. Session 2 turns a signal into one.</li>
+          <li><strong>Sharpe ratio.</strong> Mean over standard deviation of the strategy's observations, annualised by the square root of 252. Session 2 builds it from scratch; tonight only measures its noise.</li>
+          <li><strong>Trial.</strong> One generated world and whatever was run on it. Every number on every page is a mean over a stated number of trials.</li>
+          <li><strong>Walk-forward.</strong> Train on the first two thirds in time order, test on the last third. Session 5 does it properly; tonight only uses it.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where the ten sessions go<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Two sessions on the objects, three on selection and its correction, two on splits and signals, two on the world's taxes, and one bench.</p>
+        <ul>
+          <li><strong>1 and 2.</strong> The null, then a strategy as a function with its Sharpe ratio computed from first principles.</li>
+          <li><strong>3 and 4.</strong> What the best of N looks like on nothing, measured against the published formula, and the deflated Sharpe ratio implemented.</li>
+          <li><strong>5 and 6.</strong> Splits that respect time, and what shuffling leaks; then a real signal planted to see whether the correction keeps it.</li>
+          <li><strong>7, 8 and 9.</strong> Costs against a small edge, survivorship and lookahead planted and caught, and sizing where the mean and the median part ways.</li>
+          <li><strong>10.</strong> The whole generator driven live, with an anti-lever and a break button.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers the generator</span>
+      <h2>From one seed to a series with nothing in it</h2>
+      <span class="tag concept">12 min live</span>
+    </div>
+    <p class="lede">The generator is four stages and none of them is clever. A seed feeds a small integer mixer that produces uniform numbers. Pairs of uniforms become standard normals. One stream of normals becomes a hidden AR(1) signal; a second stream becomes the returns, which lean on yesterday's signal by a weight that is zero tonight. The whole thing is about forty lines, and every one of them can be read.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn pipeline of the generator. A seed box feeds a mixer box labelled mulberry32, which feeds a uniforms box, which feeds a Box-Muller box producing standard normals. The normals split into two streams. The upper stream feeds a dashed box labelled the hidden signal s, an AR(1) with phi 0.8, with a weight dial labelled c set to zero. The lower stream feeds a box labelled the returns r, sigma times c times yesterday's signal plus noise. With c at zero the signal's arrow into the returns is drawn as a broken dashed line. Below, a strategy box turns a signal x into a position of plus or minus one, and a pnl box multiplies the position by the next day's return. A note says that with the dial at zero the returns are pure noise and the signal is generated and never used.">
+        <defs>
+          <filter id="p1aSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="41" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p1aHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#7A1F3D" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p1aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p1aH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .p1aL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .p1aS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .p1aB { font: 800 11px Inter, sans-serif; fill: #2A5068; }
+          .p1aA { font: 700 11px Inter, sans-serif; fill: #7A1F3D; }
+          .p1aV { font: 800 18px Inter, sans-serif; fill: #4A1024; }
+          .p1aN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="p1aH" x="30" y="26">ONE SEED, FOUR STAGES, AND A DIAL THAT IS AT ZERO TONIGHT</text>
+
+        <g filter="url(#p1aSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- row 1: seed -> mixer -> uniforms -> normals -->
+          <rect x="34" y="56" width="90" height="46" rx="6" transform="rotate(-1 79 79)" fill="#FAF0F3"/>
+          <path d="M126 79 L150 79" marker-end="url(#p1aAr)"/>
+          <rect x="154" y="56" width="120" height="46" rx="6" transform="rotate(0.8 214 79)" fill="#FFFFFF"/>
+          <path d="M276 79 L300 79" marker-end="url(#p1aAr)"/>
+          <rect x="304" y="56" width="110" height="46" rx="6" transform="rotate(-0.6 359 79)" fill="#FFFFFF"/>
+          <path d="M416 79 L440 79" marker-end="url(#p1aAr)"/>
+          <rect x="444" y="56" width="130" height="46" rx="6" transform="rotate(0.5 509 79)" fill="#FFFFFF"/>
+          <!-- split into two streams -->
+          <path d="M576 70 C620 60 640 120 660 140" marker-end="url(#p1aAr)"/>
+          <path d="M576 88 C610 120 610 200 640 224" marker-end="url(#p1aAr)"/>
+          <!-- hidden signal (dashed box) -->
+          <rect x="664" y="118" width="190" height="52" rx="6" transform="rotate(-0.7 759 144)" fill="#FFFFFF" stroke-dasharray="7 5"/>
+          <!-- the dial c, at zero -->
+          <circle cx="600" cy="236" r="18" fill="#EAF1F6" stroke="#3B6E8F"/>
+          <path d="M600 236 L588 224" stroke="#3B6E8F" stroke-width="2.4"/>
+          <!-- signal into returns, broken because c = 0 -->
+          <path d="M759 174 L759 196 M759 206 L759 214" stroke="#3B6E8F" stroke-dasharray="3 5"/>
+          <!-- returns box -->
+          <rect x="644" y="218" width="212" height="52" rx="6" transform="rotate(0.6 750 244)" fill="#FAF0F3"/>
+          <!-- row 3: strategy -> pnl -->
+          <rect x="34" y="300" width="250" height="50" rx="6" transform="rotate(-0.5 159 325)" fill="#FFFFFF"/>
+          <path d="M286 325 L310 325" marker-end="url(#p1aAr)"/>
+          <rect x="314" y="300" width="250" height="50" rx="6" transform="rotate(0.7 439 325)" fill="#FFFFFF"/>
+          <!-- returns feed the pnl -->
+          <path d="M700 272 C690 300 620 320 568 322" marker-end="url(#p1aAr)"/>
+          <!-- hatched swatch: the noise -->
+          <rect x="34" y="130" width="60" height="30" rx="4" fill="url(#p1aHc)" stroke="#7A1F3D" stroke-width="1.2"/>
+        </g>
+
+        <text class="p1aL" x="79" y="84" text-anchor="middle">seed</text>
+        <text class="p1aL" x="214" y="76" text-anchor="middle">mulberry32</text>
+        <text class="p1aS" x="214" y="92" text-anchor="middle">integer mixer</text>
+        <text class="p1aL" x="359" y="76" text-anchor="middle">uniforms</text>
+        <text class="p1aS" x="359" y="92" text-anchor="middle">in (0, 1)</text>
+        <text class="p1aL" x="509" y="76" text-anchor="middle">Box-Muller</text>
+        <text class="p1aS" x="509" y="92" text-anchor="middle">standard normals</text>
+        <text class="p1aS" x="104" y="150">the noise, all of it</text>
+
+        <text class="p1aL" x="759" y="139" text-anchor="middle">the hidden signal s</text>
+        <text class="p1aS" x="759" y="156" text-anchor="middle">AR(1) with phi 0.8</text>
+        <text class="p1aB" x="600" y="270" text-anchor="middle">c = 0</text>
+        <text class="p1aS" x="600" y="286" text-anchor="middle">the alpha dial</text>
+        <text class="p1aL" x="750" y="240" text-anchor="middle">the returns r</text>
+        <text class="p1aS" x="750" y="257" text-anchor="middle">sigma times (c s[t-1] + noise)</text>
+
+        <text class="p1aL" x="159" y="321" text-anchor="middle">a strategy: x[t] to a position</text>
+        <text class="p1aS" x="159" y="338" text-anchor="middle">sign(x[t]) is +1 or -1</text>
+        <text class="p1aL" x="439" y="321" text-anchor="middle">pnl: position[t] times r[t+1]</text>
+        <text class="p1aS" x="439" y="338" text-anchor="middle">one observation per day</text>
+
+        <text class="p1aN" x="30" y="370">With the dial at zero the dashed arrow carries nothing: the returns are sigma times noise and the signal is</text>
+        <text class="p1aN" x="30" y="388">generated and discarded. Turn the dial and session 6 begins.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the signal box is dashed because it exists tonight only so that later sessions can switch it on without changing any other line.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The four stages, read as code<span class="mini">5 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>Seed to uniforms.</strong> mulberry32 is a 32-bit integer mixer: add a constant, multiply and shift a few times, divide by 2 to the 32. It is not cryptographic and does not need to be. What it needs to be is identical in node, in the browser and in Python, so that a seed names a world and the Python reference reproduces every number. It is.</p>
+        <p><strong>Uniforms to normals.</strong> Box-Muller takes two uniforms and returns the square root of minus two times the log of the first, times the cosine of two pi times the second. One normal per pair, no caching, so the stream is the same everywhere.</p>
+        <p><strong>Normals to a signal.</strong> The signal is an AR(1): each day is 0.8 times yesterday plus a scaled fresh normal. The 0.8 is there so that a position built from it persists for a few days, which is what makes costs and overlapping observations meaningful later. It is not a claim about any market.</p>
+        <p><strong>Normals to returns.</strong> Each day's return is one percent times a fresh normal, plus a weight c times yesterday's signal, the whole thing rescaled so volatility stays at one percent. The weight is chosen so that a strategy trading the signal's sign earns the requested annualised Sharpe ratio in expectation. Tonight the request is zero, so c is zero, and the returns are noise.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Why alpha is planted through a signal, not a drift<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The easy way to plant alpha is to add a positive drift to the returns. The problem is that a drift rewards buy-and-hold, which has no signal in it and no selection problem. Every later session is about a rule that reads something and takes a position, and the only way to make a rule genuinely right is to give the world something it could read.</p>
+        <p>So the generator hides a signal and lets the returns lean on yesterday's value of it. A rule that trades the sign of that signal is right more often than not, by exactly the amount c controls. A rule that trades any other signal is a coin flip. That is the whole difference between a real edge and a selected one, and it is why the generator can later plant one real rule among a thousand random ones and ask whether the correction keeps it.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where serious people disagree about synthetic worlds<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>One camp holds that a generator this simple teaches nothing about markets, because real series have fat tails, clustered volatility, regimes and memory, and every method's failure mode depends on those. On this view the honest null is the real series with its labels shuffled, not a normal random walk.</p>
+        <p>The other camp holds that the methods on trial here, selection, deflation, splits, costs, fail on a plain random walk already, and a method that fails on the simplest world does not need a harder one to be convicted. On this view the generator is a floor: anything a method gets wrong here it will also get wrong in a world with tails and memory, and usually worse.</p>
+        <p>Both are right about different questions. The measurements here take the second position and says so: the generator has no memory, so the AMS paper's warning that memory makes overfit rules lose rather than merely earn nothing is a case the bench cannot show. That is a limit, stated, not a resolution.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the noise in one estimate</span>
+      <h2>How big a Sharpe ratio nothing produces</h2>
+      <span class="tag concept">12 min live</span>
+    </div>
+    <p class="lede">Take one random rule, run it on one zero-alpha world for 503 days, compute its annualised Sharpe ratio, and repeat for 200 worlds. The spread of those 200 numbers is the ruler every later number is measured with. It is wider than most people guess, and the width is a property of the sample length, not of the rule.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 350" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn bell curve of annualised Sharpe estimates from one random rule on 503 days of a zero-alpha series. The curve is centred on zero with a standard deviation marked as 0.71. A vertical steel line at 1.17 marks the 95 percent threshold, and the tail beyond it is hatched and labelled 6 of 100 worlds pass. A bracket under the curve shows the width from minus 0.71 to plus 0.71. A note says the width comes from the sample length, 503 days, and that the t-statistic equals the Sharpe ratio times the square root of T.">
+        <defs>
+          <filter id="p1bSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="43" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p1bHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3B6E8F" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p1bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p1bH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .p1bL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .p1bS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .p1bB { font: 800 11px Inter, sans-serif; fill: #2A5068; }
+          .p1bV { font: 800 18px Inter, sans-serif; fill: #4A1024; }
+          .p1bA { font: 700 11px Inter, sans-serif; fill: #7A1F3D; }
+          .p1bN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="p1bH" x="30" y="26">ONE RULE, NO INFORMATION, 503 DAYS: WHAT ITS SHARPE RATIO LOOKS LIKE ACROSS 200 WORLDS</text>
+
+        <g filter="url(#p1bSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- axis -->
+          <path d="M80 230 L800 230" stroke-width="2.5"/>
+          <!-- tail beyond 1.17 hatched: x of 1.17 = 440 + 1.17*120 = 580 -->
+          <path d="M580 230 L580 198 C600 212 640 226 700 229 L700 230 Z" fill="url(#p1bHc)" stroke="none"/>
+          <!-- the bell: centre 440, sd 120px = 0.71 -->
+          <path d="M140 229 C230 228 300 210 340 160 C380 110 410 80 440 80 C470 80 500 110 540 160 C580 210 650 228 740 229" stroke="#7A1F3D" stroke-width="2.5"/>
+          <!-- sd bracket from 320 to 560 -->
+          <path d="M320 250 L320 262 L560 262 L560 250"/>
+          <!-- 95% line at 580 -->
+          <path d="M580 70 L580 230" stroke="#3B6E8F" stroke-width="2.2" stroke-dasharray="7 5"/>
+          <!-- centre tick -->
+          <path d="M440 230 L440 240"/>
+          <!-- arrow to the tail -->
+          <path d="M700 120 C680 150 650 180 620 206" stroke="#3B6E8F" marker-end="url(#p1bAr)"/>
+        </g>
+
+        <text class="p1bL" x="440" y="258" text-anchor="middle">0</text>
+        <text class="p1bS" x="140" y="248" text-anchor="middle">-2.5</text>
+        <text class="p1bS" x="740" y="248" text-anchor="middle">+2.5</text>
+        <text class="p1bV" x="440" y="290" text-anchor="middle">standard deviation 0.71</text>
+        <text class="p1bS" x="440" y="306" text-anchor="middle">annualised, across worlds, with nothing there</text>
+        <text class="p1bB" x="590" y="64">95 percent line at 1.17</text>
+        <text class="p1bB" x="705" y="112" text-anchor="middle">6 of 100 worlds pass</text>
+        <text class="p1bA" x="90" y="64">the bell is the noise, not the rule</text>
+        <text class="p1bS" x="90" y="82">one estimate per world, 200 worlds</text>
+
+        <text class="p1bN" x="30" y="322">The width comes from the sample length. Sharpe 1994: the t-statistic equals the Sharpe ratio times the square root of T,</text>
+        <text class="p1bN" x="30" y="340">so on 503 days a Sharpe ratio of 1.17 is a t of 1.65.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - a rule that reports 1.0 on two years of nothing is not rare. It is about 1.4 standard deviations out, and it happened in 15 of 200 worlds.</figcaption>
+    </figure>
+
+    <div class="wk" id="p1-null">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">The generator, running in this page. One random rule, one zero-alpha world, 503 training days and 252 test days; then the same thing over many worlds.</span>
+      </div>
+      <div class="wk-body">
+        <label class="sql-label" for="p1-seed">Which world (the seed)</label>
+        <select class="sql-code" id="p1-seed">
+          <option value="10001">World 1</option>
+          <option value="10002">World 2</option>
+          <option value="10003">World 3</option>
+          <option value="10007">World 7</option>
+          <option value="10042">World 42</option>
+        </select>
+        <label class="sql-label" for="p1-trials">Then average over this many worlds</label>
+        <select class="sql-code" id="p1-trials">
+          <option value="20">20, quick</option>
+          <option value="200" selected>200, the full canon</option>
+        </select>
+        <div id="p1-out"></div>
+        <p class="sql-note" id="p1-verdict">...</p>
+      </div>
+      <div class="wk-foot" id="p1-self">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Reading the box<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The top rows are one world: the rule's in-sample Sharpe ratio on 503 days, its out-of-sample figure on the next 252, and the probability, under the ordinary one-sided test, that the true ratio is above zero. Change the world and watch all three move, because the rule knows nothing and the world is noise.</p>
+        <p>The bottom rows are the measurement that matters: over 200 worlds the mean in-sample ratio is -0.01, the standard deviation of the estimates is 0.70 (the formula says 0.71), and 6.0 percent of worlds clear the 95 percent threshold. That last figure is the false-positive rate of the ordinary test when it is applied once, and it is about what a 95 percent test should give. Session 3 shows what happens to it when the test is applied to the best of many.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Why 0.71, and why it is the number to memorise<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A per-day Sharpe estimate on T independent observations has a standard deviation of roughly one over the square root of T. On 503 days that is 0.045 per day, which annualised by the square root of 252 is 0.71. The 0.71 is a fact about 503 days, not about the rule or the generator. Any rule, any world of this length, same width.</p>
+        <p>Every later number sits on this ruler. A best-of-100 figure of 1.80 is two and a half rulers out. A deflation threshold of 1.80 is the same thing said the other way round. A real edge of 1.5 that gets selected only a third of the time is a 1.5 competing against a hundred draws from a bell this wide. When a backtest number arrives without a sample length, you cannot know how wide its bell is, and that is the first thing to ask.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The probabilistic Sharpe ratio, named tonight and built in session 4<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The box's third row is a probabilistic Sharpe ratio: the probability that the true ratio exceeds a benchmark, given the estimate, the sample length and the skewness and kurtosis of the observations. Bailey and Lopez de Prado developed it in 2012 and used it in 2014 as the inside of the deflated Sharpe ratio. Tonight it is used with a benchmark of zero, which is the ordinary test. Session 4 replaces the zero with the expected maximum of N trials, which is the whole correction.</p>
+        <p>The skewness and kurtosis terms barely move on this generator, because the observations are products of a sign and a normal. On a real series they matter, and the formula is the same. What changes is only what you put into it.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · build-along</span>
+      <h2>Make a world, read it, measure its noise</h2>
+      <span class="tag build">18 min hands on</span>
+    </div>
+    <p class="lede">Open this page's console. The engine is already loaded as <span class="mono">QT</span>, and everything the box above did can be done by hand in six calls. Your numbers will match the box exactly for the same seed, because the seed is the world.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn pipeline of the six console calls. makeWorld with a seed produces a world box. makeStrategies produces one random signal. pnl turns the signal and the world into observations. moments turns the observations into a mean, a standard deviation and a per-observation Sharpe ratio. annualise multiplies by the square root of 252. A loop arrow labelled repeat over seeds returns to makeWorld, and a final box labelled the spread across worlds is stamped measured.">
+        <defs>
+          <filter id="p1cSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="47" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p1cHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#7A1F3D" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p1cAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+          <marker id="p1cArS" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#3B6E8F" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p1cH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .p1cL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .p1cS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .p1cB { font: 800 11px Inter, sans-serif; fill: #2A5068; }
+          .p1cN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="p1cH" x="30" y="26">SIX CALLS, ONE WORLD, THEN THE SAME SIX OVER MANY WORLDS</text>
+
+        <g filter="url(#p1cSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="34" y="60" width="130" height="44" rx="6" transform="rotate(-1 99 82)" fill="#FAF0F3"/>
+          <path d="M166 82 L190 82" marker-end="url(#p1cAr)"/>
+          <rect x="194" y="60" width="130" height="44" rx="6" transform="rotate(0.7 259 82)" fill="#FFFFFF"/>
+          <path d="M326 82 L350 82" marker-end="url(#p1cAr)"/>
+          <rect x="354" y="60" width="110" height="44" rx="6" transform="rotate(-0.5 409 82)" fill="#FFFFFF"/>
+          <path d="M466 82 L490 82" marker-end="url(#p1cAr)"/>
+          <rect x="494" y="60" width="130" height="44" rx="6" transform="rotate(0.6 559 82)" fill="#FFFFFF"/>
+          <path d="M626 82 L650 82" marker-end="url(#p1cAr)"/>
+          <rect x="654" y="60" width="130" height="44" rx="6" transform="rotate(-0.8 719 82)" fill="#FFFFFF"/>
+          <!-- loop back -->
+          <path d="M719 108 L719 150 L99 150 L99 110" stroke="#3B6E8F" stroke-dasharray="6 5" marker-end="url(#p1cArS)"/>
+          <!-- the measured box -->
+          <rect x="794" y="60" width="60" height="44" rx="6" transform="rotate(1 824 82)" fill="url(#p1cHc)"/>
+        </g>
+
+        <text class="p1cL" x="99" y="80" text-anchor="middle">makeWorld</text>
+        <text class="p1cS" x="99" y="95" text-anchor="middle">seed, trueSR 0</text>
+        <text class="p1cL" x="259" y="80" text-anchor="middle">makeStrategies</text>
+        <text class="p1cS" x="259" y="95" text-anchor="middle">one random signal</text>
+        <text class="p1cL" x="409" y="80" text-anchor="middle">pnl</text>
+        <text class="p1cS" x="409" y="95" text-anchor="middle">755 observations</text>
+        <text class="p1cL" x="559" y="80" text-anchor="middle">moments</text>
+        <text class="p1cS" x="559" y="95" text-anchor="middle">mean, sd, sr</text>
+        <text class="p1cL" x="719" y="80" text-anchor="middle">annualise</text>
+        <text class="p1cS" x="719" y="95" text-anchor="middle">times sqrt(252)</text>
+        <text class="p1cB" x="824" y="122" text-anchor="middle">measured</text>
+        <text class="p1cB" x="409" y="170" text-anchor="middle">repeat over seeds, keep every number, read the spread</text>
+
+        <text class="p1cN" x="30" y="222">The loop is the whole method. One world gives one number; the spread across worlds is the thing you can hold a backtest against.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the hatched box at the end is the only output that means anything: a spread, not a value.</figcaption>
+    </figure>
+
+    <div class="steps">
+      <div class="step"><div>
+        <h4>Make one world with nothing in it</h4>
+        <p>Seed 10001 is World 1 in the box above. The world carries its returns, its hidden signal (unused, since trueSR is 0) and its seed.</p>
+        <div class="prompt-box good"><span class="label">console</span>var w = QT.makeWorld({ trueSR: 0, seed: 10001 });
+w.days, w.sigma, w.returns.slice(0, 5)</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Make one random rule and turn it into observations</h4>
+        <p>The strategy seed is the world seed plus 1000, which is the convention every page uses. The pnl is position times the next day's return, one observation per day, 755 of them on a 756-day world.</p>
+        <div class="prompt-box good"><span class="label">console</span>var x = QT.makeStrategies(w, { N: 1, seed: w.seed + 1000 })[0];
+var y = QT.pnl(w, x, { h: 1 });
+y.length</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Score the first 503 days and the next 252 separately</h4>
+        <p>moments returns the mean, the sample standard deviation and their ratio per observation; annualise multiplies by the square root of 252. Your two numbers are the first two rows of the box for World 1.</p>
+        <div class="prompt-box good"><span class="label">console</span>var mIS = QT.moments(y.slice(0, 503)), mOOS = QT.moments(y.slice(503));
+[QT.annualise(mIS.sr, 1).toFixed(2), QT.annualise(mOOS.sr, 1).toFixed(2)]</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Ask the ordinary question: is it above zero?</h4>
+        <p>The probabilistic Sharpe ratio with a benchmark of zero. Above 0.95 is the usual declaration of a finding. On this world it is whatever the noise made it.</p>
+        <div class="prompt-box good"><span class="label">console</span>QT.psr(mIS.sr, mIS.n, mIS.skew, mIS.kurt, 0).toFixed(3)</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Now do it 200 times and read the spread</h4>
+        <p>ladderRung runs the same six calls over 200 seeds starting at seed0 plus 1 and reports means. The canon for this rung uses seed0 of 10000, so the mean in-sample figure prints -0.01 and the naive discovery rate prints 0.060. Your numbers will match, not approximately: exactly.</p>
+        <div class="prompt-box good"><span class="label">console</span>var r = QT.ladderRung({ N: 1, trueSR: 0, method: "walkforward" }, 200, 10000);
+[r.isSR.toFixed(2), r.oosSR.toFixed(2), r.naiveDiscovery.toFixed(3)]</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Measure the width yourself</h4>
+        <p>ladderRung reports means, not spreads, so collect the 200 in-sample figures by hand and take their standard deviation. It prints 0.70 at the canon seeds, beside the formula's 0.71, which is the ruler for every later session.</p>
+        <div class="prompt-box good"><span class="label">console</span>var v = []; for (var i = 1; i &lt;= 200; i++) { var t = QT.trial({ N: 1, trueSR: 0, method: "walkforward", seed: 10000 + i }); v.push(t.isSR); }
+QT.moments(v).sd.toFixed(2)</div>
+      </div></div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> Before any method is allowed to say it found something, run it on the null and write down what it reports there. If the method cannot be run on a null, that is the finding, and it is a serious one.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">Why does the generator plant alpha through a hidden signal the returns lean on, rather than by adding a drift to the returns?</p>
+      <div class="qopt">A · Because a drift would make the volatility wrong</div>
+      <div class="qopt">B · Because signals are easier to generate than drifts</div>
+      <div class="qopt">C · Because a drift rewards buy-and-hold, which reads nothing, while a signal makes exactly one rule genuinely right and every other rule a coin flip, which is what a selection problem needs</div>
+      <q class="qwhy">Every later session is about rules that read something and pick a side. A drift has no rule to find. A hidden signal with a controllable weight gives the world one true rule and lets later sessions ask whether a correction keeps it among a thousand false ones.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">One random rule on 503 days of a zero-alpha series: what is the standard deviation of its annualised Sharpe estimate across worlds, and where does the number come from?</p>
+      <div class="qopt">A · About 0.71, from the sample length: roughly one over the square root of 503 per day, times the square root of 252</div>
+      <div class="qopt">B · About 0.1, from the one percent daily volatility</div>
+      <div class="qopt">C · Zero, since a rule with no information has a true Sharpe ratio of zero</div>
+      <q class="qwhy">The true ratio is zero; the estimate is not. Its width depends only on how many observations went into it, which is why a backtest without a sample length cannot be read. The volatility cancels out of the ratio entirely.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">The box reports that 6.0 percent of 200 zero-alpha worlds clear the 95 percent threshold with one rule. What does that number mean?</p>
+      <div class="qopt">A · The generator has a small bug that adds alpha</div>
+      <div class="qopt">B · It is the false-positive rate of the ordinary test applied once, about the 5 percent a 95 percent test promises, and the baseline that selection across many rules will later push to 99.5 percent</div>
+      <div class="qopt">C · The test is too strict and should be relaxed</div>
+      <q class="qwhy">A 95 percent one-sided test passes about one null world in twenty by design. Six in a hundred at 200 trials is that figure within noise. Session 3 applies the same test to the best of 100 rules and the pass rate becomes 99.5 percent, which is the whole problem.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before session 2</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">About forty minutes, in the console or in Python.</p>
+    <div class="steps">
+      <div class="step"><div>
+        <h4>Run the reference in Python</h4>
+        <p>The engine's Python twin reproduces the same random stream. Run it on seed 10001 with trueSR 0 and confirm the first five returns match the console to every printed digit. If they do not, you have found a platform difference worth writing down.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Change the sample length and re-measure the width</h4>
+        <p>Make worlds of 1,512 days instead of 756 and repeat the last console step on the first 1,007 observations. Write down the new standard deviation and check it against one over the square root of 1,007 times the square root of 252.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Bring one backtest number</h4>
+        <p>Any Sharpe ratio you have seen presented, with its sample length if you can get it. Session 2 builds the ratio from scratch and session 3 asks what it was the best of.</p>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The generator, stage by stage</span><span class="note">mulberry32 to uniforms, Box-Muller to normals, an AR(1) hidden signal, returns that lean on it by a weight set to zero.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Why alpha is a signal, not a drift</span><span class="note">One true rule and a thousand coin flips is what a selection problem needs.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The noise in one estimate</span><span class="note">Standard deviation 0.70 measured over 200 worlds (0.71 by formula) on 503 days; mean -0.01.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The ordinary test on the null</span><span class="note">6.0 percent of 200 zero-alpha worlds clear the 95 percent threshold with one rule.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Sharpe 1994 on sample length</span><span class="note">The t-statistic equals the Sharpe ratio times the square root of T. Read at source.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">The Sharpe ratio from scratch</span><span class="note">Used tonight through moments and annualise. Session 2 builds it.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">The probabilistic Sharpe ratio</span><span class="note">Named and used with a benchmark of zero. Session 4 moves the benchmark.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Memory in the series</span><span class="note">The generator has none, so the AMS compensation effect is a stated limit, not a measurement.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Forecast error metrics and rolling-origin evaluation</span><span class="note">Live in learn-timeseries-forecasting-with-phoebe, builder session 8.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Any market, price or instrument</span><span class="note">Out of scope by design. Synthetic data only, and nothing here is investment advice.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>The one sentence.</strong> Build the world where nothing is there before you test anything, and write down what the method reports on it.</div>
+      <div class="cheat-item"><strong>The seed.</strong> One integer names a world in node, the browser and Python. World seed s, strategies s + 1000, shuffles s + 2000.</div>
+      <div class="cheat-item"><strong>The dial.</strong> trueSR sets the weight c on a hidden AR(1) signal. At zero the returns are one percent times noise.</div>
+      <div class="cheat-item"><strong>The ruler.</strong> 0.71 annualised: the standard deviation of a Sharpe estimate on 503 days with nothing there.</div>
+      <div class="cheat-item"><strong>The baseline.</strong> 6 of 100 zero-alpha worlds pass a 95 percent test with one rule. That is the test working.</div>
+      <div class="cheat-item"><strong>The arithmetic.</strong> t equals Sharpe times the square root of T (Sharpe 1994). On 503 days, 1.17 annualised is t of 1.65.</div>
+      <div class="cheat-item"><strong>The limit.</strong> No memory in the generator, so overfit rules earn zero here, not less than zero. Say so.</div>
+      <div class="cheat-item"><strong>The loop.</strong> One world is one number. The spread across worlds is the only output that means anything.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Practitioner session 1 of 10 · learn-quant-trading-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="../index.html">← All sessions</a>
+        <a href="p2-a-strategy-as-a-function.html">Practitioner session 2 · A strategy as a function →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/qt-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof QT === "undefined") return;
+  var selS = document.getElementById("p1-seed");
+  var selT = document.getElementById("p1-trials");
+  var out = document.getElementById("p1-out");
+  var verdict = document.getElementById("p1-verdict");
+  var self = document.getElementById("p1-self");
+
+  function render() {
+    var seed = Number(selS.value), trials = Number(selT.value);
+    var one = QT.trial({ N: 1, trueSR: 0, method: "walkforward", seed: seed });
+    var w = QT.makeWorld({ trueSR: 0, seed: seed });
+    var x = QT.makeStrategies(w, { N: 1, seed: seed + 1000 })[0];
+    var y = QT.pnl(w, x, { h: 1 });
+    var mIS = QT.moments(y.slice(0, 503));
+    var p = QT.psr(mIS.sr, mIS.n, mIS.skew, mIS.kurt, 0);
+    /* canon seeds: ladder A's N = 1 rung uses seed0 = 10000 */
+    var v = [], i, r = QT.ladderRung({ N: 1, trueSR: 0, method: "walkforward" }, trials, 10000);
+    for (i = 1; i <= trials; i++) v.push(QT.trial({ N: 1, trueSR: 0, method: "walkforward", seed: 10000 + i }).isSR);
+    var spread = QT.moments(v).sd;
+
+    var html = '<table class="sql-table"><thead><tr><th>Quantity</th><th>Value</th><th>What it is</th></tr></thead><tbody>';
+    html += "<tr><td>This world, in-sample Sharpe ratio (503 days)</td><td><b>" + one.isSR.toFixed(2) + "</b></td><td>one random rule on nothing</td></tr>";
+    html += "<tr><td>This world, out of sample (next 252 days)</td><td>" + one.oosSR.toFixed(2) + "</td><td>the same rule, same nothing</td></tr>";
+    html += "<tr><td>Probability the true ratio is above zero</td><td>" + p.toFixed(3) + "</td><td>" + (p >= 0.95 ? "clears 0.95, a false finding" : "below 0.95, correctly unconvinced") + "</td></tr>";
+    html += "<tr><td>Mean in-sample ratio over " + trials + " worlds</td><td>" + r.isSR.toFixed(2) + "</td><td>should be near zero, and is</td></tr>";
+    html += '<tr><td>Spread of those estimates (standard deviation)</td><td><b class="p1-ruler">' + spread.toFixed(2) + "</b></td><td>the ruler: noise on 503 days</td></tr>";
+    html += "<tr><td>Share of worlds clearing the 95 percent line</td><td><b>" + (r.naiveDiscovery * 100).toFixed(1) + " percent</b></td><td>the ordinary test's false-positive rate, applied once</td></tr>";
+    html += "</tbody></table>";
+    out.innerHTML = html;
+    verdict.textContent = "A rule with no information reported " + one.isSR.toFixed(2) + " on this world. Across " + trials + " worlds the estimates spread with a standard deviation of " + spread.toFixed(2) + ", so a single figure below about " + (2 * spread).toFixed(1) + " is unremarkable on two years of daily data, and that is before anybody has picked the best of anything.";
+  }
+
+  var t = QT.selfTest();
+  self.textContent = t.ok
+    ? "The generator's six properties pass in this browser, so the figures above are the figures any correct run gives. Synthetic data only: nothing here describes a real market, and nothing here is investment advice."
+    : "The generator's self test did not pass in this browser, so nothing above should be believed.";
+
+  selS.addEventListener("change", render);
+  selT.addEventListener("change", render);
+  render();
+})();
+</script>
+<style>
+  #p1-null .sql-code { border: 1px solid var(--hairline); border-radius: 8px; max-width: 24rem; }
+  #p1-null table.sql-table { margin: .6rem 0 .2rem; font-size: .85rem; }
+  #p1-null .p1-ruler { color: var(--amber); }
+</style>
+</body>
+</html>

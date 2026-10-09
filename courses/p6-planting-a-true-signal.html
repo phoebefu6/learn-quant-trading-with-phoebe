@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Practitioner session 6 of 10. Plant one real rule among random ones, turn three dials (its strength, the crowd around it, the years of history) and measure what the deflated test keeps and what it costs. Synthetic data only.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="Planting a true signal - learn quant with phoebe">
+<meta property="og:description" content="Practitioner session 6 of 10. Every deflated pass was the planted rule, on every rung. A real 1.5 among 100 almost never survives on three years and survives 94 of 100 worlds on 24. Measured.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/courses/p6-planting-a-true-signal.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Planting a true signal - learn quant with phoebe">
+<meta name="twitter:description" content="Put the answer in the world before you test the method. Then watch the crowd drown it and the history rescue it.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Practitioner session 6 · Planting a true signal - learn quant with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-quant-trading-with-phoebe</a> / Practitioner session 6 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Quant Trading with Phoebe · Practitioner session 6 of 10</div>
+    <h1>Planting a <span class="accent">true signal</span></h1>
+    <p class="sub">Session 4 wrote the deflated test and read its cost off a table. Tonight runs the experiment yourself. The generator lets you put a real rule into the world on purpose, so the right answer is known before the method is asked. Plant it, turn three dials (how strong it is, how many random rules stand around it, how many years of data there are), and watch two things: whether a fake rule ever gets through, and how often the real one does. Then the harder question, the one a desk actually has to answer: what to do when the test you trust refuses something you know is real. The data is synthetic throughout, and nothing here is investment advice.</p>
+    <div class="chip-row">
+      <span class="chip level">🔴 Advanced</span>
+      <span class="chip audience">Anyone who will build or check a backtest</span>
+      <span class="chip audience">Has run sessions 1 to 5 in the console</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:3">3-15 · Planting and strength</span>
+      <span class="a3" style="flex:3">15-27 · Crowd and history</span>
+      <span class="a4" style="flex:4">27-45 · Build-along and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Marlow Street hides the answer, then asks the question</h2>
+    </div>
+    <p class="lede">Marlow Street is a constructed research desk, four people and a head who has been handed a backtest with an annualised Sharpe ratio of 1.8 and asked whether to fund it. After session 4 the desk has a test it trusts on nothing: against the expected best of N, false passes go to zero. What it has never seen is the test facing something real. The only way to see that is to build a world where something real is known to be there, and the generator can do it with one argument. Everything tonight is synthetic data, and nothing here is investment advice.</p>
+
+    <div class="legend">
+      <span class="pill">Live = presented in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with tonight.</strong> An exact account of how the engine plants a real rule: one constant, chosen so the rule earns the Sharpe ratio you asked for, and one strategy slot handed the world's hidden signal. Three planted ladders driven live, with their trial counts: strength (200 worlds a rung), crowd (200) and history (100). Two facts that belong together: the false discovery rate after deflation is 0.000 on every planted rung, and a real 1.5 among 100 on three years almost never passes. The minimum backtest length from the 2014 Notices paper, and why independent history is the one cure that cannot be manufactured. And a habit: never read one run of a ladder as its mean.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why plant a signal you already know is there<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A test is two promises. It should refuse what is not there, and it should find what is. Session 4 checked the first promise on worlds with nothing in them, and the deflated test kept it perfectly. The second promise cannot be checked on a real series, because on a real series nobody knows which rule, if any, is real. A planted world is the only place where a refusal can be scored as right or wrong.</p>
+        <p>So tonight every world has exactly one real rule in it, with a strength you choose, standing among rules that know nothing. That turns the deflated test from a formula into an instrument with a measured hit rate and a measured false-alarm rate, and those two numbers are what a desk needs before it trusts the instrument with money.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Marlow Street's head, constructed like the rest of the desk, asked a question nobody had asked of the deflated test: if the 1.8 were real, would this test have said so? The researcher could not answer it, because every check so far had been on worlds where the right answer was "no". The head asked for a world where the answer was "yes", and for the test's score on it, before the 1.8 was discussed again.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The words that keep coming back<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Planted rule.</strong> Strategy 0 in a planted world. It is handed the world's hidden signal, so it is the one rule with a real edge. Every other rule is a random AR(1) signal that knows nothing.</li>
+          <li><strong>True Sharpe.</strong> The annualised Sharpe ratio the planted rule earns in expectation. It is the dial <span class="mono">trueSR</span>; the generator solves for the constant c that delivers it.</li>
+          <li><strong>Kept.</strong> The share of worlds in which the rule with the best in-sample Sharpe ratio was the planted one. The selection gate's hit rate.</li>
+          <li><strong>Drowned.</strong> A world where a noise rule out-scored the planted one in-sample, so the real rule never reached the test.</li>
+          <li><strong>Deflated pass.</strong> The kept rule's probabilistic Sharpe ratio against SR*, the expected best of N on nothing, reaches 0.95.</li>
+          <li><strong>Power.</strong> The share of worlds in which the real rule is kept and passes. Here, because every pass was the planted rule, it equals the deflated pass share.</li>
+          <li><strong>FDR after deflation.</strong> Of the worlds where the deflated test passed, the share where the rule that passed was not the planted one.</li>
+          <li><strong>Seed range.</strong> The block of world seeds a rung averages over. Two rungs with the same settings but different seed ranges are two independent measurements of one quantity.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The sources behind tonight's numbers<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li>Bailey, D. H., and Lopez de Prado, M. (2014). "The Deflated Sharpe Ratio: Correcting for Selection Bias, Backtest Overfitting and Non-Normality." The Journal of Portfolio Management 40(5). Read at source from the SSRN text, abstract id 2460551 (version of July 31, 2014).</li>
+          <li>Bailey, D. H., Borwein, J. M., Lopez de Prado, M., and Zhu, Q. J. (2014). "Pseudo-Mathematics and Financial Charlatanism: The Effects of Backtest Overfitting on Out-of-Sample Performance." Notices of the American Mathematical Society 61(5), 458-471. DOI 10.1090/noti1105. Read at source: https://www.ams.org/notices/201405/rnoti-p458.pdf</li>
+          <li>Harvey, C. R., Liu, Y., and Zhu, H. (2016). "... and the Cross-Section of Expected Returns." The Review of Financial Studies 29(1), 5-68. DOI 10.1093/rfs/hhv059. Read at source from the author's copy: https://people.duke.edu/~charvey/Research/Published_Papers/P118_and_the_cross.pdf</li>
+          <li>McLean, R. D., and Pontiff, J. (2016). "Does Academic Research Destroy Stock Return Predictability?" The Journal of Finance 71(1), 5-32. DOI 10.1111/jofi.12365. Read at source from a mirrored copy of the published PDF.</li>
+        </ul>
+        <p>Every Sharpe figure on the page is a mean over the stated number of generated worlds (200 or 100) at the canon seeds, computed in node from the same engine this page loads and reproduced by an independent Python implementation to 3.3e-13. None of it describes a market.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers planting and the strength ladder</span>
+      <h2>One steel rule in a pile of 99, and the two places it gets lost</h2>
+      <span class="tag concept">12 min live</span>
+    </div>
+    <p class="lede">Planting is two lines of the engine and no cleverness. What it buys is a world where every outcome can be scored. Put one real rule among 99 random ones, keep the best in-sample, and run the deflated test on whatever was kept. The real rule can be lost twice: at the selection gate, when a noise rule out-scores it, and at the bar, when it is kept but cannot clear SR*. Ladder B turns the real rule's strength from 0.5 to 3.0 and counts both losses.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 462" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn mechanism of ladder B. On the left a hatched pile of 99 random rules with one steel rule inside it labelled rule 0, the rule given the hidden signal. An arrow leads to a selection gate that keeps the best in-sample Sharpe ratio on 503 days. Two branches leave the gate. The upper branch, kept, rule 0 is the max, happened in 32.5 percent of 200 worlds for a real 1.5. The lower branch, drowned, noise wins, the other 67.5 percent, and that rule earns about zero afterwards. Both branches lead to a high-jump bar labelled SR star, the deflated test. A real 1.5 passed in 0 of 200 worlds, a real 3.0 in 34.5 percent. A strip below lists the five rungs: real 0.5 kept 2.0 percent passed 0; real 1.0 kept 14 percent passed 0; real 1.5 kept 32.5 percent passed 0; real 2.0 kept 57 percent passed 3.0 percent; real 3.0 kept 90.5 percent passed 34.5 percent. A note says every pass on every rung was rule 0, false discovery rate 0.000.">
+        <defs>
+          <filter id="p6aSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="83" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p6aHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#7A1F3D" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p6aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p6aH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .p6aL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .p6aS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .p6aB { font: 800 11px Inter, sans-serif; fill: #2A5068; }
+          .p6aW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p6aA { font: 700 11px Inter, sans-serif; fill: #7A1F3D; }
+          .p6aN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="p6aH" x="30" y="26">ONE STEEL RULE AMONG 99 NOISE RULES: THE GATE PICKS ONE, THEN THE BAR JUDGES IT</text>
+
+        <g filter="url(#p6aSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- the pile -->
+          <rect x="34" y="56" width="230" height="176" rx="8" transform="rotate(-0.8 149 144)" fill="url(#p6aHc)"/>
+          <!-- rule 0, the planted one, wholly inside the pile -->
+          <rect x="150" y="146" width="96" height="40" rx="6" transform="rotate(0.6 198 166)" fill="#3B6E8F" stroke="#3B6E8F"/>
+          <!-- pile to gate -->
+          <path d="M268 144 L300 144" marker-end="url(#p6aAr)"/>
+          <!-- doodle anchor: a funnel over the gate -->
+          <path d="M354 62 L434 62 L404 88 L384 88 Z" stroke-width="1.8"/>
+          <path d="M394 88 L394 97" stroke-width="1.8"/>
+          <!-- the selection gate -->
+          <rect x="304" y="100" width="180" height="88" rx="6" transform="rotate(0.7 394 144)" fill="#FFFFFF"/>
+          <!-- two branches -->
+          <path d="M486 128 C506 110 512 96 528 94" marker-end="url(#p6aAr)"/>
+          <path d="M486 160 C506 178 512 196 528 198" marker-end="url(#p6aAr)"/>
+          <!-- kept -->
+          <rect x="532" y="62" width="196" height="66" rx="6" transform="rotate(-0.6 630 95)" fill="#EAF1F6"/>
+          <!-- drowned -->
+          <rect x="532" y="166" width="196" height="66" rx="6" transform="rotate(0.6 630 199)" fill="#FAF0F3"/>
+          <!-- the bar: two posts and a steel crossbar -->
+          <path d="M776 52 L776 240 M848 52 L848 240"/>
+          <path d="M764 240 L788 240 M836 240 L860 240"/>
+          <path d="M770 120 L854 120" stroke="#3B6E8F" stroke-width="4"/>
+          <path d="M730 100 C748 104 756 112 768 116" marker-end="url(#p6aAr)"/>
+          <path d="M730 196 C752 186 760 150 770 126" stroke-dasharray="6 5" marker-end="url(#p6aAr)"/>
+          <!-- the strip: ladder B, five rungs -->
+          <rect x="34" y="340" width="150" height="70" rx="6" transform="rotate(-0.8 109 375)" fill="#FFFFFF"/>
+          <rect x="200" y="340" width="150" height="70" rx="6" transform="rotate(0.6 275 375)" fill="#FFFFFF"/>
+          <rect x="366" y="340" width="150" height="70" rx="6" transform="rotate(-0.5 441 375)" fill="#EAF1F6"/>
+          <rect x="532" y="340" width="150" height="70" rx="6" transform="rotate(0.8 607 375)" fill="#FFFFFF"/>
+          <rect x="698" y="340" width="150" height="70" rx="6" transform="rotate(-0.6 773 375)" fill="#FFFFFF"/>
+        </g>
+
+        <text class="p6aW" x="198" y="171" text-anchor="middle">rule 0</text>
+        <text class="p6aL" x="34" y="254">the pile: 99 random rules</text>
+        <text class="p6aS" x="34" y="271">rule 0 is given the hidden signal</text>
+
+        <text class="p6aL" x="394" y="130" text-anchor="middle">the selection gate</text>
+        <text class="p6aS" x="394" y="150" text-anchor="middle">keep the best in-sample</text>
+        <text class="p6aS" x="394" y="166" text-anchor="middle">Sharpe on 503 days</text>
+
+        <text class="p6aL" x="630" y="88" text-anchor="middle">kept: rule 0 is the max</text>
+        <text class="p6aS" x="630" y="105" text-anchor="middle">real 1.5: 32.5 percent</text>
+        <text class="p6aS" x="630" y="120" text-anchor="middle">of 200 worlds, ladder B</text>
+
+        <text class="p6aL" x="630" y="192" text-anchor="middle">drowned: noise wins</text>
+        <text class="p6aS" x="630" y="209" text-anchor="middle">real 1.5: 67.5 percent</text>
+        <text class="p6aS" x="630" y="224" text-anchor="middle">earns about 0 afterwards</text>
+
+        <text class="p6aB" x="812" y="112" text-anchor="middle">SR*</text>
+        <text class="p6aL" x="856" y="258" text-anchor="end">the bar: deflated PSR against SR*</text>
+        <text class="p6aA" x="856" y="276" text-anchor="end">real 1.5: passed in 0 of 200 worlds</text>
+        <text class="p6aA" x="856" y="294" text-anchor="end">real 3.0: passed in 34.5 percent</text>
+
+        <text class="p6aH" x="30" y="326">LADDER B, 200 WORLDS PER RUNG: HOW OFTEN RULE 0 IS KEPT, THEN PASSED</text>
+        <text class="p6aL" x="109" y="362" text-anchor="middle">real 0.5</text>
+        <text class="p6aS" x="109" y="380" text-anchor="middle">kept 2.0 percent</text>
+        <text class="p6aS" x="109" y="397" text-anchor="middle">passed 0</text>
+        <text class="p6aL" x="275" y="362" text-anchor="middle">real 1.0</text>
+        <text class="p6aS" x="275" y="380" text-anchor="middle">kept 14 percent</text>
+        <text class="p6aS" x="275" y="397" text-anchor="middle">passed 0</text>
+        <text class="p6aL" x="441" y="362" text-anchor="middle">real 1.5</text>
+        <text class="p6aS" x="441" y="380" text-anchor="middle">kept 32.5 percent</text>
+        <text class="p6aS" x="441" y="397" text-anchor="middle">passed 0</text>
+        <text class="p6aL" x="607" y="362" text-anchor="middle">real 2.0</text>
+        <text class="p6aS" x="607" y="380" text-anchor="middle">kept 57 percent</text>
+        <text class="p6aS" x="607" y="397" text-anchor="middle">passed 3.0 percent</text>
+        <text class="p6aL" x="773" y="362" text-anchor="middle">real 3.0</text>
+        <text class="p6aS" x="773" y="380" text-anchor="middle">kept 90.5 percent</text>
+        <text class="p6aS" x="773" y="397" text-anchor="middle">passed 34.5 percent</text>
+
+        <text class="p6aN" x="30" y="432">Every pass on every rung was rule 0: false discovery rate after deflation 0.000. The price is paid twice,</text>
+        <text class="p6aN" x="30" y="450">once when noise outruns rule 0 at the gate, and again when rule 0 is kept but cannot clear the bar.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the test never let a noise rule through, so every loss in this picture is a loss of power: drowned before the bar, or kept and refused at it.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>What planting does, line by line<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>The world.</strong> <span class="mono">makeWorld</span> always draws the hidden signal s first: an AR(1) with phi 0.8, scaled so its variance is one. Then it draws the returns, <span class="mono">r[t] = sigma (c s[t-1] + e[t]) / sqrt(1 + c^2)</span>, with sigma 0.01 and e a fresh standard normal. The division keeps daily volatility at one percent whatever c is. With <span class="mono">trueSR</span> at 0, c is 0 and s is drawn and ignored: that is session 1's null.</p>
+        <p><strong>The constant.</strong> A rule trading the sign of s earns sigma times c times the average size of s, over sqrt(1 + c^2), each day, with a daily standard deviation of about sigma. The average size of a standard normal is sqrt(2/pi). So the engine solves <span class="mono">c sqrt(2/pi) / sqrt(1 + c^2) = trueSR / sqrt(252)</span> for c, which is why the planted rule has the requested annualised Sharpe ratio in expectation, not in any one world.</p>
+        <p><strong>The plant.</strong> <span class="mono">makeStrategies</span> with <span class="mono">plantIndex: 0</span> copies the world's hidden signal into slot 0 and fills the other slots with independent AR(1) signals from seed s + 1000. <span class="mono">trial</span> sets the plant whenever <span class="mono">trueSR</span> is not zero. Nothing else changes: same pnl, same split of 503 training and 252 test observations, same selection, same two tests. The only difference between a planted world and a null world is which signal sits in slot 0.</p>
+        <p><strong>How weak "real" is.</strong> Constructed arithmetic from the same formula: a real 1.5 is a per-day Sharpe ratio of 1.5 over sqrt(252), about 0.09, which for a plus-or-minus-one position is also roughly its correlation with tomorrow's return. A rule that is genuinely right is right by a correlation of 0.09. That is why it can be drowned.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Ladder B: five strengths, 200 worlds each<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>One planted rule among 100, walk-forward 503 / 252, 200 worlds per rung. Read across: best in-sample Sharpe ratio, what that kept rule earned on the 252 test days, the share of worlds where it was the planted rule, and the deflated pass share.</p>
+        <ul>
+          <li><strong>Real 0.5.</strong> Best in-sample 1.77, out of sample -0.03; kept 2.0 percent; deflated passes 0.</li>
+          <li><strong>Real 1.0.</strong> 1.81, then 0.12; kept 14 percent; passes 0.</li>
+          <li><strong>Real 1.5.</strong> 1.93, then 0.46; kept 32.5 percent; passes 0.</li>
+          <li><strong>Real 2.0.</strong> 2.15, then 1.09; kept 57 percent; passes 3.0 percent.</li>
+          <li><strong>Real 3.0.</strong> 2.94, then 2.71; kept 90.5 percent; passes 34.5 percent.</li>
+        </ul>
+        <p>The false discovery rate after deflation is 0.000 on every rung: every world that passed, passed the planted rule. On the first three rungs that zero means there were no passes to be wrong about, which is a weaker kind of zero and worth saying out loud.</p>
+        <p>Now read the first two columns together. The best in-sample figure barely moves from 0.5 to 1.5 (1.77 to 1.93), because below about 2 the best of 100 is mostly the best of the noise, and the noise sets the number. The out-of-sample column is the one that tells the rungs apart.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Marlow Street's researcher, constructed, noticed that the desk's 1.8 sat between the real-1.0 rung (1.81) and the real-1.5 rung (1.93) on this ladder, and also next to the 1.80 that the best of 100 reports on nothing at all in session 3. Three different truths, one in-sample number. The head's note on the memo was short: the in-sample figure cannot tell these worlds apart, so it cannot be the reason to fund.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Why the out-of-sample column is a mixture<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The kept rule is the planted one in some worlds and a noise rule in the rest. A noise rule earns about zero out of sample here, and the planted rule earns its true Sharpe ratio. So the out-of-sample mean should be close to the kept share times the true value. Constructed arithmetic against the measured column: 0.325 times 1.5 is 0.49, measured 0.46; 0.57 times 2.0 is 1.14, measured 1.09; 0.905 times 3.0 is 2.72, measured 2.71.</p>
+        <p>That is a useful way to read any out-of-sample figure after a selection: it is a blend of "picked the real thing" and "picked the luckiest noise", weighted by how often each happened. A low out-of-sample number does not say the real rule is weak. It may say the real rule was rarely the one kept.</p>
+        <p>The blend works this cleanly because the generator has no memory. The 2014 Notices paper shows that with memory, a rule selected for in-sample luck can do worse than zero afterwards, through what it calls a compensation effect. This bench cannot show that case. Read every "earns about zero" here as "earns nothing, or worse if the series has memory, which this bench does not model".</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>What the plant is not<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The planted rule is the kindest real edge there could be. It is stationary: its Sharpe ratio is the same in year one and year three. It is free to trade until session 7 adds a cost. And nobody else is trading it away. A rule found in a real series has none of those guarantees.</p>
+        <p>The decay of published rules is measured, and the measurement moved as its sample grew. McLean and Pontiff, in the published version (The Journal of Finance, 2016), studied 97 variables and report portfolio returns 26 percent lower out of sample and 58 percent lower after publication. Earlier drafts of the same study reported other figures, which is itself a lesson about single estimates. The planted rule here decays by zero percent, so every power figure on this page is a best case.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers crowd and history</span>
+      <h2>Two more dials: the rivals around it and the years under it</h2>
+      <span class="tag concept">12 min live</span>
+    </div>
+    <p class="lede">Hold the real rule at 1.5 and turn the other two dials. Ladder B2 grows the crowd from 1 rule to 1,000 on three years (200 worlds a rung). Ladder B3 holds the crowd at 100 and grows the history from 3 years to 24 (100 worlds a rung). One dial sinks the real rule fast. The other lifts it, slowly, and it is the only dial on the bench that a desk cannot simply turn.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 526" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn two-axis chart for one real rule with a Sharpe ratio of 1.5. The horizontal axis is crowd size N: 1, 10, 100 and 1,000, at 3 years, from ladder B2 with 200 worlds each. The vertical axis is years of history: 3, 6, 12 and 24, at N equals 100, from ladder B3 with 100 worlds each. Steel circles sized by the deflated pass share. Along the bottom row: 65.5 percent at N 1, 3.0 at N 10, 1.5 at N 100 and 1.5 at N 1,000. Up the N 100 column: 6 percent at 6 years, 45 at 12 and 94 at 24. The corner cell, N 100 at 3 years, holds three readings of the same setting from three seed ranges: ladder B 0 of 200, ladder B2 1.5 percent of 200, ladder B3 3 percent of 100, with a panel saying one run is not the mean. Faint rings mark cells that were not run.">
+        <defs>
+          <filter id="p6bSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="89" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p6bHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3B6E8F" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p6bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p6bH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .p6bL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .p6bS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .p6bB { font: 800 11px Inter, sans-serif; fill: #2A5068; }
+          .p6bV { font: 800 16px Inter, sans-serif; fill: #4A1024; }
+          .p6bA { font: 700 11px Inter, sans-serif; fill: #7A1F3D; }
+          .p6bN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="p6bH" x="30" y="26">ONE REAL 1.5, TWO DIALS: RIVALS SINK IT, INDEPENDENT HISTORY LIFTS IT</text>
+        <text class="p6bS" x="30" y="46">deflated pass share, percent of worlds; the corner cell is the setting of ladder B</text>
+        <text class="p6bL" x="140" y="96">years of history, at N = 100 (ladder B3, 100 worlds each)</text>
+
+        <g filter="url(#p6bSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- axes -->
+          <path d="M140 430 L630 430" stroke-width="2.5"/>
+          <path d="M140 430 L140 112" stroke-width="2"/>
+          <path d="M190 430 L190 438 M320 430 L320 438 M450 430 L450 438 M580 430 L580 438" stroke-width="1.6"/>
+          <path d="M132 380 L140 380 M132 300 L140 300 M132 220 L140 220 M132 140 L140 140" stroke-width="1.6"/>
+          <!-- guides: the measured row and the measured column -->
+          <path d="M150 380 L620 380" stroke="#BF8398" stroke-width="1.4" stroke-dasharray="3 6"/>
+          <path d="M450 362 L450 120" stroke="#BF8398" stroke-width="1.4" stroke-dasharray="3 6"/>
+          <!-- the corner cell, hatched: three readings of one setting -->
+          <rect x="422" y="364" width="56" height="32" rx="4" transform="rotate(-1 450 380)" fill="url(#p6bHc)" stroke="#3B6E8F" stroke-width="1.4"/>
+          <!-- cells not run -->
+          <g stroke="#DCC9CF" stroke-width="1.4" stroke-dasharray="2 3">
+            <circle cx="190" cy="140" r="4"/><circle cx="190" cy="220" r="4"/><circle cx="190" cy="300" r="4"/>
+            <circle cx="320" cy="140" r="4"/><circle cx="320" cy="220" r="4"/><circle cx="320" cy="300" r="4"/>
+            <circle cx="580" cy="140" r="4"/><circle cx="580" cy="220" r="4"/><circle cx="580" cy="300" r="4"/>
+          </g>
+          <!-- ladder B2 along the bottom row -->
+          <circle cx="190" cy="380" r="18.1" fill="#3B6E8F" stroke="#3B6E8F"/>
+          <circle cx="320" cy="380" r="5.6" fill="#3B6E8F" stroke="#3B6E8F"/>
+          <circle cx="580" cy="380" r="5.3" fill="#3B6E8F" stroke="#3B6E8F"/>
+          <!-- the corner: B (0), B2 (1.5), B3 (3) -->
+          <circle cx="436" cy="380" r="5" fill="#FFFFFF" stroke="#3B6E8F"/>
+          <circle cx="450" cy="380" r="5.3" fill="#3B6E8F" stroke="#3B6E8F"/>
+          <circle cx="464" cy="380" r="5.6" fill="#3B6E8F" stroke="#3B6E8F"/>
+          <!-- ladder B3 up the N = 100 column -->
+          <circle cx="450" cy="300" r="6.2" fill="#3B6E8F" stroke="#3B6E8F"/>
+          <circle cx="450" cy="220" r="14" fill="#3B6E8F" stroke="#3B6E8F"/>
+          <circle cx="450" cy="140" r="23.8" fill="#3B6E8F" stroke="#3B6E8F"/>
+          <!-- the three-readings panel and its pointer -->
+          <rect x="640" y="118" width="216" height="124" rx="6" transform="rotate(0.7 748 180)" fill="#FAF0F3"/>
+          <path d="M660 246 C640 320 530 352 482 372" marker-end="url(#p6bAr)"/>
+          <!-- doodle anchor: a calendar page, for history -->
+          <rect x="44" y="140" width="40" height="36" rx="3" transform="rotate(-1.2 64 158)" fill="#FFFFFF"/>
+          <path d="M54 134 L54 146 M74 134 L74 146" stroke-width="1.8"/>
+          <path d="M50 158 L78 158 M50 166 L70 166" stroke-width="1.4"/>
+        </g>
+
+        <text class="p6bS" x="64" y="196" text-anchor="middle">new years only</text>
+
+        <text class="p6bL" x="128" y="384" text-anchor="end">3</text>
+        <text class="p6bL" x="128" y="304" text-anchor="end">6</text>
+        <text class="p6bL" x="128" y="224" text-anchor="end">12</text>
+        <text class="p6bL" x="128" y="144" text-anchor="end">24</text>
+        <text class="p6bL" x="190" y="452" text-anchor="middle">1</text>
+        <text class="p6bL" x="320" y="452" text-anchor="middle">10</text>
+        <text class="p6bL" x="450" y="452" text-anchor="middle">100</text>
+        <text class="p6bL" x="580" y="452" text-anchor="middle">1,000</text>
+        <text class="p6bS" x="385" y="472" text-anchor="middle">crowd size N, at 3 years (ladder B2, 200 worlds each)</text>
+
+        <text class="p6bV" x="190" y="418" text-anchor="middle">65.5</text>
+        <text class="p6bV" x="320" y="418" text-anchor="middle">3.0</text>
+        <text class="p6bV" x="450" y="418" text-anchor="middle">0 / 1.5 / 3</text>
+        <text class="p6bV" x="580" y="418" text-anchor="middle">1.5</text>
+        <text class="p6bV" x="464" y="305">6</text>
+        <text class="p6bV" x="472" y="226">45</text>
+        <text class="p6bV" x="482" y="147">94</text>
+
+        <text class="p6bL" x="652" y="140">same setting, three runs</text>
+        <text class="p6bS" x="652" y="158">N = 100, real 1.5, 3 years</text>
+        <text class="p6bS" x="652" y="176">ladder B: 0 of 200 worlds</text>
+        <text class="p6bS" x="652" y="194">ladder B2: 1.5 percent of 200</text>
+        <text class="p6bS" x="652" y="212">ladder B3: 3 percent of 100</text>
+        <text class="p6bA" x="652" y="232">one run is not the mean</text>
+
+        <text class="p6bN" x="30" y="496">Circle size is the deflated pass share. Rivals sink the real 1.5 fast: by N = 10 it passes in 3.0 percent.</text>
+        <text class="p6bN" x="30" y="514">History lifts it, and only independent history: 45 percent at 12 years, 94 at 24. Faint rings: not run.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - going right costs power almost at once; going up buys it back, slowly. Every pass in every marked cell was the planted rule.</figcaption>
+    </figure>
+
+    <div class="wk" id="p6-plant">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">The generator, the plant, the selection and the deflated test, running in this page. Choose a ladder and a rung, then press Run: it averages over the canon seeds, so it prints the canon row. Nothing runs until you press the button.</span>
+      </div>
+      <div class="wk-body">
+        <label class="sql-label" for="p6-plant-ladder">Which dial to turn</label>
+        <select class="sql-code" id="p6-plant-ladder">
+          <option value="B" selected>Strength: ladder B, one real rule among 100, 3 years</option>
+          <option value="B2">Crowd: ladder B2, a real 1.5 among N, 3 years</option>
+          <option value="B3">History: ladder B3, a real 1.5 among 100, more years</option>
+        </select>
+        <label class="sql-label" for="p6-plant-rung">Which rung</label>
+        <select class="sql-code" id="p6-plant-rung"></select>
+        <div style="margin:.6rem 0 .2rem"><button class="btn primary" id="p6-plant-run" type="button">Run</button></div>
+        <div id="p6-plant-out"></div>
+        <p class="sql-note" id="p6-plant-verdict">...</p>
+      </div>
+      <div class="wk-foot" id="p6-plant-self">...</div>
+    </div>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>B2: the crowd drowns it<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A real 1.5 on three years, 200 worlds a rung, with a growing number of random rivals.</p>
+        <ul>
+          <li><strong>Alone, N = 1.</strong> Kept 100 percent (there is nothing else), out of sample 1.48, passes 65.5 percent. No deflation is possible, so this is ordinary power on two years of training data.</li>
+          <li><strong>N = 10.</strong> Kept 68 percent, out of sample 1.03, passes 3.0 percent.</li>
+          <li><strong>N = 100.</strong> Kept 40.5 percent, out of sample 0.72, passes 1.5 percent.</li>
+          <li><strong>N = 1,000.</strong> Kept 13 percent, out of sample 0.20, passes 1.5 percent.</li>
+        </ul>
+        <p>Two different things fall. The kept share falls steadily, because each new rival is one more chance for noise to out-score the real rule. The pass share falls off a cliff at once, from 65.5 to 3.0 percent with only nine rivals, because the bar rises from zero to SR* the moment there is anything to be the best of. At N = 1,000 the real 1.5 was in the pile all along, and the kept rule earned 0.20.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>B3: history lifts it, and cannot be manufactured<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A real 1.5 among 100, 100 worlds a rung, with more years. Best in-sample falls toward the truth as the noise's best shrinks: 2.03, 1.61, 1.53, 1.50. Out of sample rises toward it: 0.68, 0.93, 1.42, 1.51. Kept: 39, 56, 95 and 100 percent. Deflated passes: 3, 6, 45 and 94 percent, at 3, 6, 12 and 24 years.</p>
+        <p>The mechanism is the width of the bell. One estimate's noise shrinks like one over the square root of the sample length, so the best of 100 noise rules comes down toward zero while the real 1.5 stays 1.5. The 2014 Notices paper turns that into a rule, the minimum backtest length: MinBTL &lt; 2 ln N / E[max]^2 (Theorem 2), the years of data needed before the best of N independent tries on nothing is expected to stay below a Sharpe ratio of E[max]. The 2 ln N comes from sqrt(2 ln N), which the paper gives as an upper bound, not an estimate. Its worked example: with five years of data, no more than 45 independent configurations should be tried.</p>
+        <p>Constructed arithmetic with the measured form instead of the bound: session 3's equation 1 value for N = 100 is 2.531 standard deviations, so keeping the expected best of 100 noise rules at 1.0 annualised needs about 2.531 squared, 6.4 years of training data alone.</p>
+        <p>And the history has to be independent. Resampling the same three years, slicing them finer or reusing them under a new split gives more rows, not more information; the noise in those rows is the same noise. New history arrives at one year per year, which is why the cure is real and slow.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Marlow Street's researcher, constructed, proposed bootstrapping the three years into thirty to "get the B3 effect for free". The head asked what a bootstrap adds that the three years did not contain. Nothing: B3's worlds are longer because the generator drew more independent days, and a resample draws no new days at all. The proposal went into the log as a tried idea, which is also a configuration, and N went up by one.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>One run is not the mean: three readings of one setting<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Ladder B's real-1.5 rung, ladder B2 at N = 100 and ladder B3 at 3 years are the same setting: a real 1.5 among 100 on three years, walk-forward 503 / 252. They use three different seed ranges. Their deflated pass shares read 0 of 200 worlds, 1.5 percent of 200 and 3 percent of 100. Their kept shares read 32.5, 40.5 and 39 percent; out of sample 0.46, 0.72 and 0.68.</p>
+        <p>None of them is wrong and none of them is the answer. Each is a mean over a finite set of worlds, and a mean has noise of its own. So the honest summary is not "never" and not "1.5 percent": it is "almost never", a few percent at most, with three runs to show the spread. The professional norm is to quote a rate with its trial count, and when two runs disagree, to report both rather than pick the one that tells the better story. Picking would be selection again, one level up.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where serious people disagree: should a desk lower the bar to recover power?<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>The case for a high bar, or a higher one.</strong> Harvey, Liu and Zhu (2016) counted 313 papers and 316 factors and concluded that a new factor needs a t-statistic greater than 3.0, a p-value of 0.27 percent, and they argue there are good reasons to expect that 3.0 is too low. On this view a refusal is cheap and a funded false rule is expensive, and the searches behind published results are larger than anyone reports.</p>
+        <p><strong>The case that the bar has a price.</strong> The deflated test kept its promise on every planted rung, 0.000 false discoveries, and paid for it in power: a real 1.5 among 100 on three years almost never passes. A desk whose instrument refuses a real 1.5 in nearly every world funds nothing, and learns nothing either. Bailey and Lopez de Prado (2014) do not set the two thresholds against each other: they call the Benjamini-Hochberg style threshold and the DSR threshold complementary and encourage computing both.</p>
+        <p><strong>What is open.</strong> Lowering the bar trades false discoveries for power, and the right trade depends on what a missed real rule costs this desk against what a funded false one costs. That is a loss function, not a statistical fact, and the literature has not settled it. The canon does not measure a lowered bar either; the homework does it by hand and its numbers are yours alone. What every side agrees on is the reporting: state the N, the SR*, the sample length and both verdicts, so a reader can apply their own bar.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · build-along</span>
+      <h2>Plant, run, read: the three ladders by hand</h2>
+      <span class="tag build">18 min hands on</span>
+    </div>
+    <p class="lede">Open this page's console. The engine is loaded as <span class="mono">QT</span>. Six steps: plant a rule and check it is the hidden signal, run single worlds and see how much one world swings, run ladder B's canon row, run the same setting from two other seed ranges, then the two heavy rungs that each take several seconds. Single worlds are for checking the engine; only the rungs are measurements.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 292" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn pipeline of the six console steps. Step 1, plant the signal: rule 0 equals the hidden signal s. Step 2, one world: QT.trial with one seed. A dashed steel loop from step 2 back to step 1 says one world is one draw, repeat it. Step 3, a steel box, the canon row: ladderRung over 200 worlds, means. Steps 4 to 6, turn one dial: the same setting from ladders B2 and B3, then two heavy rungs below it, B2 at N equals 1,000 and B3 at 24 years, each taking several seconds, with a small clock. The last box, read the row: kept, passed, FDR.">
+        <defs>
+          <filter id="p6cSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="97" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p6cHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#7A1F3D" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p6cAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+          <marker id="p6cArS" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#3B6E8F" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p6cH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .p6cL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .p6cS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .p6cB { font: 800 11px Inter, sans-serif; fill: #2A5068; }
+          .p6cW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p6cA { font: 700 11px Inter, sans-serif; fill: #7A1F3D; }
+          .p6cN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="p6cH" x="30" y="26">SIX STEPS: PLANT, CHECK ONE WORLD, THEN MEASURE AT THE CANON SEEDS</text>
+
+        <g filter="url(#p6cSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="34" y="64" width="150" height="58" rx="6" transform="rotate(-1 109 93)" fill="#FAF0F3"/>
+          <path d="M186 93 L201 93" marker-end="url(#p6cAr)"/>
+          <rect x="204" y="64" width="150" height="58" rx="6" transform="rotate(0.7 279 93)" fill="#FFFFFF"/>
+          <path d="M356 93 L371 93" marker-end="url(#p6cAr)"/>
+          <rect x="374" y="64" width="150" height="58" rx="6" transform="rotate(-0.5 449 93)" fill="#3B6E8F" stroke="#3B6E8F"/>
+          <path d="M526 93 L541 93" marker-end="url(#p6cAr)"/>
+          <rect x="544" y="64" width="150" height="58" rx="6" transform="rotate(0.6 619 93)" fill="#FFFFFF"/>
+          <path d="M696 93 L711 93" marker-end="url(#p6cAr)"/>
+          <rect x="714" y="64" width="150" height="58" rx="6" transform="rotate(-0.8 789 93)" fill="url(#p6cHc)"/>
+          <!-- the loop: one world is one draw -->
+          <path d="M279 125 L279 154 L109 154 L109 128" stroke="#3B6E8F" stroke-dasharray="6 5" marker-end="url(#p6cArS)"/>
+          <!-- the heavy rungs -->
+          <path d="M600 125 L600 196" marker-end="url(#p6cAr)"/>
+          <path d="M650 125 C660 160 740 170 770 196" marker-end="url(#p6cAr)"/>
+          <rect x="520" y="200" width="160" height="50" rx="6" transform="rotate(0.8 600 225)" fill="#FFFFFF"/>
+          <rect x="696" y="200" width="160" height="50" rx="6" transform="rotate(-0.7 776 225)" fill="#FFFFFF"/>
+          <!-- doodle anchor: a clock -->
+          <circle cx="470" cy="224" r="16"/>
+          <path d="M470 224 L470 212 M470 224 L480 229" stroke-width="1.8"/>
+        </g>
+
+        <text class="p6cA" x="109" y="54" text-anchor="middle">step 1</text>
+        <text class="p6cA" x="279" y="54" text-anchor="middle">step 2</text>
+        <text class="p6cA" x="449" y="54" text-anchor="middle">step 3</text>
+        <text class="p6cA" x="619" y="54" text-anchor="middle">steps 4 to 6</text>
+        <text class="p6cA" x="789" y="54" text-anchor="middle">then</text>
+
+        <text class="p6cL" x="109" y="89" text-anchor="middle">plant the signal</text>
+        <text class="p6cS" x="109" y="107" text-anchor="middle">rule 0 = hidden s</text>
+        <text class="p6cL" x="279" y="89" text-anchor="middle">one world</text>
+        <text class="p6cS" x="279" y="107" text-anchor="middle">QT.trial, one seed</text>
+        <text class="p6cW" x="449" y="89" text-anchor="middle">the canon row</text>
+        <text class="p6cW" x="449" y="107" text-anchor="middle">200 worlds, mean</text>
+        <text class="p6cL" x="619" y="89" text-anchor="middle">turn one dial</text>
+        <text class="p6cS" x="619" y="107" text-anchor="middle">same setting, B2, B3</text>
+        <text class="p6cL" x="789" y="89" text-anchor="middle">read the row</text>
+        <text class="p6cS" x="789" y="107" text-anchor="middle">kept, passed, FDR</text>
+
+        <text class="p6cB" x="194" y="174" text-anchor="middle">one world is one draw: repeat it</text>
+
+        <text class="p6cL" x="600" y="221" text-anchor="middle">B2 at N = 1,000</text>
+        <text class="p6cS" x="600" y="239" text-anchor="middle">takes several seconds</text>
+        <text class="p6cL" x="776" y="221" text-anchor="middle">B3 at 24 years</text>
+        <text class="p6cS" x="776" y="239" text-anchor="middle">takes several seconds</text>
+
+        <text class="p6cN" x="30" y="276">Steps 1 and 2 are single draws, for checking the engine. Steps 3 to 6 are the measurement, at the canon seeds.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the steel box is the first number on the page worth quoting: everything before it is one world, and one world is a draw.</figcaption>
+    </figure>
+
+    <div class="steps">
+      <div class="step"><div>
+        <h4>Plant a rule and check it is the hidden signal</h4>
+        <p>Seed 50016 is the first world of ladder B's real-1.5 rung. Slot 0 should equal the hidden signal value for value (a copy, so <span class="mono">===</span> on the arrays would say false). Then compute c from the engine's formula and the correlation between the planted position and the next day's return. The c involves no random number and prints the same everywhere; the correlation is one world's draw around about 0.09. Your numbers will match for the same seed.</p>
+        <div class="prompt-box good"><span class="label">console</span>var w = QT.makeWorld({ trueSR: 1.5, seed: 50016 });
+var xs = QT.makeStrategies(w, { N: 100, plantIndex: 0, seed: w.seed + 1000 });
+var sPer = 1.5 / Math.sqrt(252), c = sPer / Math.sqrt(2 / Math.PI - sPer * sPer);
+var pos = w.signal.slice(0, 755).map(function (v) { return v &gt;= 0 ? 1 : -1; });
+[xs[0].every(function (v, t) { return v === w.signal[t]; }), c.toFixed(4), QT.corr(pos, w.returns.slice(1)).toFixed(3)]</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Run five single worlds and watch them swing</h4>
+        <p>QT.trial runs the whole experiment once: plant, 100 rules, keep the best on 503 days, test on 252, both verdicts. Look at the second column (1 if the kept rule was the planted one) and how far the in-sample and out-of-sample figures move from world to world. Do not average these by eye; that is what the next step is for. Your numbers will match for the same seed.</p>
+        <div class="prompt-box good"><span class="label">console</span>[50016, 50017, 50018, 50019, 50020].map(function (s) {
+  var t = QT.trial({ N: 100, trueSR: 1.5, method: "walkforward", seed: s });
+  return [s, t.pickedPlant, t.isSR.toFixed(2), t.oosSR.toFixed(2), t.deflatedDiscovery];
+})</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Run the canon row: ladder B at a real 1.5</h4>
+        <p>ladderRung repeats the trial over seeds 50016 to 50215 and averages: 200 worlds of 100 rules, about a second. It prints best in-sample 1.93, out of sample 0.46, kept 0.325, deflated passes 0.000 and FDR after deflation 0.000. Change 1.5 and the seed0 together (50000 plus ten times the true Sharpe) to print any other row of the strength ladder. Your numbers will match for the same seed.</p>
+        <div class="prompt-box good"><span class="label">console</span>var r = QT.ladderRung({ N: 100, trueSR: 1.5, method: "walkforward" }, 200, 50015);
+[r.isSR.toFixed(2), r.oosSR.toFixed(2), r.pickedPlant.toFixed(3),
+ r.deflatedDiscovery.toFixed(3), r.fdrAfterDeflation.toFixed(3)]</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Run the same setting from two other seed ranges</h4>
+        <p>Ladder B2 at N = 100 (seed0 60100, 200 worlds) and ladder B3 at 756 days (seed0 65756, 100 worlds) are the same experiment as step 3. They print deflated passes 0.015 and 0.030 and kept shares 0.405 and 0.390. Put them beside step 3's 0.000 and 0.325: that spread is what a ladder's own noise looks like. Your numbers will match for the same seed.</p>
+        <div class="prompt-box good"><span class="label">console</span>var b2 = QT.ladderRung({ N: 100, trueSR: 1.5, method: "walkforward" }, 200, 60100);
+var b3 = QT.ladderRung({ N: 100, trueSR: 1.5, method: "walkforward", days: 756 }, 100, 65756);
+[b2.deflatedDiscovery.toFixed(3), b3.deflatedDiscovery.toFixed(3), b2.pickedPlant.toFixed(3), b3.pickedPlant.toFixed(3)]</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Turn the crowd to 1,000 (heavy)</h4>
+        <p>Ladder B2's last rung: 200 worlds of 1,000 rules, 200,000 strategies scored. This takes several seconds and the tab will not respond while it runs; it is busy, not stuck. It prints best in-sample 2.42, out of sample 0.20, kept 0.130 and deflated passes 0.015. The seed0 rule for B2 is 60000 plus N. Your numbers will match for the same seed.</p>
+        <div class="prompt-box good"><span class="label">console</span>var big = QT.ladderRung({ N: 1000, trueSR: 1.5, method: "walkforward" }, 200, 61000);
+[big.isSR.toFixed(2), big.oosSR.toFixed(2), big.pickedPlant.toFixed(3), big.deflatedDiscovery.toFixed(3)]</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Turn the history to 24 years (heavy)</h4>
+        <p>Ladder B3's last rung: 6,048 days per world, 4,031 training and 2,016 test observations, 100 worlds of 100 rules. This also takes several seconds. It prints best in-sample 1.50, out of sample 1.51, kept 1.000 and deflated passes 0.940. The seed0 rule for B3 is 65000 plus the number of days (756, 1,512, 3,024 or 6,048). Your numbers will match for the same seed.</p>
+        <div class="prompt-box good"><span class="label">console</span>var hist = QT.ladderRung({ N: 100, trueSR: 1.5, method: "walkforward", days: 6048 }, 100, 71048);
+[hist.isSR.toFixed(2), hist.oosSR.toFixed(2), hist.pickedPlant.toFixed(3), hist.deflatedDiscovery.toFixed(3), hist.fdrAfterDeflation.toFixed(3)]</div>
+      </div></div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> Before trusting a test with a decision, plant the answer and score the test on it: how often it lets noise through, and how often it keeps the real thing. Quote both with their trial counts, and when two runs of the same setting disagree, quote both runs.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">On ladder B's real-1.5 rung (200 worlds) the kept rule earns 0.46 out of sample, although the planted rule's true Sharpe ratio is 1.5. Why?</p>
+      <div class="qopt">A · The deflated test shrinks the kept rule's out-of-sample Sharpe ratio</div>
+      <div class="qopt">B · The kept rule is the planted one in 32.5 percent of worlds and a noise rule in the rest, which earns about zero here, so the mean is close to 0.325 times 1.5</div>
+      <div class="qopt">C · The planted signal decays after the training period in this generator</div>
+      <q class="qwhy">The out-of-sample figure is a blend of "kept the real rule" and "kept the luckiest noise". The generator is stationary and has no memory, so the real rule earns its 1.5 and a noise rule earns about zero; 0.325 times 1.5 is 0.49 against a measured 0.46. The test does not touch the out-of-sample days at all.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">A real 1.5 among 100 on three years passes the deflated test in 0 of 200 worlds in ladder B, 1.5 percent of 200 in B2 and 3 percent of 100 in B3. What is the right reading?</p>
+      <div class="qopt">A · One of the three ladders has a bug, since the setting is identical</div>
+      <div class="qopt">B · The true pass rate is exactly 1.5 percent, the middle value</div>
+      <div class="qopt">C · They are three seed ranges for the same setting, each a mean over a finite number of worlds; the honest summary is "almost never", a few percent at most, quoted with the trial counts</div>
+      <q class="qwhy">A rate measured over 100 or 200 worlds carries noise of its own. Choosing the run that reads best would be selection again, one level up. Report the spread and the counts.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">Marlow Street wants a real 1.5 among 100 to pass the deflated test more often without letting noise through. Which lever does the canon show working?</p>
+      <div class="qopt">A · More independent history: from 3 to 24 years the pass share rises from 3 to 94 percent of 100 worlds, with every pass the planted rule</div>
+      <div class="qopt">B · Bootstrapping the same three years into thirty to get more observations</div>
+      <div class="qopt">C · Trying more rules, so that the real one has more chances to be kept</div>
+      <q class="qwhy">More rules lower the kept share and raise the bar (B2). A resample adds rows but no new days, so its noise is the noise already there. Only independent history narrows the bell of noise estimates, which is what ladder B3 shows and what the minimum backtest length formalises.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before session 7</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">About forty minutes, in the console and on one page of paper.</p>
+    <div class="steps">
+      <div class="step"><div>
+        <h4>Write Marlow Street's memo on the 1.8</h4>
+        <p>The 1.8 came from about 100 tries on three years. Using only tonight's ladders and their trial counts, write half a page: what the deflated test would most likely say, what that verdict does and does not mean if the rule were a real 1.5, and how many years of independent data would change the answer. Name the N you assumed. No decision about money belongs in it; the memo is about what the evidence can and cannot show.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Lower the bar by hand and count both errors</h4>
+        <p>Loop over the 200 seeds of ladder B's real-1.5 rung (50016 to 50215). In each world rebuild the 100 rules as in step 1, keep the best, compute its deflated PSR yourself with <span class="mono">QT.psr</span> and <span class="mono">QT.expectedMaxSR</span>, and count passes at 0.95 and at 0.90, and how many of each were not rule 0. The 0.95 count should reproduce the canon row; the 0.90 count is not in the canon, so your numbers are the only ones there are. Bring both to the disagreement card's question.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Fill one faint ring</h4>
+        <p>Pick one unrun cell of the crowd-and-history drawing, for example N = 10 at 12 years (<span class="mono">days: 3024</span>), and run it at 100 worlds from a seed0 no ladder uses, such as 300000. Mark it on a copy of the drawing with its trial count. Your numbers will differ from anyone who picks another seed range, which is the point of the last card.</p>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">How the engine plants a signal</span><span class="note">c solves c sqrt(2/pi) / sqrt(1 + c^2) = trueSR / sqrt(252); slot 0 is handed the world's hidden signal; nothing else changes.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Ladder B, the strength dial</span><span class="note">Real 0.5 to 3.0 among 100 (200 worlds each): kept 2.0 to 90.5 percent, deflated passes 0 to 34.5 percent, FDR after deflation 0.000 on every rung.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Two places a real rule is lost</span><span class="note">Drowned at the selection gate, or kept and refused at the bar; the out-of-sample figure as a blend of the two.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Ladder B2, the crowd dial</span><span class="note">A real 1.5 among 1 to 1,000 (200 worlds): kept 100 to 13 percent, out of sample 1.48 to 0.20, deflated passes 65.5 to 1.5 percent.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Ladder B3 and the minimum backtest length</span><span class="note">3 to 24 years (100 worlds): passes 3 to 94 percent. AMS 2014, Theorem 2, read at source; 45 configurations on five years. Independent history cannot be manufactured.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">One run is not the mean</span><span class="note">The same setting from three seed ranges reads 0, 1.5 and 3 percent: "almost never", quoted with trial counts.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Lowering the bar</span><span class="note">Taught as a disagreement: Harvey, Liu and Zhu (2016) on t above 3.0; the DSR paper calls the two thresholds complementary. Not measured in the canon.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Decay and memory</span><span class="note">The plant is stationary and the generator has no memory, so power figures are a best case and kept-by-luck rules earn about zero, not less. McLean and Pontiff (2016) named.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Challengers and statistical power elsewhere</span><span class="note">Challenger models for one model live in <a href="https://phoebefu6.github.io/learn-model-risk-with-phoebe/courses/p5-benchmarks-and-challengers.html">learn-model-risk-with-phoebe, practitioner session 5</a>; power for experiments that can be rerun lives in <a href="https://phoebefu6.github.io/learn-experimentation-with-phoebe/">learn-experimentation-with-phoebe</a>.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Any market, price or instrument</span><span class="note">Out of scope by design. Synthetic data only, and nothing here is investment advice.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>The one sentence.</strong> Plant the answer before trusting a test, and score it twice: noise let through, and real rules kept.</div>
+      <div class="cheat-item"><strong>The plant.</strong> Slot 0 gets the hidden signal; c is solved so its expected annualised Sharpe ratio is trueSR. A real 1.5 is a daily correlation of about 0.09.</div>
+      <div class="cheat-item"><strong>The promise kept.</strong> FDR after deflation 0.000 on every planted rung of B, B2 and B3: every pass was the planted rule.</div>
+      <div class="cheat-item"><strong>The two losses.</strong> Drowned at the gate (a real 1.5 among 100 is kept 32.5 percent of 200 worlds) and refused at the bar (passes 0 of those 200).</div>
+      <div class="cheat-item"><strong>The crowd.</strong> A real 1.5 passes 65.5 percent alone and 3.0 percent among 10 (200 worlds). The bar jumps the moment there is anything to be the best of.</div>
+      <div class="cheat-item"><strong>The history.</strong> Among 100: 3, 6, 45 and 94 percent at 3, 6, 12 and 24 years (100 worlds). MinBTL &lt; 2 ln N / E[max]^2; five years, at most 45 configurations.</div>
+      <div class="cheat-item"><strong>The mixture.</strong> Out of sample after selection is roughly the kept share times the true Sharpe ratio, plus noise that earns about zero here.</div>
+      <div class="cheat-item"><strong>The spread.</strong> One setting, three seed ranges: 0, 1.5 and 3 percent. Say "almost never" and quote every run with its trial count.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Practitioner session 6 of 10 · learn-quant-trading-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="p5-time-ordered-splits.html">← Practitioner session 5 · Time-ordered splits</a>
+        <a href="p7-costs-against-a-small-edge.html">Practitioner session 7 · Costs against a small edge →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/qt-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof QT === "undefined") return;
+  var selL = document.getElementById("p6-plant-ladder");
+  var selR = document.getElementById("p6-plant-rung");
+  var btn = document.getElementById("p6-plant-run");
+  var out = document.getElementById("p6-plant-out");
+  var verdict = document.getElementById("p6-plant-verdict");
+  var self = document.getElementById("p6-plant-self");
+
+  /* canon seeds (materials/qt_ladder.js):
+     B  strength: 200 worlds, seed0 = 50000 + round(10 * trueSR)
+     B2 crowd:    200 worlds, seed0 = 60000 + N
+     B3 history:  100 worlds, seed0 = 65000 + days */
+  var LADDERS = {
+    B: { trials: 200, def: 2, rungs: [
+      { v: 0.5, label: "Real 0.5 among 100" },
+      { v: 1, label: "Real 1.0 among 100" },
+      { v: 1.5, label: "Real 1.5 among 100" },
+      { v: 2, label: "Real 2.0 among 100" },
+      { v: 3, label: "Real 3.0 among 100" } ],
+      opts: function (v) { return { N: 100, trueSR: v, method: "walkforward" }; },
+      seed0: function (v) { return 50000 + Math.round(v * 10); },
+      heavy: function () { return false; },
+      real: function (v) { return v; } },
+    B2: { trials: 200, def: 2, rungs: [
+      { v: 1, label: "N = 1, the real 1.5 alone" },
+      { v: 10, label: "N = 10" },
+      { v: 100, label: "N = 100" },
+      { v: 1000, label: "N = 1,000 (takes several seconds)" } ],
+      opts: function (v) { return { N: v, trueSR: 1.5, method: "walkforward" }; },
+      seed0: function (v) { return 60000 + v; },
+      heavy: function (v) { return v >= 1000; },
+      real: function () { return 1.5; } },
+    B3: { trials: 100, def: 0, rungs: [
+      { v: 756, label: "3 years (503 / 252 observations)" },
+      { v: 1512, label: "6 years (1,007 / 504)" },
+      { v: 3024, label: "12 years (2,015 / 1,008), takes several seconds" },
+      { v: 6048, label: "24 years (4,031 / 2,016), takes several seconds" } ],
+      opts: function (v) { return { N: 100, trueSR: 1.5, method: "walkforward", days: v }; },
+      seed0: function (v) { return 65000 + v; },
+      heavy: function (v) { return v >= 3024; },
+      real: function () { return 1.5; } }
+  };
+
+  function pct(x) { return (x * 100).toFixed(1) + " percent"; }
+  function cur() { var L = LADDERS[selL.value]; return { L: L, v: Number(selR.value) }; }
+
+  function fillRungs() {
+    var L = LADDERS[selL.value], html = "", i;
+    for (i = 0; i < L.rungs.length; i++) {
+      html += '<option value="' + L.rungs[i].v + '"' + (i === L.def ? " selected" : "") + ">" + L.rungs[i].label + "</option>";
+    }
+    selR.innerHTML = html;
+    idle();
+  }
+
+  function idle() {
+    var c = cur();
+    var cost = c.L.heavy(c.v) ? "This rung takes several seconds; the page will be busy, not stuck." : "About a second.";
+    out.innerHTML = '<p class="sql-note">Press Run to average this rung over ' + c.L.trials + " worlds at the canon seeds. " + cost + "</p>";
+    verdict.textContent = "Nothing has run yet.";
+    btn.disabled = false;
+    btn.textContent = "Run " + c.L.trials + " worlds";
+  }
+
+  function render() {
+    var c = cur(), L = c.L, T = L.trials, real = L.real(c.v);
+    var r = QT.ladderRung(L.opts(c.v), T, L.seed0(c.v));
+    var passes = Math.round(r.deflatedDiscovery * T);
+    var kept = Math.round(r.pickedPlant * T);
+    var html = '<table class="sql-table"><thead><tr><th>Quantity</th><th>Value</th><th>What it is</th></tr></thead><tbody>';
+    html += "<tr><td>Best in-sample Sharpe ratio</td><td><b>" + r.isSR.toFixed(2) + "</b></td><td>the kept rule, on " + r.trainSize + " training observations</td></tr>";
+    html += "<tr><td>Its out-of-sample Sharpe ratio</td><td>" + r.oosSR.toFixed(2) + "</td><td>the same rule on the next " + r.testSize + ", against a true " + real.toFixed(1) + "</td></tr>";
+    html += '<tr><td>Kept the real one</td><td><b class="p6-kept">' + pct(r.pickedPlant) + "</b></td><td>" + kept + " of " + T + " worlds kept the planted rule</td></tr>";
+    html += '<tr><td>Deflated pass share</td><td><b class="p6-pass">' + pct(r.deflatedDiscovery) + "</b></td><td>" + passes + " of " + T + " worlds passed against SR*</td></tr>";
+    html += "<tr><td>FDR after deflation</td><td>" + r.fdrAfterDeflation.toFixed(3) + "</td><td>" + (passes > 0 ? "passes that were not the planted rule, over all passes" : "no passes, so nothing to be wrong about") + "</td></tr>";
+    html += "<tr><td>Worlds averaged</td><td>" + T + "</td><td>canon seeds, first seed " + (L.seed0(c.v) + 1) + "</td></tr>";
+    html += "</tbody></table>";
+    out.innerHTML = html;
+
+    var msg = "The planted " + real.toFixed(1) + " was the rule kept in " + kept + " of " + T + " worlds, and the kept rule earned " + r.oosSR.toFixed(2) + " out of sample: a blend of the real rule and noise that earns about zero here. ";
+    if (passes === 0) {
+      msg += "It passed the deflated test in none of these " + T + " worlds. That is a power problem, not proof that nothing is there: the rule is real by construction.";
+    } else if (r.fdrAfterDeflation === 0) {
+      msg += "It passed the deflated test in " + passes + " of " + T + ", and every one of those passes was the planted rule.";
+    } else {
+      msg += "It passed the deflated test in " + passes + " of " + T + "; " + pct(r.fdrAfterDeflation) + " of the passes were not the planted rule.";
+    }
+    verdict.textContent = msg;
+    btn.disabled = false;
+    btn.textContent = "Run " + T + " worlds";
+  }
+
+  btn.addEventListener("click", function () {
+    var c = cur();
+    btn.disabled = true;
+    btn.textContent = "Running...";
+    out.innerHTML = '<p class="sql-note">Running ' + c.L.trials + " worlds" + (c.L.heavy(c.v) ? ", which takes several seconds" : "") + "...</p>";
+    setTimeout(render, 0);
+  });
+  selL.addEventListener("change", fillRungs);
+  selR.addEventListener("change", idle);
+  fillRungs();
+
+  setTimeout(function () {
+    var t = QT.selfTest();
+    self.textContent = t.ok
+      ? "The generator's six properties pass in this browser, so the figures above are the figures any correct run gives. Synthetic data only: nothing here describes a real market, and nothing here is investment advice."
+      : "The generator's self test did not pass in this browser, so nothing above should be believed.";
+  }, 0);
+})();
+</script>
+<style>
+  #p6-plant .sql-code { border: 1px solid var(--hairline); border-radius: 8px; max-width: 30rem; }
+  #p6-plant table.sql-table { margin: .6rem 0 .2rem; font-size: .85rem; }
+  #p6-plant .p6-kept { color: var(--indigo); }
+  #p6-plant .p6-pass { color: var(--amber); }
+  #p6-plant .btn:disabled { opacity: .6; cursor: progress; }
+</style>
+</body>
+</html>

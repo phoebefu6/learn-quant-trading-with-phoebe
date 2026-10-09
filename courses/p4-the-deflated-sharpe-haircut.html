@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Practitioner session 4 of 10. Implement the probabilistic Sharpe ratio and SR*, the expected best of N rules on nothing, then move the benchmark from zero to SR* and measure what the deflated test costs a real rule in power. Synthetic data only.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="The deflated Sharpe haircut - learn quant with phoebe">
+<meta property="og:description" content="Practitioner session 4 of 10. Against SR*, false passes on nothing fall from 99.5 percent to 0 of 200 worlds. A real 1.5 among 100 almost never survives on three years and passes 94 percent of the time on 24. Measured.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/courses/p4-the-deflated-sharpe-haircut.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The deflated Sharpe haircut - learn quant with phoebe">
+<meta name="twitter:description" content="Move the benchmark from zero to the best of N on nothing. Every false pass disappears, and so does most of the power. Implement it and measure both.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Practitioner session 4 · The deflated Sharpe haircut - learn quant with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-quant-trading-with-phoebe</a> / Practitioner session 4 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Quant Trading with Phoebe · Practitioner session 4 of 10</div>
+    <h1>The deflated Sharpe <span class="accent">haircut</span></h1>
+    <p class="sub">Session 3 measured what the best of N rules reports on nothing. Tonight turns that measurement into a test. The ordinary test asks whether a Sharpe ratio beats zero; the deflated test asks whether it beats the best that N tries on nothing would have produced anyway. The change is one argument to one function, and it takes every false pass on the null to zero. It also takes most of the power away from a real rule, and the second half of tonight measures exactly how much. The data is synthetic throughout, and nothing here is investment advice.</p>
+    <div class="chip-row">
+      <span class="chip level">🟠 Working depth</span>
+      <span class="chip audience">Anyone who will build or check a backtest</span>
+      <span class="chip audience">Has run sessions 1 to 3 in the console</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:3">3-15 · PSR and SR*</span>
+      <span class="a3" style="flex:3">15-27 · The price in power</span>
+      <span class="a4" style="flex:4">27-45 · Build-along and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Marlow Street wants a test, not a feeling</h2>
+    </div>
+    <p class="lede">Marlow Street is a constructed research desk, four people and a head who has been handed a backtest with an annualised Sharpe ratio of 1.8 and asked whether to fund it. After session 3 the desk knows the uncomfortable part: 1.80 is exactly what the best of 100 random rules reports on two years of nothing. Knowing that is not yet a decision rule. Tonight builds the rule, the deflated Sharpe ratio, from its two parts, and then measures what it costs when something real is in the pile.</p>
+
+    <div class="legend">
+      <span class="pill">Live = presented in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with tonight.</strong> A probabilistic Sharpe ratio you can read term by term: estimate, sample length, skewness, kurtosis and a benchmark. SR*, the expected best of N null trials, written from equation 1 of Bailey and Lopez de Prado (2014) and checked against the engine. The deflated test, which is the first with the benchmark moved to the second. Two measured facts that belong together: on nothing, false passes fall from 99.5 percent to 0 of 200 worlds at N = 100; with one real 1.5 among 100 on three years of data, the test almost never passes it. And the one cure the numbers allow, which is more independent history.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why a haircut, and why it is a test rather than a discount<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A haircut in this sense is not "take 30 percent off the Sharpe ratio and carry on". A flat discount would treat a rule tried once and a rule kept from a thousand tries the same way, which is the exact mistake session 3 measured. The deflated test changes the question instead: the benchmark the estimate has to beat is no longer zero but SR*, the size of the best estimate that N tries would have produced if nothing were real.</p>
+        <p>That makes the haircut grow with the search. Tried once, there is nothing to deflate and the test is the ordinary one. Tried ten times on two years, the bar moves to 1.07; a hundred times, 1.80; a thousand times, 2.31. Those are the SR* column of the best-of-N ladder, means over 200 generated worlds each.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Marlow Street's head, constructed like the rest of the desk, asked the researcher behind the 1.8 one question before any other: how many rules were tried before this one was kept? The answer was "about a hundred, give or take the ones we dropped early". The head wrote 1.80 next to 1.8 on the whiteboard and said the meeting was now about whether the rule beat the first number, not the second.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The words that keep coming back<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>PSR.</strong> The probabilistic Sharpe ratio: the probability that the true Sharpe ratio exceeds a benchmark, given the estimate, the number of observations, and their skewness and kurtosis. The engine's <span class="mono">QT.psr(sr, n, skew, kurt, benchmark)</span>.</li>
+          <li><strong>Benchmark.</strong> The last argument of PSR. Zero gives the ordinary test. SR* gives the deflated one.</li>
+          <li><strong>SR*.</strong> The expected maximum Sharpe ratio of N independent trials whose true Sharpe ratio is zero, from equation 1 with the variance of the N estimates measured in the trial.</li>
+          <li><strong>V.</strong> That variance: how widely the N estimates spread in this world. One estimate on 503 days has a standard deviation of 0.71 annualised by formula, 0.70 measured over 200 worlds.</li>
+          <li><strong>DSR.</strong> The deflated Sharpe ratio: PSR with SR* as the benchmark. A rule passes when it reaches 0.95.</li>
+          <li><strong>Naive pass.</strong> PSR against zero reaches 0.95. On zero alpha every naive pass is a false one.</li>
+          <li><strong>Power.</strong> The share of worlds in which a real rule is kept and passes. The thing the haircut spends.</li>
+          <li><strong>FDR after deflation.</strong> The false discovery rate: of the worlds where the deflated test passed, the share where the rule that passed was not the real one.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The sources behind tonight's numbers<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li>Bailey, D. H., and Lopez de Prado, M. (2014). "The Deflated Sharpe Ratio: Correcting for Selection Bias, Backtest Overfitting and Non-Normality." The Journal of Portfolio Management 40(5). Read at source from the SSRN text, abstract id 2460551 (version of July 31, 2014).</li>
+          <li>Bailey, D. H., Borwein, J. M., Lopez de Prado, M., and Zhu, Q. J. (2014). "Pseudo-Mathematics and Financial Charlatanism: The Effects of Backtest Overfitting on Out-of-Sample Performance." Notices of the American Mathematical Society 61(5), 458-471. DOI 10.1090/noti1105. Read at source: https://www.ams.org/notices/201405/rnoti-p458.pdf</li>
+          <li>Harvey, C. R., Liu, Y., and Zhu, H. (2016). "... and the Cross-Section of Expected Returns." The Review of Financial Studies 29(1), 5-68. DOI 10.1093/rfs/hhv059. Read at source from the author's copy: https://people.duke.edu/~charvey/Research/Published_Papers/P118_and_the_cross.pdf</li>
+          <li>Sharpe, W. F. (1994). "The Sharpe Ratio." The Journal of Portfolio Management, Fall 1994. Read at source: https://web.stanford.edu/~wfsharpe/art/sr/sr.htm</li>
+        </ul>
+        <p>Every Sharpe figure on the page is a mean over the stated number of generated worlds (200 or 100) at the canon seeds, computed in node from the same engine this page loads and reproduced by an independent Python implementation to 3.3e-13. None of it describes a market.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers PSR and SR*</span>
+      <h2>Two functions, and the second one moves the first one's benchmark</h2>
+      <span class="tag concept">12 min live</span>
+    </div>
+    <p class="lede">The deflated Sharpe ratio is not a new statistic. It is the probabilistic Sharpe ratio, which already existed, with its benchmark argument filled by the expected maximum of N null trials instead of zero. Bailey and Lopez de Prado put it in one line: DSR is "a PSR where the rejection threshold is adjusted to reflect the multiplicity of trials". Build the two parts and the whole thing is built.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 492" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn two-panel figure on one axis of annualised in-sample Sharpe ratio. Top panel: a hatched bell curve centred on zero, the 100 estimates of 100 random rules on nothing, with a standard deviation of about 0.71. A steel vertical line at 1.80 marks SR star, the expected best of 100 on nothing. Bottom panel: two S-shaped curves of the probability that the true Sharpe ratio beats the benchmark. The ink curve uses a benchmark of zero and crosses the 0.95 pass line at 1.17. The steel curve uses SR star as the benchmark, is the same curve shifted right by 1.80, and crosses the pass line at about 2.97. An arrow between them is labelled the haircut.">
+        <defs>
+          <filter id="p4aSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="71" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p4aHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#7A1F3D" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p4aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p4aH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .p4aL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .p4aS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .p4aB { font: 800 11px Inter, sans-serif; fill: #2A5068; }
+          .p4aV { font: 800 16px Inter, sans-serif; fill: #4A1024; }
+          .p4aA { font: 700 11px Inter, sans-serif; fill: #7A1F3D; }
+          .p4aN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="p4aH" x="30" y="26">THE NULL BELL OF 100 ESTIMATES, ITS EXPECTED BEST, AND THE TEST MOVED TO MEET IT</text>
+
+        <g filter="url(#p4aSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- top panel: axis at y 200, scale x = 80 + (sr + 2.5) * 110 -->
+          <path d="M100 200 L820 200" stroke-width="2.5"/>
+          <!-- the bell of 100 null estimates, centre 355 (sr 0), sd 78px (0.71) -->
+          <path d="M160 199 C218 198 264 184 290 144 C316 104 335 80 355 80 C375 80 394 104 420 144 C446 184 492 198 550 199 Z" fill="url(#p4aHc)" stroke="#7A1F3D" stroke-width="2.4"/>
+          <!-- rug of a few estimates -->
+          <path d="M262 200 L262 207 M301 200 L301 207 M330 200 L330 207 M349 200 L349 207 M372 200 L372 207 M398 200 L398 207 M431 200 L431 207 M476 200 L476 207 M530 200 L530 207" stroke-width="1.6"/>
+          <!-- zero tick -->
+          <path d="M355 200 L355 210"/>
+          <!-- SR* line at sr 1.80, x 553 -->
+          <path d="M553 62 L553 200" stroke="#3B6E8F" stroke-width="3"/>
+          <!-- doodle anchor: scissors -->
+          <circle cx="788" cy="70" r="7"/>
+          <circle cx="788" cy="94" r="7"/>
+          <path d="M794 74 L832 92 M794 90 L832 72" stroke-width="1.8"/>
+
+          <!-- bottom panel: PSR 1.0 at y 260, 0 at y 400 -->
+          <path d="M120 400 L820 400" stroke-width="2.5"/>
+          <path d="M120 400 L120 258" stroke-width="1.6"/>
+          <!-- pass line at 0.95, y 267 -->
+          <path d="M120 267 L800 267" stroke="#7A1F3D" stroke-width="1.8" stroke-dasharray="7 5"/>
+          <!-- PSR against 0: centre 355, crosses 0.95 at 484 -->
+          <path d="M122 399 L199 397 C330 397 380 263 511 263 L600 261"/>
+          <!-- PSR against SR*: centre 553, crosses 0.95 at 682 -->
+          <path d="M300 399 L397 397 C528 397 578 263 709 263 L800 261" stroke="#3B6E8F" stroke-width="3"/>
+          <!-- crossing drops -->
+          <path d="M484 271 L484 400" stroke-dasharray="3 5" stroke-width="1.6"/>
+          <path d="M682 271 L682 400" stroke="#3B6E8F" stroke-dasharray="3 5" stroke-width="1.6"/>
+          <circle cx="484" cy="267" r="4" fill="#FFFFFF"/>
+          <circle cx="682" cy="267" r="4" fill="#3B6E8F" stroke="#3B6E8F"/>
+          <!-- SR* tick on the bottom axis -->
+          <path d="M553 400 L553 410" stroke="#3B6E8F"/>
+          <!-- the haircut arrow -->
+          <path d="M492 284 L668 284" marker-end="url(#p4aAr)"/>
+        </g>
+
+        <!-- top panel labels -->
+        <text class="p4aA" x="40" y="56">the pile: 100 rules on nothing, one estimate each</text>
+        <text class="p4aS" x="40" y="72">hatched, because it is all noise</text>
+        <text class="p4aB" x="563" y="74">SR* = 1.80</text>
+        <text class="p4aS" x="563" y="90">expected best of 100 on nothing</text>
+        <text class="p4aS" x="600" y="134">its width is V, measured in each</text>
+        <text class="p4aS" x="600" y="150">world from the 100 estimates</text>
+        <text class="p4aL" x="355" y="224" text-anchor="middle">0</text>
+        <text class="p4aB" x="553" y="224" text-anchor="middle">1.80</text>
+        <text class="p4aS" x="820" y="224" text-anchor="end">annualised, in-sample</text>
+
+        <!-- bottom panel labels -->
+        <text class="p4aH" x="30" y="248">THE TEST: PROBABILITY THE TRUE SHARPE RATIO BEATS THE BENCHMARK</text>
+        <text class="p4aS" x="112" y="271" text-anchor="end">0.95</text>
+        <text class="p4aS" x="112" y="404" text-anchor="end">0</text>
+        <text class="p4aL" x="130" y="318">benchmark 0:</text>
+        <text class="p4aS" x="130" y="334">the naive test</text>
+        <text class="p4aB" x="722" y="300">benchmark SR*:</text>
+        <text class="p4aB" x="722" y="316">the deflated test</text>
+        <text class="p4aA" x="505" y="304">the haircut</text>
+        <text class="p4aA" x="484" y="424" text-anchor="middle">1.17</text>
+        <text class="p4aB" x="553" y="424" text-anchor="middle">1.80</text>
+        <text class="p4aV" x="682" y="426" text-anchor="middle">about 2.97</text>
+        <text class="p4aS" x="440" y="444" text-anchor="middle">the kept rule's in-sample Sharpe ratio, annualised, 503 days</text>
+
+        <text class="p4aN" x="30" y="466">Same estimate, same function. Against 0 it passes above 1.17; against SR* = 1.80 it needs about 2.97, which is SR*</text>
+        <text class="p4aN" x="30" y="484">plus 1.17 (constructed arithmetic with normal moments, not a measurement).</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the steel curve is the ink curve slid right by SR*: deflation changes where the test starts, not what the test is.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>PSR: the ordinary test, written so the benchmark can move<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Session 1 used the probabilistic Sharpe ratio with a benchmark of zero and called it the ordinary test. Here is what is inside it. Take the per-observation estimate <span class="mono">sr</span>, subtract the benchmark, multiply by the square root of the number of observations minus one, divide by a correction for the shape of the returns, and read the result off the standard normal curve:</p>
+        <p class="mono">PSR = Phi( (sr - benchmark) * sqrt(n - 1) / sqrt(1 - skew * sr + (kurt - 1) / 4 * sr^2) )</p>
+        <p>Three things to notice. The numerator is Sharpe 1994's point that a t-statistic is the Sharpe ratio times the square root of T: more observations, sharper verdict. The denominator widens when the returns are skewed against the estimate or fat-tailed, because a ratio computed from such returns is less trustworthy; with normal returns the kurtosis is 3 and the bracket is just 1 plus half of sr squared. And the benchmark is an argument. Nothing in the formula insists it is zero.</p>
+        <p>On this generator the skew and kurtosis barely move, because each observation is a sign times a normal. On a real series they would, and the formula is unchanged. The 2014 paper's abstract names the two things the full correction targets: "Selection bias under multiple testing and non-Normally distributed returns".</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>SR*: equation 1, read term by term<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Equation 1 of Bailey and Lopez de Prado (2014) gives the expected maximum of N independent trials whose true Sharpe ratio is zero:</p>
+        <p class="mono">SR* = sqrt(V) * ( (1 - gamma) * Zinv(1 - 1/N) + gamma * Zinv(1 - 1/(N e)) )</p>
+        <p><strong>V</strong> is the variance of the N estimated Sharpe ratios, measured in the trial, so it carries the sample length with it: short history, wide bell, high SR*. <strong>gamma</strong> is the Euler-Mascheroni constant, about 0.5772. <strong>Zinv</strong> is the inverse of the standard normal distribution function, and <strong>e</strong> is Euler's number. The bracket is the paper's approximation to where the largest of N standard normals lands; session 3 checked it against the measured maximum and found it within 0.1 at N = 10 and within 0.04 at N = 100 and 1,000, in units of one estimate's standard deviation. The paper's own Python snippet, <span class="mono">getExpMaxSR</span>, computes the same expression, and so does <span class="mono">QT.expectedMaxSR(V, N)</span>.</p>
+        <p>Annualised on 503 days of zero alpha, the best-of-N ladder (200 worlds per rung) prints SR* of 1.07 at N = 10, 1.80 at N = 100 and 2.31 at N = 1,000. At N = 1 there is nothing to be the maximum of, and SR* is zero.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Marlow Street's quant, constructed, wanted to plug in the 0.71 ruler for the square root of V and skip measuring it. The head asked what would happen on a five-year history or with five-day holds. The ruler would be wrong in both, and the threshold with it. Measuring V from the trials themselves is what lets the same line of code work on any sample length, which is why the engine does it and why you will too in Part 3.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Put them together: the deflated pass rate on nothing<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The deflated test is PSR with SR* as the benchmark, passing at 0.95. The paper describes it as using five variables beyond the estimate: skewness, kurtosis, sample length, the variance of the Sharpe ratios tested, and the number of independent trials. Run on the zero-alpha ladder, 200 worlds per rung, the false-pass rates are:</p>
+        <ul>
+          <li><strong>N = 1.</strong> Naive 6.0 percent, deflated 6.0 percent. No deflation is possible with one trial, and 6.0 is the 5 percent a one-sided 95 percent test promises, within trial noise.</li>
+          <li><strong>N = 10.</strong> Naive 32.5 percent, deflated 0.</li>
+          <li><strong>N = 100.</strong> Naive 99.5 percent, deflated 0.</li>
+          <li><strong>N = 1,000.</strong> Naive 100 percent, deflated 0.</li>
+        </ul>
+        <p>That is the promise kept. Every one of those naive passes was a false discovery, and the deflated test refused all of them. Part 2 asks what the same refusal does to a rule that deserved to pass.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Counting N honestly: independent trials, not attempts<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Session 3 left this open. Equation 1 is written for N independent trials, and the paper lists "the number of independent trials" among its inputs. On this bench the N rules are independent random signals, so the count is exact. In practice the variants a researcher tries are not independent: a hundred settings of one threshold on one lookback behave like far fewer than a hundred separate tries.</p>
+        <p>That cuts both ways. Counting correlated variants as independent overstates N and makes the haircut too large. Counting only the variants that "felt different" understates it, and variants dropped early still count: they were tried. There is no single published recipe that settles the effective N for every search, and nothing on this page claims one. The professional habit is to log every variant at the moment it is run, then state the N you used and how you arrived at it beside the deflated figure, so a reader can disagree with the count rather than with a number they cannot audit.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the price in power</span>
+      <h2>Plant one real rule among a hundred and see whether the haircut keeps it</h2>
+      <span class="tag concept">12 min live</span>
+    </div>
+    <p class="lede">On nothing the deflated test is perfect. That is the easy half. The hard half is a world where one rule out of 100 really does have an edge, planted through the generator's hidden signal, and the other 99 are noise. Now a pass can be right, and a refusal can be a mistake. Three ladders measure the trade: how strong the real rule is, how big the crowd around it is, and how much history there is to tell them apart.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 474" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn power curve. The x axis is history in years: 3, 6, 12 and 24, equally spaced because each step doubles. The y axis is the share of 100 worlds in which one real rule with a Sharpe ratio of 1.5 among 100 passed the deflated test. The steel curve rises from 3 percent at 3 years and 6 percent at 6 years to 45 percent at 12 years and 94 percent at 24 years. Along the bottom a plum dashed floor marks false passes after deflation, zero at every length. Under each year the training and test observations are listed with SR star, which falls from 1.86 to 1.35, 0.99 and 0.74, and the share of worlds where the real rule was the one kept, 39, 56, 95 and 100 percent.">
+        <defs>
+          <filter id="p4bSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="73" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p4bHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3B6E8F" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p4bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p4bH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .p4bL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .p4bS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .p4bB { font: 800 11px Inter, sans-serif; fill: #2A5068; }
+          .p4bV { font: 800 16px Inter, sans-serif; fill: #4A1024; }
+          .p4bA { font: 700 11px Inter, sans-serif; fill: #7A1F3D; }
+          .p4bN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="p4bH" x="30" y="26">ONE REAL 1.5 AMONG 100: HOW OFTEN IT SURVIVES DEFLATION AS HISTORY GROWS (100 WORLDS EACH)</text>
+
+        <g filter="url(#p4bSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- axes: 0 percent at y 330, 100 percent at y 70; years at x 180, 360, 540, 720 -->
+          <path d="M120 330 L780 330" stroke-width="2.5"/>
+          <path d="M120 330 L120 66" stroke-width="2"/>
+          <path d="M114 70 L120 70 M114 200 L120 200" stroke-width="1.6"/>
+          <path d="M180 330 L180 338 M360 330 L360 338 M540 330 L540 338 M720 330 L720 338" stroke-width="1.6"/>
+          <!-- the false-positive floor -->
+          <path d="M124 326 L776 326" stroke="#7A1F3D" stroke-dasharray="7 5" stroke-width="1.8"/>
+          <!-- the power curve, from ladder B3 -->
+          <path d="M180 322 C240 320 300 318 360 314 C420 300 480 260 540 213 C600 166 660 110 720 86" stroke="#3B6E8F" stroke-width="3.2"/>
+          <circle cx="180" cy="322" r="5" fill="#3B6E8F" stroke="#3B6E8F"/>
+          <circle cx="360" cy="314" r="5" fill="#3B6E8F" stroke="#3B6E8F"/>
+          <circle cx="540" cy="213" r="5" fill="#3B6E8F" stroke="#3B6E8F"/>
+          <circle cx="720" cy="86" r="5" fill="#3B6E8F" stroke="#3B6E8F"/>
+          <!-- doodle anchor: an hourglass for history -->
+          <path d="M810 150 L846 150 L828 172 L846 194 L810 194 L828 172 Z" stroke-width="1.8"/>
+          <path d="M820 188 L836 188" stroke-width="1.6"/>
+        </g>
+
+        <text class="p4bS" x="128" y="56">share of 100 worlds where the real 1.5 passed the deflated test</text>
+        <text class="p4bS" x="108" y="74" text-anchor="end">100</text>
+        <text class="p4bS" x="108" y="204" text-anchor="end">50</text>
+        <text class="p4bS" x="108" y="334" text-anchor="end">0</text>
+
+        <text class="p4bV" x="180" y="304" text-anchor="middle">3 percent</text>
+        <text class="p4bV" x="360" y="290" text-anchor="middle">6 percent</text>
+        <text class="p4bV" x="558" y="236">45 percent</text>
+        <text class="p4bV" x="700" y="70" text-anchor="end">94 percent</text>
+        <text class="p4bA" x="440" y="320">false passes after deflation: 0 at every length</text>
+        <text class="p4bS" x="828" y="214" text-anchor="middle">history</text>
+
+        <text class="p4bL" x="180" y="356" text-anchor="middle">3 years</text>
+        <text class="p4bL" x="360" y="356" text-anchor="middle">6 years</text>
+        <text class="p4bL" x="540" y="356" text-anchor="middle">12 years</text>
+        <text class="p4bL" x="720" y="356" text-anchor="middle">24 years</text>
+        <text class="p4bS" x="180" y="374" text-anchor="middle">503 / 252 obs</text>
+        <text class="p4bS" x="360" y="374" text-anchor="middle">1,007 / 504 obs</text>
+        <text class="p4bS" x="540" y="374" text-anchor="middle">2,015 / 1,008 obs</text>
+        <text class="p4bS" x="720" y="374" text-anchor="middle">4,031 / 2,016 obs</text>
+        <text class="p4bB" x="180" y="394" text-anchor="middle">SR* 1.86</text>
+        <text class="p4bB" x="360" y="394" text-anchor="middle">SR* 1.35</text>
+        <text class="p4bB" x="540" y="394" text-anchor="middle">SR* 0.99</text>
+        <text class="p4bB" x="720" y="394" text-anchor="middle">SR* 0.74</text>
+        <text class="p4bS" x="180" y="412" text-anchor="middle">kept the real one: 39%</text>
+        <text class="p4bS" x="360" y="412" text-anchor="middle">kept the real one: 56%</text>
+        <text class="p4bS" x="540" y="412" text-anchor="middle">kept the real one: 95%</text>
+        <text class="p4bS" x="720" y="412" text-anchor="middle">kept the real one: 100%</text>
+
+        <text class="p4bN" x="30" y="444">SR* falls as history grows because the bell of the 100 estimates narrows; the real 1.5 stays 1.5 and finally clears it.</text>
+        <text class="p4bN" x="30" y="462">The floor never lifts: every deflated pass on this ladder was the real rule. More history buys power and costs no false passes.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - on three years a real 1.5 among 100 almost never survives deflation (3 of 100 worlds); on 24 years it survives 94 of 100. Nothing else on the bench moves that curve.</figcaption>
+    </figure>
+
+    <div class="wk" id="p4-haircut">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">The generator, 100 rules, the selection and both tests, running in this page. Plant one real rule among the 100 (or none), then run 200 worlds at the canon seeds. Heavy: about a second or two, so it waits for the button.</span>
+      </div>
+      <div class="wk-body">
+        <label class="sql-label" for="p4-haircut-sr">Real Sharpe ratio of the one planted rule among 100 (0 means nothing is real)</label>
+        <select class="sql-code" id="p4-haircut-sr">
+          <option value="0" selected>0, nothing is real</option>
+          <option value="0.5">0.5</option>
+          <option value="1">1.0</option>
+          <option value="1.5">1.5</option>
+          <option value="2">2.0</option>
+          <option value="3">3.0</option>
+        </select>
+        <div style="margin:.6rem 0 .2rem"><button class="btn primary" id="p4-haircut-run" type="button">Run 200 worlds</button></div>
+        <div id="p4-haircut-out"></div>
+        <p class="sql-note" id="p4-haircut-verdict">...</p>
+      </div>
+      <div class="wk-foot" id="p4-haircut-self">...</div>
+    </div>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Ladder B: how strong does the real rule have to be?<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>One planted rule among 100, three years of data split 503 training and 252 test observations, 200 worlds per rung. The box above prints any row; the canon is:</p>
+        <ul>
+          <li><strong>Real 0.5.</strong> Kept in 2.0 percent of worlds, deflated passes 0.</li>
+          <li><strong>Real 1.0.</strong> Kept in 14 percent, deflated passes 0.</li>
+          <li><strong>Real 1.5.</strong> Kept in 32.5 percent, deflated passes 0.</li>
+          <li><strong>Real 2.0.</strong> Kept in 57 percent, deflated passes 3.0 percent.</li>
+          <li><strong>Real 3.0.</strong> Kept in 90.5 percent, deflated passes 34.5 percent.</li>
+        </ul>
+        <p>And on every rung the false discovery rate after deflation is 0.000: in each world where the deflated test passed, the rule that passed was the planted one. Where there were no passes the rate is reported as 0.000 because there was nothing to be wrong about, which is a different kind of zero and worth saying out loud.</p>
+        <p>The naive test, meanwhile, passes in 99 to 100 percent of worlds on every rung, real rule or not. It cannot tell the rungs apart, because the best of 100 clears zero easily whether or not the real one is the best.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Marlow Street's researcher, constructed, ran the box at a real 1.5 and read "deflated passes 0 percent" as proof that the test is broken. The head's reply was that the test is doing exactly what it promised, refusing everything it cannot distinguish from noise, and that on two years of training data with 99 competitors it cannot distinguish a real 1.5 from noise. The fault, if there is one, is in the amount of history, not in the test.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Ladders B2 and B3: the crowd, then the history<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>B2 holds the real rule at 1.5 and grows the crowd</strong> (200 worlds each). Alone, N = 1, it passes the test in 65.5 percent of worlds: no deflation, ordinary power. Among 10 the deflated pass rate is 3.0 percent; among 100, 1.5 percent; among 1,000, 1.5 percent. The haircut is almost all spent by the time there are ten rules, and every one of those passes was the planted rule.</p>
+        <p><strong>B3 holds the crowd at 100 and grows the history</strong> (100 worlds each). On 3 years the real 1.5 passes in 3 percent of worlds; on 6 years, 6 percent; on 12, 45 percent; on 24, 94 percent. SR* falls from 1.86 to 0.74 as the bell of estimates narrows, and the real rule is the one kept in 39, then 56, 95 and 100 percent of worlds.</p>
+        <p>Put the three ladders side by side and the three-year answer for a real 1.5 among 100 is "almost never", not "never": 0 of 200 worlds in ladder B, 1.5 percent of 200 in B2, 3 percent of 100 in B3. Three seed ranges, three small numbers, one conclusion. The 2014 Notices paper reaches the same place from the other direction with its minimum backtest length: the more configurations tried, the more years a backtest needs before its best result means anything.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where serious people disagree<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>One hurdle for everyone.</strong> Harvey, Liu and Zhu (2016) counted 313 papers and 316 factors and concluded that "A new factor needs to clear a much higher hurdle, with a t-statistic greater than 3.0", a p-value of 0.27 percent, adding that there are good reasons to expect 3.0 is too low. The hurdle is calibrated to the whole field's search, and it does not change with what one researcher says they tried.</p>
+        <p><strong>A hurdle fitted to the search.</strong> Bailey and Lopez de Prado (2014) deflate against the expected maximum of the trials actually run, so the bar depends on N, on V and on the sample length. Tried once, the bar is the ordinary test; tried a thousand times, it is far above t of 3.</p>
+        <p>To see how far apart they can sit, constructed arithmetic on 503 days: a t of 3 is about 3 times the 0.71 ruler, near 2.1 annualised, whatever N was. The deflated bar is SR* plus about 1.17, so about 1.17 at N = 1, about 2.2 at N = 10 and about 3.0 at N = 100. One test is stricter for the honest single try, the other for the wide search.</p>
+        <p>The DSR paper does not present the two as rivals: it calls the Benjamini-Hochberg style threshold and the DSR threshold complementary and encourages computing both. Harvey, Liu and Zhu would ask who audits a researcher's N; Bailey and Lopez de Prado would ask why a single honest test should pay for the field's search. Both questions are fair. The professional norm is to report both figures beside the N you used, and let the reader see where they disagree.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>What the kept rule earns afterwards, and the limit of this bench<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The same ladder B rows also record what the kept rule earned on the 252 test days. With nothing real (the zero-alpha rung at N = 100) it is -0.06; with a real 1.5 in the pile it is 0.46, because the real rule is kept a third of the time and a random one the rest; with a real 3.0 it is 2.71. The out-of-sample figure is the honest one, and it is what the deflated test is trying to predict without spending the test days.</p>
+        <p>The generator has no memory, so a rule kept by luck earns about zero afterwards here, not less than zero. The 2014 Notices paper shows that with memory in the series, overfitting can do worse, through "a compensation effect" that favours a rule in-sample only for it to underperform afterwards. That case is real and this bench cannot show it. Read every out-of-sample zero on this page as "earns nothing, or worse if the series has memory".</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · build-along</span>
+      <h2>Write SR* yourself, deflate one world, then run the canon row</h2>
+      <span class="tag build">18 min hands on</span>
+    </div>
+    <p class="lede">Open this page's console. The engine is loaded as <span class="mono">QT</span>. Six steps: write equation 1 from scratch and check it against the engine, build one world with a real 1.5 among 100, measure V and SR* in it, ask both tests about the kept rule, confirm the engine agrees, then let the engine repeat the whole thing over 200 worlds. One world's figures are one draw: compare them with the engine, never quote them as a result.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 348" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn pipeline of the build-along. Row one: 100 rules on 503 training days feed 100 per-observation estimates, which feed V, their variance, which feeds equation 1 with gamma 0.5772 and the inverse normal, which produces a steel box labelled SR star, the expected max. Row two: from the 100 estimates the best of the 100 is taken with its sr, n, skew and kurtosis, which feeds QT.psr with SR star as the benchmark, which feeds a box asking whether the deflated PSR is at least 0.95, which feeds a hatched box labelled canon row. A dashed loop from the pass box back to the first box is labelled repeat over 200 worlds with ladderRung, then average.">
+        <defs>
+          <filter id="p4cSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="79" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p4cHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#7A1F3D" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p4cAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p4cH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .p4cL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .p4cS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .p4cB { font: 800 11px Inter, sans-serif; fill: #2A5068; }
+          .p4cW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p4cN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="p4cH" x="30" y="26">SIX STEPS: SR* FROM THE SPREAD, THE BEST AGAINST SR*, THEN THE SAME OVER 200 WORLDS</text>
+
+        <g filter="url(#p4cSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- row 1 -->
+          <rect x="34" y="60" width="130" height="46" rx="6" transform="rotate(-0.8 99 83)" fill="#FAF0F3"/>
+          <path d="M166 83 L190 83" marker-end="url(#p4cAr)"/>
+          <rect x="194" y="60" width="150" height="46" rx="6" transform="rotate(0.6 269 83)" fill="#FFFFFF"/>
+          <path d="M346 83 L370 83" marker-end="url(#p4cAr)"/>
+          <rect x="374" y="60" width="120" height="46" rx="6" transform="rotate(-0.5 434 83)" fill="#FFFFFF"/>
+          <path d="M496 83 L520 83" marker-end="url(#p4cAr)"/>
+          <rect x="524" y="60" width="180" height="46" rx="6" transform="rotate(0.5 614 83)" fill="#FFFFFF"/>
+          <path d="M706 83 L730 83" marker-end="url(#p4cAr)"/>
+          <rect x="734" y="60" width="120" height="46" rx="6" transform="rotate(-0.7 794 83)" fill="#3B6E8F"/>
+          <!-- down from the estimates to the best -->
+          <path d="M269 108 L269 166" marker-end="url(#p4cAr)"/>
+          <!-- SR* down into the psr box -->
+          <path d="M794 108 L794 140 L480 140 L480 166" marker-end="url(#p4cAr)"/>
+          <!-- row 2 -->
+          <rect x="194" y="170" width="150" height="46" rx="6" transform="rotate(0.7 269 193)" fill="#FFFFFF"/>
+          <path d="M346 193 L370 193" marker-end="url(#p4cAr)"/>
+          <rect x="374" y="170" width="210" height="46" rx="6" transform="rotate(-0.5 479 193)" fill="#EAF1F6"/>
+          <path d="M586 193 L610 193" marker-end="url(#p4cAr)"/>
+          <rect x="614" y="170" width="140" height="46" rx="6" transform="rotate(0.6 684 193)" fill="#FFFFFF"/>
+          <path d="M756 193 L780 193" marker-end="url(#p4cAr)"/>
+          <rect x="784" y="170" width="70" height="46" rx="6" transform="rotate(-1 819 193)" fill="url(#p4cHc)" stroke="#7A1F3D"/>
+          <!-- the loop -->
+          <path d="M684 218 L684 262 L99 262 L99 112" stroke="#3B6E8F" stroke-dasharray="6 5" marker-end="url(#p4cAr)"/>
+          <!-- doodle anchor: a console prompt -->
+          <path d="M34 300 L42 306 L34 312 M46 313 L60 313" stroke-width="1.8"/>
+        </g>
+
+        <text class="p4cL" x="99" y="80" text-anchor="middle">100 rules</text>
+        <text class="p4cS" x="99" y="96" text-anchor="middle">503 training days</text>
+        <text class="p4cL" x="269" y="80" text-anchor="middle">100 estimates</text>
+        <text class="p4cS" x="269" y="96" text-anchor="middle">per observation</text>
+        <text class="p4cL" x="434" y="80" text-anchor="middle">V</text>
+        <text class="p4cS" x="434" y="96" text-anchor="middle">their variance</text>
+        <text class="p4cL" x="614" y="80" text-anchor="middle">equation 1</text>
+        <text class="p4cS" x="614" y="96" text-anchor="middle">gamma 0.5772, Z inverse</text>
+        <text class="p4cW" x="794" y="80" text-anchor="middle">SR*</text>
+        <text class="p4cW" x="794" y="96" text-anchor="middle">expected max</text>
+
+        <text class="p4cL" x="269" y="190" text-anchor="middle">the best of 100</text>
+        <text class="p4cS" x="269" y="206" text-anchor="middle">sr, n, skew, kurt</text>
+        <text class="p4cL" x="479" y="190" text-anchor="middle">QT.psr(..., SR*)</text>
+        <text class="p4cS" x="479" y="206" text-anchor="middle">probability true SR beats SR*</text>
+        <text class="p4cL" x="684" y="190" text-anchor="middle">deflated pass?</text>
+        <text class="p4cS" x="684" y="206" text-anchor="middle">PSR at least 0.95</text>
+        <text class="p4cB" x="819" y="236" text-anchor="middle">canon row</text>
+
+        <text class="p4cB" x="400" y="284" text-anchor="middle">repeat over 200 worlds with ladderRung, then average</text>
+
+        <text class="p4cN" x="70" y="314">Steps 1 to 5 walk one world through the two rows by hand. Step 6 hands the loop to the engine at the canon seeds,</text>
+        <text class="p4cN" x="70" y="332">where a real 1.5 among 100 is kept in 32.5 percent of 200 worlds and passes the deflated test in none.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - SR* comes from the spread of all 100 estimates, not from the winner: the pile sets the bar, and only then is the best one held against it.</figcaption>
+    </figure>
+
+    <div class="steps">
+      <div class="step"><div>
+        <h4>Write equation 1 yourself</h4>
+        <p>Use only the inverse normal and the Euler-Mascheroni constant the engine exposes. With V = 1 the result is in units of one estimate's standard deviation, so you can hold it against session 3's equation 1 column: 1.575 at N = 10, 2.531 at N = 100, 3.255 at N = 1,000. Yours and the engine's should agree to every digit, since no random number is involved.</p>
+        <div class="prompt-box good"><span class="label">console</span>function mySRStar(V, N) {
+  var g = QT.EULER_GAMMA;
+  return Math.sqrt(V) * ((1 - g) * QT.normInv(1 - 1 / N) + g * QT.normInv(1 - 1 / (N * Math.E)));
+}
+[mySRStar(1, 10), mySRStar(1, 100), mySRStar(1, 1000)].map(function (v) { return v.toFixed(3); })
+[QT.expectedMaxSR(1, 100).toFixed(3), mySRStar(1, 100).toFixed(3)]</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Build one world with a real 1.5 among 100</h4>
+        <p>Seed 50016 is the first world of ladder B's real-1.5 rung. The planted rule sits at index 0 and is given the world's hidden signal; the other 99 are random. Score each on the first 503 observations. Your numbers will match for the same seed.</p>
+        <div class="prompt-box good"><span class="label">console</span>var w = QT.makeWorld({ trueSR: 1.5, seed: 50016 });
+var xs = QT.makeStrategies(w, { N: 100, plantIndex: 0, seed: w.seed + 1000 });
+var ys = xs.map(function (x) { return QT.pnl(w, x, { h: 1 }); });
+var srs = ys.map(function (y) { return QT.moments(y.slice(0, 503)).sr; });
+srs.length</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Measure V and SR* in this world</h4>
+        <p>V is the variance of the 100 per-observation estimates, measured, not assumed. Feed it to your function and annualise. This is one world's bar; the canon figures are means over 200 worlds. Your numbers will match for the same seed.</p>
+        <div class="prompt-box good"><span class="label">console</span>var V = Math.pow(QT.moments(srs).sd, 2);
+var srStar = mySRStar(V, 100);
+[V.toExponential(3), QT.annualise(srStar, 1).toFixed(2)]</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Keep the best, then ask both questions</h4>
+        <p>Find the rule with the highest in-sample estimate, note whether it is index 0 (the real one), and compute its PSR twice: against zero, the naive test, and against SR*, the deflated one. Watch how far the same estimate moves when only the benchmark changes. Your numbers will match for the same seed.</p>
+        <div class="prompt-box good"><span class="label">console</span>var best = srs.indexOf(Math.max.apply(null, srs));
+var m = QT.moments(ys[best].slice(0, 503));
+[best, QT.annualise(m.sr, 1).toFixed(2),
+ QT.psr(m.sr, m.n, m.skew, m.kurt, 0).toFixed(3),
+ QT.psr(m.sr, m.n, m.skew, m.kurt, srStar).toFixed(3)]</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Check your hand-built world against the engine</h4>
+        <p>QT.trial runs the same world with the same seeds and reports the kept rule's annualised in-sample Sharpe ratio and SR*. Both should equal what you computed in steps 3 and 4. If they do not, the difference is in your code, and finding it is the exercise. Your numbers will match for the same seed.</p>
+        <div class="prompt-box good"><span class="label">console</span>var t = QT.trial({ N: 100, trueSR: 1.5, method: "walkforward", seed: 50016 });
+[t.isSR.toFixed(2), t.srStar.toFixed(2), t.pickedPlant, t.naiveDiscovery, t.deflatedDiscovery]</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Run the canon row: 200 worlds</h4>
+        <p>ladderRung repeats the trial over seeds 50016 to 50215 and averages. This is 200 worlds of 100 rules, 20,000 strategies scored, so allow a second or two before it prints; the tab is busy, not stuck. It prints ladder B's real-1.5 row: kept 0.325, naive 0.995, deflated 0, false discovery rate after deflation 0. Your numbers will match for the same seed.</p>
+        <div class="prompt-box good"><span class="label">console</span>var r = QT.ladderRung({ N: 100, trueSR: 1.5, method: "walkforward" }, 200, 50015);
+[r.isSR.toFixed(2), r.oosSR.toFixed(2), r.pickedPlant.toFixed(3),
+ r.naiveDiscovery.toFixed(3), r.deflatedDiscovery.toFixed(3), r.fdrAfterDeflation.toFixed(3)]</div>
+      </div></div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> Never report a Sharpe ratio, or a pass, without the N it was the best of and the SR* that N implies. If the N is unknown, the deflated figure cannot be computed, and that is the finding to report.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">What does deflation change inside the probabilistic Sharpe ratio?</p>
+      <div class="qopt">A · It multiplies the estimated Sharpe ratio by a fixed discount that grows with N</div>
+      <div class="qopt">B · Only the benchmark: zero is replaced by SR*, the expected maximum of N null trials computed from the measured variance of the N estimates</div>
+      <div class="qopt">C · It replaces the skewness and kurtosis terms with the number of trials</div>
+      <q class="qwhy">DSR is "a PSR where the rejection threshold is adjusted to reflect the multiplicity of trials". The estimate, the sample length and the shape terms stay; the benchmark moves from 0 to SR*, which is 1.07, 1.80 and 2.31 at N = 10, 100 and 1,000 on 503 days (200 worlds per rung).</q>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">With one real 1.5 among 100 rules on three years of data, the deflated test passed in 0 of 200 worlds in ladder B. What is the right reading?</p>
+      <div class="qopt">A · The rule has no edge, since it never passes</div>
+      <div class="qopt">B · The test is broken, since it refused a real rule</div>
+      <div class="qopt">C · A power problem: the real rule is kept in only 32.5 percent of worlds and almost never clears SR* on this much history; on 24 years the same rule passes in 94 percent of 100 worlds</div>
+      <q class="qwhy">"Almost never", not "never": 0 of 200 in ladder B, 1.5 percent in B2 at N = 100, 3 percent of 100 in B3. The test keeps its promise on false passes (0.000 false discovery rate after deflation) and the only cure the bench shows is more independent history.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">Why does the engine measure V, the variance of the N estimates, inside each trial instead of plugging in the 0.71 ruler?</p>
+      <div class="qopt">A · Because V carries the sample length and the hold with it, so the same code gives the right SR* on 3 years or 24, where SR* falls from 1.86 to 0.74</div>
+      <div class="qopt">B · Because 0.71 is only an approximation and measuring is always more accurate</div>
+      <div class="qopt">C · Because equation 1 does not work with a constant variance</div>
+      <q class="qwhy">0.71 is the ruler for 503 daily observations only. Equation 1 is written in terms of the variance of the trials' estimated Sharpe ratios, and measuring it lets one line of code follow the history: ladder B3 prints SR* of 1.86, 1.35, 0.99 and 0.74 for 3, 6, 12 and 24 years (100 worlds each).</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before session 5</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">About forty minutes, in the console or in Python.</p>
+    <div class="steps">
+      <div class="step"><div>
+        <h4>Reproduce one rung of B2 and one of B3</h4>
+        <p>Run <span class="mono">QT.ladderRung({ N: 10, trueSR: 1.5, method: "walkforward" }, 200, 60010)</span> and check the deflated rate against B2's 3.0 percent; then the 12-year rung of B3 with <span class="mono">days: 3024</span>, 100 worlds and seed0 68024, against 45 percent. Time each one, and write down why the second takes longer.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Write your own N down</h4>
+        <p>Take the last result you reported in any field and reconstruct how many variants were tried before it: features, windows, thresholds, filters, including the ones dropped early. Then write the N you would defend for equation 1 and one sentence on why it is smaller than the count, if it is.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Compute both hurdles for one number</h4>
+        <p>For a Sharpe ratio of 2.0 on 503 days, compute its t (Sharpe 1994: t equals the per-observation ratio times the square root of T) and its deflated PSR at N = 10 and N = 100 using the canon SR* values. Bring the three verdicts to session 5, which asks a different question: whether the 503 days were really unseen.</p>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The probabilistic Sharpe ratio</span><span class="note">Estimate, sample length, skewness, kurtosis and a benchmark; QT.psr read term by term.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">SR* from equation 1</span><span class="note">Bailey and Lopez de Prado 2014, gamma 0.5772, V measured in the trial; 1.07, 1.80, 2.31 at N = 10, 100, 1,000 (200 worlds). Read at source.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The deflated test on nothing</span><span class="note">False passes 6.0 percent at N = 1 (no deflation possible), 0 at N = 10, 100 and 1,000 (200 worlds each).</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The price in power, ladder B</span><span class="note">Real 0.5 to 3.0 among 100: kept 2.0 to 90.5 percent, deflated passes 0 to 34.5 percent, false discovery rate after deflation 0.000 on every rung.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The crowd and the history, B2 and B3</span><span class="note">A real 1.5 passes 65.5 percent alone and 1.5 percent among 100 (200 worlds); 3 percent on 3 years and 94 percent on 24 (100 worlds).</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">SR* implemented by hand</span><span class="note">Equation 1 written in the console, checked against QT.expectedMaxSR and QT.trial, then the canon row from ladderRung.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">t above 3 against deflation</span><span class="note">Taught as a disagreement; the DSR paper calls the two complementary and encourages computing both.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">The effective number of trials</span><span class="note">Named: correlated variants count for less than one each. No single recipe; log every variant and state the N used.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Memory in the series</span><span class="note">The generator has none, so kept-by-luck rules earn about zero afterwards here, not less. The AMS compensation effect is a stated limit.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Challenger models for a single model</span><span class="note">Live in <a href="https://phoebefu6.github.io/learn-model-risk-with-phoebe/courses/p5-benchmarks-and-challengers.html">learn-model-risk-with-phoebe, practitioner session 5</a>. Here the challenger is a crowd of random rules.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Any market, price or instrument</span><span class="note">Out of scope by design. Synthetic data only, and nothing here is investment advice.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>The one sentence.</strong> Deflation moves the benchmark from zero to the best that N tries on nothing would have produced, and tests against that.</div>
+      <div class="cheat-item"><strong>PSR.</strong> Phi((sr - benchmark) times sqrt(n - 1), over sqrt(1 - skew sr + (kurt - 1)/4 sr squared)). Pass at 0.95.</div>
+      <div class="cheat-item"><strong>SR*.</strong> sqrt(V) times ((1 - gamma) Zinv(1 - 1/N) + gamma Zinv(1 - 1/(N e))), gamma 0.5772, V measured from the N estimates.</div>
+      <div class="cheat-item"><strong>The bar.</strong> On 503 days: SR* 1.07 at N = 10, 1.80 at 100, 2.31 at 1,000. At N = 1 there is nothing to deflate.</div>
+      <div class="cheat-item"><strong>The promise.</strong> On nothing, false passes go from 99.5 percent naive to 0 deflated at N = 100 (200 worlds). FDR after deflation 0.000 on every planted rung.</div>
+      <div class="cheat-item"><strong>The price.</strong> A real 1.5 among 100 on three years almost never passes: 0 of 200 in B, 1.5 percent in B2, 3 percent of 100 in B3.</div>
+      <div class="cheat-item"><strong>The cure.</strong> Independent history. The same real 1.5 passes 45 percent on 12 years and 94 percent on 24 as SR* falls to 0.74.</div>
+      <div class="cheat-item"><strong>The report.</strong> Every Sharpe ratio comes with its N, its SR*, its sample length, and the t above 3 verdict beside the deflated one.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Practitioner session 4 of 10 · learn-quant-trading-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="p3-the-max-of-n.html">← Practitioner session 3 · The max of N</a>
+        <a href="p5-time-ordered-splits.html">Practitioner session 5 · Time-ordered splits →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/qt-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof QT === "undefined") return;
+  var sel = document.getElementById("p4-haircut-sr");
+  var btn = document.getElementById("p4-haircut-run");
+  var out = document.getElementById("p4-haircut-out");
+  var verdict = document.getElementById("p4-haircut-verdict");
+  var self = document.getElementById("p4-haircut-self");
+  var N = 100, TRIALS = 200;
+
+  /* canon seeds: nothing real is ladder A's N = 100 rung (seed0 = 10000 * 100);
+     one real rule among 100 is ladder B (seed0 = 50000 + 10 * trueSR). */
+  function seed0(s) { return s === 0 ? 1000000 : 50000 + Math.round(s * 10); }
+  function pct(x) { return (x * 100).toFixed(1) + " percent"; }
+
+  function idle() {
+    out.innerHTML = '<p class="sql-note">Choose a real Sharpe ratio and press Run. 200 worlds of 100 rules is 20,000 strategies scored, about a second or two in a browser.</p>';
+    verdict.textContent = "Nothing has run yet.";
+  }
+
+  function render() {
+    var s = Number(sel.value);
+    var r = QT.ladderRung({ N: N, trueSR: s, method: "walkforward" }, TRIALS, seed0(s));
+    var html = '<table class="sql-table"><thead><tr><th>Quantity</th><th>Value</th><th>What it is</th></tr></thead><tbody>';
+    html += "<tr><td>Best in-sample Sharpe ratio</td><td><b>" + r.isSR.toFixed(2) + "</b></td><td>the best of 100, the number that gets presented</td></tr>";
+    html += "<tr><td>SR*, the expected best of 100 on nothing</td><td>" + r.srStar.toFixed(2) + "</td><td>equation 1 with V measured from the 100 estimates</td></tr>";
+    html += "<tr><td>Naive pass share (PSR against 0)</td><td>" + pct(r.naiveDiscovery) + "</td><td>of " + TRIALS + " worlds" + (s === 0 ? ", every one false" : "") + "</td></tr>";
+    html += '<tr><td>Deflated pass share (PSR against SR*)</td><td><b class="p4-ok">' + pct(r.deflatedDiscovery) + "</b></td><td>of " + TRIALS + " worlds" + (s === 0 ? ", every one would be false" : "") + "</td></tr>";
+    if (s > 0) {
+      html += "<tr><td>Worlds where the kept rule was the real one</td><td>" + pct(r.pickedPlant) + "</td><td>the real " + s.toFixed(1) + " against 99 random rules</td></tr>";
+      html += '<tr><td>False discovery rate after deflation</td><td><b class="p4-fdr">' + r.fdrAfterDeflation.toFixed(3) + "</b></td><td>" + (r.deflatedDiscovery > 0 ? "deflated passes that were not the real rule, over all deflated passes" : "no deflated passes, so nothing to be wrong about") + "</td></tr>";
+    } else {
+      html += "<tr><td>Worlds where the kept rule was the real one</td><td>none planted</td><td>nothing is real at 0</td></tr>";
+      html += "<tr><td>False discovery rate after deflation</td><td>" + (r.deflatedDiscovery > 0 ? "1.000" : "no passes") + "</td><td>with nothing real, any pass would be false</td></tr>";
+    }
+    html += "<tr><td>Worlds averaged</td><td>" + TRIALS + "</td><td>canon seeds, first seed " + (seed0(s) + 1) + "</td></tr>";
+    html += "</tbody></table>";
+    out.innerHTML = html;
+
+    var msg;
+    if (s === 0) {
+      msg = "Nothing is real. The best of 100 reported " + r.isSR.toFixed(2) + " against a bar of " + r.srStar.toFixed(2) + ": the naive test passed in " + pct(r.naiveDiscovery) + " of worlds and the deflated test in " + pct(r.deflatedDiscovery) + ". That is the promise.";
+    } else if (r.deflatedDiscovery === 0) {
+      msg = "A real " + s.toFixed(1) + " among 100 was the rule kept in " + pct(r.pickedPlant) + " of worlds and passed the deflated test in none of these " + TRIALS + ". Zero passes is a power problem on three years of data, not proof there is nothing there.";
+    } else {
+      msg = "A real " + s.toFixed(1) + " among 100 was kept in " + pct(r.pickedPlant) + " of worlds and passed the deflated test in " + pct(r.deflatedDiscovery) + ". False discovery rate among those passes: " + r.fdrAfterDeflation.toFixed(3) + ", so every pass was the real rule.";
+    }
+    verdict.textContent = msg;
+    btn.disabled = false;
+    btn.textContent = "Run 200 worlds";
+  }
+
+  btn.addEventListener("click", function () {
+    btn.disabled = true;
+    btn.textContent = "Running...";
+    out.innerHTML = '<p class="sql-note">Running 200 worlds of 100 rules each...</p>';
+    setTimeout(render, 0);
+  });
+  sel.addEventListener("change", idle);
+  idle();
+
+  setTimeout(function () {
+    var t = QT.selfTest();
+    self.textContent = t.ok
+      ? "The generator's six properties pass in this browser, so the figures above are the figures any correct run gives. Synthetic data only: nothing here describes a real market, and nothing here is investment advice."
+      : "The generator's self test did not pass in this browser, so nothing above should be believed.";
+  }, 0);
+})();
+</script>
+<style>
+  #p4-haircut .sql-code { border: 1px solid var(--hairline); border-radius: 8px; max-width: 28rem; }
+  #p4-haircut table.sql-table { margin: .6rem 0 .2rem; font-size: .85rem; }
+  #p4-haircut .p4-ok { color: var(--indigo); }
+  #p4-haircut .p4-fdr { color: var(--amber); }
+  #p4-haircut .btn:disabled { opacity: .6; cursor: progress; }
+</style>
+</body>
+</html>

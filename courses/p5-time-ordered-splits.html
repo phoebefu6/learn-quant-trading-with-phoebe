@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Practitioner session 5 of 10. Read the split code line by line, measure what a shuffled k-fold leaks when observations overlap, then purge it and say plainly what the embargo can and cannot show on a world without memory. Synthetic data only.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="Time-ordered splits - learn quant with phoebe">
+<meta property="og:description" content="Practitioner session 5 of 10. On five-day observations a shuffled five-fold split reads 0.65 out of sample on nothing, averaged over 100 worlds; walk-forward reads -0.07. Purging brings it back. Measured.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/courses/p5-time-ordered-splits.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Time-ordered splits - learn quant with phoebe">
+<meta name="twitter:description" content="A split is part of the experiment. When test and training share days, the score measures the choosing. Measure it, then purge it.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Practitioner session 5 · Time-ordered splits - learn quant with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-quant-trading-with-phoebe</a> / Practitioner session 5 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Quant Trading with Phoebe · Practitioner session 5 of 10</div>
+    <h1><span class="accent">Time-ordered</span> splits</h1>
+    <p class="sub">Sessions 3 and 4 asked what a number was the best of. Tonight asks a quieter question that ruins just as many backtests: were the days that scored the rule really unseen? A split decides which observations choose and which observations grade, and when observations span several days, a split that ignores time order lets the same days do both. Tonight reads the split code line by line, measures the leak on a world with nothing in it, removes it with a purge, and is honest about the one tool, the embargo, that this world cannot show. The data is synthetic throughout, and nothing here is investment advice.</p>
+    <div class="chip-row">
+      <span class="chip level">🟠 Working depth</span>
+      <span class="chip audience">Anyone who will build or check a backtest</span>
+      <span class="chip audience">Comfortable with a browser console</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:3">3-15 · Walk-forward against the shuffle</span>
+      <span class="a3" style="flex:3">15-27 · Purging and the embargo</span>
+      <span class="a4" style="flex:4">27-45 · Build-along and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Marlow Street's confirmation that confirmed nothing</h2>
+    </div>
+    <p class="lede">Marlow Street is a constructed research desk, four people and a head who has been handed a backtest with a Sharpe ratio of 1.8. After sessions 3 and 4 the researcher came back with what looked like the answer to every objection: the selection had been rerun under five-fold cross-validation, the same way the desk validates every classifier, and the kept rule still earned a positive Sharpe ratio on the held-out folds. The positions are held for five days. Tonight shows why that one detail turns a confirmation into a measurement of the split, and what it takes to make the held-out days genuinely held out.</p>
+
+    <div class="legend">
+      <span class="pill">Live = presented in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with tonight.</strong> An exact reading of the split code: walk-forward, blocked and shuffled folds, and the purge and the embargo as two index tests. One measured ladder on zero alpha, 100 rules and 100 worlds per row, in which a shuffled five-fold split on five-day observations reads 0.65 out of sample on nothing while walk-forward reads -0.07. The rule that the leak needs overlap: on one-day observations the same shuffle reads 0.10, within trial noise of the walk-forward's -0.05. What purging costs on each kind of split: 460 of 601 training observations in the shuffled fold the ladder reports, and 4 on a blocked one. And an honest sentence about the embargo, which this world cannot show.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why the split is part of the experiment<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A held-out score is only as honest as the wall between the rows that chose and the rows that grade. On a table of customers that wall is easy: one row, one customer, and a shuffle puts each customer on one side. On a time series an observation is not a row in that sense. A five-day holding return made on Tuesday spans Wednesday to the following Tuesday, and the observation made on Wednesday spans four of the same five days. Put those two on opposite sides of the wall and the wall has a hole in it.</p>
+        <p>The rest is mechanics, and every mechanism tonight is measured on synthetic worlds where the alpha is zero by construction, so any out-of-sample figure above noise is the split talking, not the rule.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Marlow Street's researcher, constructed like the rest, used the desk's standard validation recipe: five folds, rows shuffled first, because that is how every churn and fraud model at the desk had been checked. Nobody asked whether a row was a day or a five-day span. When the head reran the recipe on 100 rules with nothing in them, across 100 generated worlds, the kept rule earned 0.65 out of sample on average. The confirmation had been confirming the split.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The words that keep coming back<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Observation.</strong> One position and what it earned. Observation t takes the position from the signal on day t and earns the return over the next h days.</li>
+          <li><strong>Span.</strong> The days an observation earns over: days t + 1 to t + h. With h = 1 a span is one day and no two spans share a day.</li>
+          <li><strong>Overlap.</strong> Observations i and j share h - |i - j| days whenever |i - j| is below h. With h = 5, neighbours share 4, 3, 2 and 1 days.</li>
+          <li><strong>Walk-forward.</strong> Train on the first two thirds in time order, test on the rest. One fold, one cut.</li>
+          <li><strong>Blocked k-fold.</strong> Cut the observations into k contiguous blocks; each block takes a turn as the test set while the others train.</li>
+          <li><strong>Shuffled k-fold.</strong> Permute the observations at random, then cut the permutation into k folds. The default of most tabular tools.</li>
+          <li><strong>Purge.</strong> Drop any training observation whose span shares a day with a test observation's span.</li>
+          <li><strong>Embargo.</strong> Also drop a few training observations right after each test block, to absorb serial correlation that outlasts the span.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where tonight sits among the ten sessions<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Sessions 3 and 4 were about selection: the best of N on nothing, and the deflated Sharpe ratio that corrects for it. Both assumed the held-out days were honest. Tonight checks that assumption. Session 6 then plants a real signal and asks whether the corrections keep it, and every number there relies on the splits built tonight being clean. Session 10's split bench drives every setting on this page at once, with a break button for the leak.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers walk-forward against shuffled k-fold</span>
+      <h2>What a shuffled k-fold leaks, and when</h2>
+      <span class="tag concept">12 min live</span>
+    </div>
+    <p class="lede">Hold everything fixed that sessions 3 and 4 varied: zero alpha, 100 random rules, keep the best in-sample rule in each fold, score it on that fold's test observations, 100 worlds per row. Change only how the observations are divided and how long each one spans. The honest out-of-sample answer is known in advance to be noise around zero, so the only thing that can move it is the split.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 540" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn timelines of 751 five-day observations from one zero-alpha world. Top, the shuffled five-fold split: a long training bar with 150 thin tick marks scattered along its whole length, one per test observation in fold 1 at shuffle seed 86,001. Below it, the walk-forward split: a training bar for observations 0 to 499 and a test bar for 500 to 750, separated by one cut, with a pair of scissors drawn at the cut. Bottom left, a zoom into the shuffled split: nine observations, 2 to 10, each drawn as a bar five days long; observation 6 is the test observation and every other one trains. The days each training bar shares with the test bar are hatched in steel: 1, 2, 3 and 4 days on each side, 20 shared days in all. Bottom right, a zoom into the walk-forward cut: training observations 496 to 499 share 1, 2, 3 and 4 days with the test observations after the cut, and nothing else touches. A note says the shuffled split reads 0.65 out of sample over 100 worlds on five-day observations against minus 0.07 for walk-forward, and 0.10 against minus 0.05 on one-day observations.">
+        <defs>
+          <filter id="p5aSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="53" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p5aHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3B6E8F" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p5aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p5aH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .p5aL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .p5aS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .p5aB { font: 800 11px Inter, sans-serif; fill: #2A5068; }
+          .p5aA { font: 700 11px Inter, sans-serif; fill: #7A1F3D; }
+          .p5aN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="p5aH" x="30" y="26">FIVE-DAY OBSERVATIONS ON ONE WORLD: WHERE THE TEST OBSERVATIONS SIT, AND WHAT THEY SHARE</text>
+
+        <g filter="url(#p5aSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- top band: shuffled fold 1, real test indices at shuffle seed 86001 -->
+          <rect x="170" y="54" width="680" height="22" rx="4" transform="rotate(-0.3 510 65)" fill="#FAF0F3"/>
+          <path stroke-width="1.2" d="M170.9 57 L170.9 73 M171.8 57 L171.8 73 M180.9 57 L180.9 73 M181.8 57 L181.8 73 M185.4 57 L185.4 73 M187.2 57 L187.2 73 M208.9 57 L208.9 73 M216.2 57 L216.2 73 M217.1 57 L217.1 73 M218.0 57 L218.0 73 M220.7 57 L220.7 73 M227.9 57 L227.9 73 M236.1 57 L236.1 73 M240.6 57 L240.6 73 M247.9 57 L247.9 73 M255.1 57 L255.1 73 M258.7 57 L258.7 73 M260.5 57 L260.5 73 M263.3 57 L263.3 73 M266.0 57 L266.0 73 M267.8 57 L267.8 73 M269.6 57 L269.6 73 M270.5 57 L270.5 73 M275.0 57 L275.0 73 M276.8 57 L276.8 73 M278.7 57 L278.7 73 M282.3 57 L282.3 73 M285.9 57 L285.9 73 M286.8 57 L286.8 73 M288.6 57 L288.6 73 M290.4 57 L290.4 73 M291.3 57 L291.3 73 M295.0 57 L295.0 73 M304.0 57 L304.0 73 M307.6 57 L307.6 73 M312.2 57 L312.2 73 M318.5 57 L318.5 73 M322.1 57 L322.1 73 M323.9 57 L323.9 73 M324.8 57 L324.8 73 M325.7 57 L325.7 73 M333.9 57 L333.9 73 M335.7 57 L335.7 73 M337.5 57 L337.5 73 M343.8 57 L343.8 73 M347.5 57 L347.5 73 M353.8 57 L353.8 73 M358.3 57 L358.3 73 M363.8 57 L363.8 73 M364.7 57 L364.7 73 M365.6 57 L365.6 73 M375.5 57 L375.5 73 M381.9 57 L381.9 73 M386.4 57 L386.4 73 M388.2 57 L388.2 73 M392.7 57 L392.7 73 M401.8 57 L401.8 73 M412.7 57 L412.7 73 M416.3 57 L416.3 73 M417.2 57 L417.2 73 M419.0 57 L419.0 73 M420.8 57 L420.8 73 M429.9 57 L429.9 73 M433.5 57 L433.5 73 M438.0 57 L438.0 73 M439.8 57 L439.8 73 M441.6 57 L441.6 73 M443.4 57 L443.4 73 M445.3 57 L445.3 73 M448.0 57 L448.0 73 M451.6 57 L451.6 73 M453.4 57 L453.4 73 M454.3 57 L454.3 73 M465.2 57 L465.2 73 M468.8 57 L468.8 73 M478.8 57 L478.8 73 M487.8 57 L487.8 73 M490.5 57 L490.5 73 M491.4 57 L491.4 73 M498.7 57 L498.7 73 M508.6 57 L508.6 73 M513.2 57 L513.2 73 M516.8 57 L516.8 73 M522.2 57 L522.2 73 M530.4 57 L530.4 73 M552.1 57 L552.1 73 M556.6 57 L556.6 73 M557.5 57 L557.5 73 M566.6 57 L566.6 73 M574.7 57 L574.7 73 M575.6 57 L575.6 73 M577.5 57 L577.5 73 M578.4 57 L578.4 73 M580.2 57 L580.2 73 M587.4 57 L587.4 73 M593.8 57 L593.8 73 M600.1 57 L600.1 73 M601.0 57 L601.0 73 M607.3 57 L607.3 73 M608.2 57 L608.2 73 M615.5 57 L615.5 73 M616.4 57 L616.4 73 M617.3 57 L617.3 73 M619.1 57 L619.1 73 M620.0 57 L620.0 73 M624.5 57 L624.5 73 M626.4 57 L626.4 73 M634.5 57 L634.5 73 M645.4 57 L645.4 73 M656.2 57 L656.2 73 M658.9 57 L658.9 73 M659.9 57 L659.9 73 M665.3 57 L665.3 73 M668.0 57 L668.0 73 M668.9 57 L668.9 73 M672.5 57 L672.5 73 M689.7 57 L689.7 73 M690.6 57 L690.6 73 M696.1 57 L696.1 73 M699.7 57 L699.7 73 M700.6 57 L700.6 73 M708.7 57 L708.7 73 M711.5 57 L711.5 73 M721.4 57 L721.4 73 M724.1 57 L724.1 73 M726.9 57 L726.9 73 M736.8 57 L736.8 73 M746.8 57 L746.8 73 M760.4 57 L760.4 73 M761.3 57 L761.3 73 M762.2 57 L762.2 73 M763.1 57 L763.1 73 M764.9 57 L764.9 73 M770.3 57 L770.3 73 M785.7 57 L785.7 73 M792.1 57 L792.1 73 M797.5 57 L797.5 73 M801.1 57 L801.1 73 M802.9 57 L802.9 73 M803.8 57 L803.8 73 M813.8 57 L813.8 73 M815.6 57 L815.6 73 M817.4 57 L817.4 73 M822.8 57 L822.8 73 M826.5 57 L826.5 73 M833.7 57 L833.7 73 M840.0 57 L840.0 73 M845.5 57 L845.5 73 M846.4 57 L846.4 73 M847.3 57 L847.3 73"/>
+          <!-- walk-forward: one cut at observation 500 -->
+          <rect x="170" y="96" width="452" height="22" rx="4" transform="rotate(0.3 396 107)" fill="#FAF0F3"/>
+          <rect x="626" y="96" width="224" height="22" rx="4" transform="rotate(-0.4 738 107)" fill="#FFFFFF"/>
+          <!-- doodle anchor: scissors at the cut -->
+          <circle cx="617" cy="139" r="4.5" stroke-width="1.6"/>
+          <circle cx="631" cy="139" r="4.5" stroke-width="1.6"/>
+          <path d="M620 135 L628 122 M628 135 L620 122" stroke-width="1.6"/>
+
+          <!-- zoom panels -->
+          <rect x="30" y="160" width="400" height="300" rx="10" transform="rotate(-0.4 230 310)" fill="#FFFFFF"/>
+          <rect x="450" y="160" width="400" height="300" rx="10" transform="rotate(0.4 650 310)" fill="#FFFFFF"/>
+
+          <!-- left zoom: obs 2..10, obs 6 is test; day d sits at x = 150 + (d - 3) * 20 -->
+          <path d="M230 210 L230 432 M330 210 L330 432" stroke="#3B6E8F" stroke-width="1.4" stroke-dasharray="4 4"/>
+          <rect x="150" y="214" width="100" height="18" rx="3" transform="rotate(-0.6 200 223)" fill="#FAF0F3"/>
+          <rect x="230" y="217" width="20" height="12" fill="url(#p5aHc)" stroke="none"/>
+          <rect x="170" y="238" width="100" height="18" rx="3" transform="rotate(0.5 220 247)" fill="#FAF0F3"/>
+          <rect x="230" y="241" width="40" height="12" fill="url(#p5aHc)" stroke="none"/>
+          <rect x="190" y="262" width="100" height="18" rx="3" transform="rotate(-0.4 240 271)" fill="#FAF0F3"/>
+          <rect x="230" y="265" width="60" height="12" fill="url(#p5aHc)" stroke="none"/>
+          <rect x="210" y="286" width="100" height="18" rx="3" transform="rotate(0.6 260 295)" fill="#FAF0F3"/>
+          <rect x="230" y="289" width="80" height="12" fill="url(#p5aHc)" stroke="none"/>
+          <rect x="230" y="310" width="100" height="18" rx="3" transform="rotate(-0.5 280 319)" fill="#FFFFFF" stroke-width="2.6"/>
+          <rect x="250" y="334" width="100" height="18" rx="3" transform="rotate(0.4 300 343)" fill="#FAF0F3"/>
+          <rect x="250" y="337" width="80" height="12" fill="url(#p5aHc)" stroke="none"/>
+          <rect x="270" y="358" width="100" height="18" rx="3" transform="rotate(-0.6 320 367)" fill="#FAF0F3"/>
+          <rect x="270" y="361" width="60" height="12" fill="url(#p5aHc)" stroke="none"/>
+          <rect x="290" y="382" width="100" height="18" rx="3" transform="rotate(0.5 340 391)" fill="#FAF0F3"/>
+          <rect x="290" y="385" width="40" height="12" fill="url(#p5aHc)" stroke="none"/>
+          <rect x="310" y="406" width="100" height="18" rx="3" transform="rotate(-0.4 360 415)" fill="#FAF0F3"/>
+          <rect x="310" y="409" width="20" height="12" fill="url(#p5aHc)" stroke="none"/>
+
+          <!-- right zoom: obs 496..503 around the cut; day d sits at x = 570 + (d - 497) * 20 -->
+          <path d="M650 210 L650 404" stroke="#3B6E8F" stroke-width="1.4" stroke-dasharray="4 4"/>
+          <rect x="570" y="214" width="100" height="18" rx="3" transform="rotate(0.5 620 223)" fill="#FAF0F3"/>
+          <rect x="650" y="217" width="20" height="12" fill="url(#p5aHc)" stroke="none"/>
+          <rect x="590" y="238" width="100" height="18" rx="3" transform="rotate(-0.5 640 247)" fill="#FAF0F3"/>
+          <rect x="650" y="241" width="40" height="12" fill="url(#p5aHc)" stroke="none"/>
+          <rect x="610" y="262" width="100" height="18" rx="3" transform="rotate(0.4 660 271)" fill="#FAF0F3"/>
+          <rect x="650" y="265" width="60" height="12" fill="url(#p5aHc)" stroke="none"/>
+          <rect x="630" y="286" width="100" height="18" rx="3" transform="rotate(-0.6 680 295)" fill="#FAF0F3"/>
+          <rect x="650" y="289" width="80" height="12" fill="url(#p5aHc)" stroke="none"/>
+          <path d="M466 307 L810 307" stroke-width="1.6" stroke-dasharray="7 5"/>
+          <rect x="650" y="310" width="100" height="18" rx="3" transform="rotate(0.5 700 319)" fill="#FFFFFF"/>
+          <rect x="670" y="334" width="100" height="18" rx="3" transform="rotate(-0.4 720 343)" fill="#FFFFFF"/>
+          <rect x="690" y="358" width="100" height="18" rx="3" transform="rotate(0.6 740 367)" fill="#FFFFFF"/>
+          <rect x="710" y="382" width="100" height="18" rx="3" transform="rotate(-0.5 760 391)" fill="#FFFFFF"/>
+        </g>
+
+        <text class="p5aL" x="30" y="66">Shuffled, fold 1</text>
+        <text class="p5aS" x="30" y="81">150 test, scattered</text>
+        <text class="p5aL" x="30" y="108">Walk-forward</text>
+        <text class="p5aS" x="30" y="123">one cut at 500</text>
+        <text class="p5aS" x="396" y="111" text-anchor="middle">train, observations 0 to 499</text>
+        <text class="p5aS" x="738" y="111" text-anchor="middle">test, 500 to 750</text>
+        <text class="p5aS" x="170" y="138">0</text>
+        <text class="p5aS" x="850" y="138" text-anchor="end">750</text>
+
+        <text class="p5aL" x="46" y="184">Shuffled: one test observation, its neighbours</text>
+        <text class="p5aS" x="46" y="206">day</text>
+        <text class="p5aS" x="160" y="206" text-anchor="middle">3</text>
+        <text class="p5aS" x="240" y="206" text-anchor="middle">7</text>
+        <text class="p5aS" x="320" y="206" text-anchor="middle">11</text>
+        <text class="p5aS" x="400" y="206" text-anchor="middle">15</text>
+        <text class="p5aS" x="46" y="227">obs 2: 1 day</text>
+        <text class="p5aS" x="46" y="251">obs 3: 2 days</text>
+        <text class="p5aS" x="46" y="275">obs 4: 3 days</text>
+        <text class="p5aS" x="46" y="299">obs 5: 4 days</text>
+        <text class="p5aB" x="46" y="323">obs 6 is test</text>
+        <text class="p5aS" x="46" y="347">obs 7: 4 days</text>
+        <text class="p5aS" x="46" y="371">obs 8: 3 days</text>
+        <text class="p5aS" x="46" y="395">obs 9: 2 days</text>
+        <text class="p5aS" x="46" y="419">obs 10: 1 day</text>
+        <text class="p5aL" x="280" y="324" text-anchor="middle">test</text>
+        <text class="p5aS" x="46" y="448">schematic: 8 neighbours, 20 shared days in all</text>
+
+        <text class="p5aL" x="466" y="184">Walk-forward: the one cut, zoomed in</text>
+        <text class="p5aS" x="466" y="206">day</text>
+        <text class="p5aS" x="580" y="206" text-anchor="middle">497</text>
+        <text class="p5aS" x="660" y="206" text-anchor="middle">501</text>
+        <text class="p5aS" x="800" y="206" text-anchor="middle">508</text>
+        <text class="p5aS" x="466" y="227">obs 496: 1 day</text>
+        <text class="p5aS" x="466" y="251">obs 497: 2 days</text>
+        <text class="p5aS" x="466" y="275">obs 498: 3 days</text>
+        <text class="p5aS" x="466" y="299">obs 499: 4 days</text>
+        <text class="p5aB" x="816" y="311">cut</text>
+        <text class="p5aS" x="466" y="323">obs 500 test</text>
+        <text class="p5aS" x="466" y="347">obs 501 test</text>
+        <text class="p5aS" x="466" y="371">obs 502 test</text>
+        <text class="p5aS" x="466" y="395">obs 503 test</text>
+        <text class="p5aS" x="466" y="426">one seam: 4 of 500 training observations</text>
+        <text class="p5aS" x="466" y="442">touch the test, and nothing else does</text>
+
+        <text class="p5aN" x="30" y="486">Measured, 100 worlds per row, 100 rules, nothing real, five-day observations: shuffled five-fold</text>
+        <text class="p5aN" x="30" y="504">reads 0.65 out of sample, walk-forward -0.07. On one-day observations: 0.10 against -0.05.</text>
+        <text class="p5aA" x="30" y="526">The leak needs overlap: the days that chose the rule are scored again.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the steel hatching is the whole mechanism. In the shuffled split every test observation has training neighbours; in the walk-forward split only the four at the cut do.</figcaption>
+    </figure>
+
+    <div class="wk" id="p5-split">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">The split ladder, running in this page. Pick a row, press Run: 100 rules on 100 zero-alpha worlds at that row's canon seed, with five folds where folded. Each run takes about a second.</span>
+      </div>
+      <div class="wk-body">
+        <label class="sql-label" for="p5-split-row">Which split</label>
+        <select class="sql-code" id="p5-split-row">
+          <option value="0" selected>1 · Walk-forward, one-day observations</option>
+          <option value="1">2 · Shuffled five-fold, one-day, no purge</option>
+          <option value="2">3 · Walk-forward, five-day observations</option>
+          <option value="3">4 · Blocked five-fold, five-day, no purge</option>
+          <option value="4">5 · Shuffled five-fold, five-day, no purge</option>
+          <option value="5">6 · Shuffled five-fold, five-day, purged</option>
+          <option value="6">7 · Blocked five-fold, five-day, purged</option>
+          <option value="7">8 · Blocked five-fold, five-day, purged, embargo 5</option>
+        </select>
+        <div style="margin:.6rem 0 .2rem"><button class="btn primary" id="p5-split-run" type="button">Run this row: 100 worlds, 100 rules</button></div>
+        <div id="p5-split-out"></div>
+        <p class="sql-note" id="p5-split-verdict">...</p>
+      </div>
+      <div class="wk-foot" id="p5-split-self">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Reading the first five rows<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Every row is zero alpha, 100 rules, 100 worlds. Read the out-of-sample column first, because it is the one with a known right answer: zero, give or take trial noise of about 0.07 on a mean over 100 worlds.</p>
+        <ul>
+          <li><strong>Walk-forward, one-day.</strong> 503 training and 252 test observations. The kept rule reads 1.78 in-sample and -0.05 out of sample. The baseline.</li>
+          <li><strong>Shuffled five-fold, one-day, no purge.</strong> 604 and 151. In-sample 1.65, out of sample 0.10. Within trial noise of the baseline: the shuffle has nothing to leak.</li>
+          <li><strong>Walk-forward, five-day.</strong> 500 and 251. In-sample 1.34, out of sample -0.07.</li>
+          <li><strong>Blocked five-fold, five-day, no purge.</strong> 601 and 150. In-sample 1.23, out of sample -0.05.</li>
+          <li><strong>Shuffled five-fold, five-day, no purge.</strong> 601 and 150. In-sample 1.11, out of sample <strong>0.65</strong>. The leak.</li>
+        </ul>
+        <p>The in-sample figures differ from row to row because each split trains on a different number and kind of observation, and session 3 showed that the best of 100 depends on both. The out-of-sample column is where the rows should agree, and four of the five do.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Why the shuffle leaks only when observations overlap<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Observation i earns over days i + 1 to i + h. Observation j earns over days j + 1 to j + h. Whenever |i - j| is less than h they share h - |i - j| days. With h = 5, a test observation shares 4 days with each immediate neighbour, 3 with the next, then 2, then 1.</p>
+        <p>A shuffle scatters the test observations through the whole history, so almost every test observation has training neighbours on both sides; in the first fold drawn above, every one of the 150 does. The selection loop then keeps the rule whose positions happened to line up with the returns on the training observations. Those returns are, day for day, most of the returns the test observations earn. The kept rule's luck on the training days is carried straight into the test score, and the score reports it as skill.</p>
+        <p>With h = 1 a span is a single day and no two observations share one. The shuffle still scatters the test set, but there is nothing on the other side of the wall to see. That is why the one-day shuffle reads 0.10, within trial noise of the walk-forward's -0.05, and the five-day shuffle reads 0.65. The leak is not shuffling as such. It is shuffling plus overlap.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>The head at Marlow Street, constructed, asked one question that would have saved a week: how many days does one row of your validation set span? The researcher's answer was five. A desk whose habit is to ask that question before reading any cross-validated number catches this leak in a sentence; a desk without the habit can reach it only by rerunning the whole study on a world with nothing in it.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The split code, read exactly<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><span class="mono">QT.splits(T, opts)</span> returns a list of folds, each a list of training indices and a list of test indices over T observations. With 756 days and h-day holding there are 756 - h observations: 755 at h = 1, 751 at h = 5.</p>
+        <ul>
+          <li><strong>Walk-forward.</strong> The cut is the floor of T times two thirds. Everything before it trains, everything from it on tests, one fold. At T = 755 that is 503 and 252; at T = 751, 500 and 251.</li>
+          <li><strong>Blocked.</strong> Fold f tests the observations from the floor of T f / k up to the floor of T (f + 1) / k, k = 5. At T = 751 the test blocks are 150, 150, 150, 150 and 151 long.</li>
+          <li><strong>Shuffled.</strong> A Fisher-Yates permutation of 0 to T - 1, driven by the same integer mixer as everything else at the world's seed plus 2000. Fold f tests the f-th fifth of the permutation, so its test observations land anywhere in time.</li>
+          <li><strong>Purge.</strong> When switched on, a training observation i is dropped if any test observation j sits within h - 1 of it, which is exactly the condition for their spans to share a day.</li>
+          <li><strong>Embargo.</strong> When also set to e, training observation i is dropped if a test observation sits from h to h + e - 1 places before it. In words: the e observations just past the purge zone, after each test block, are dropped too.</li>
+        </ul>
+        <p>The trial that uses the folds keeps the best of the 100 rules by per-observation Sharpe ratio on each fold's training indices, scores that rule on the fold's test indices, averages the per-observation ratios across folds, and annualises by the square root of 252 over h. The ladder averages 100 trials. The training and test sizes it prints are those of the first fold of the last world, which is why they are whole numbers and why the purged shuffle's figure is one fold's count, not an average.</p>
+        <p>One detail the walk-forward rows hide: with h = 5 and no purge, training observations 496 to 499 share days with test observations 500 to 503. The cut has a seam. Four observations out of 500 cannot carry a selection, and the -0.07 shows it, but the seam is real, and the homework purges it.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Why it is the default setting that leaks<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Shuffled k-fold is the default in most tabular tooling because it is right for the data those tools were built for: rows that are exchangeable, one customer or one transaction each, with nothing shared between them. A data team moving to time series brings that default with it, and on one-day observations it even appears to work, as the second row shows. It fails only when labels span more than one step, which is exactly when positions are held, returns are forward-looking, or a target is defined over a window.</p>
+        <p>Target leakage in general is owned elsewhere: <a href="https://phoebefu6.github.io/learn-feature-engineering-with-phoebe/courses/b5-leakage.html">learn-feature-engineering-with-phoebe, builder session 5</a> on leakage in tabular features, and <a href="https://phoebefu6.github.io/learn-model-risk-with-phoebe/courses/p3-the-leak-hunt.html">learn-model-risk-with-phoebe, practitioner session 3</a> for the leak hunt on a single model. What is specific here is the mechanism: a split that is innocent on exchangeable rows becomes a leak the moment rows share days.</p>
+        <p>And the usual limit: the generator has no memory, so the kept rule earns nothing out of sample on the honest rows, not less than nothing. The 2014 Notices paper shows that with memory an overfit rule can do worse than zero; this bench does not model that case.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers purging and the embargo</span>
+      <h2>Purge the overlap, then ask what the embargo adds</h2>
+      <span class="tag concept">12 min live</span>
+    </div>
+    <p class="lede">The fix follows from the mechanism. If a training observation's span shares a day with a test observation's span, drop the training observation. That is the purge. The embargo goes one step further and drops a few more training observations right after each test block, for dependence that outlasts the span. Three more rows of the same ladder show what each costs and what each buys on this world, and one of the answers is "nothing measurable".</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 428" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn blocked five-fold split on 751 five-day observations, fold 1, whose test block is observations 0 to 149 and whose training set is 150 to 750. A zoom shows observations 144 to 163 as cells: 144 to 149 are the end of the test block; 150 to 153 are filled steel and labelled purged; 154 to 158 are hatched and labelled embargo of 5, with a small fence drawn above them; 159 onward are training. An arc from observation 149 to observation 153 says they are 4 apart and both hold day 154. Below, three boxes count the training observations in fold 1: 601 with no purge, 597 purged, 592 with the embargo, and under them the out-of-sample Sharpe ratios over 100 worlds: minus 0.05, 0.06 and minus 0.10. A note says middle blocks lose 4 on each side and 5 after, and that all three out-of-sample means are within trial noise of zero, so the bench cannot show the embargo on this world.">
+        <defs>
+          <filter id="p5bSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="57" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p5bHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#7A1F3D" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p5bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p5bH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .p5bL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .p5bS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .p5bB { font: 800 11px Inter, sans-serif; fill: #2A5068; }
+          .p5bV { font: 800 18px Inter, sans-serif; fill: #4A1024; }
+          .p5bW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p5bN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="p5bH" x="30" y="26">BLOCKED FIVE-FOLD, FIVE-DAY OBSERVATIONS: WHAT THE PURGE AND THE EMBARGO TAKE FROM FOLD 1</text>
+
+        <g filter="url(#p5bSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- fold 1 on the full timeline: test 0..149, train 150..750 -->
+          <rect x="170" y="54" width="134" height="22" rx="4" transform="rotate(-0.5 237 65)" fill="#FFFFFF"/>
+          <rect x="308" y="54" width="542" height="22" rx="4" transform="rotate(0.3 579 65)" fill="#FAF0F3"/>
+
+          <!-- zoom cells, obs 144..163 at x = 190 + (i - 144) * 32 -->
+          <rect x="190" y="150" width="190" height="34" rx="3" transform="rotate(-0.4 285 167)" fill="#FFFFFF"/>
+          <rect x="384" y="150" width="124" height="34" rx="3" transform="rotate(0.5 446 167)" fill="#3B6E8F"/>
+          <rect x="512" y="150" width="156" height="34" rx="3" transform="rotate(-0.3 590 167)" fill="url(#p5bHc)"/>
+          <rect x="672" y="150" width="158" height="34" rx="3" transform="rotate(0.4 751 167)" fill="#FAF0F3"/>
+          <path stroke-width="1" stroke="#BF8398" d="M222 154 L222 180 M254 154 L254 180 M286 154 L286 180 M318 154 L318 180 M350 154 L350 180 M544 154 L544 180 M576 154 L576 180 M608 154 L608 180 M640 154 L640 180 M704 154 L704 180 M736 154 L736 180 M768 154 L768 180 M800 154 L800 180"/>
+          <path stroke-width="1" stroke="#FFFFFF" d="M414 154 L414 162 M478 154 L478 162 M414 178 L414 182 M478 178 L478 182"/>
+          <!-- the overlap arc: obs 149 and obs 153 share day 154 -->
+          <path d="M366 146 C380 116 480 116 494 146" stroke="#3B6E8F" stroke-width="1.8" marker-end="url(#p5bAr)"/>
+          <!-- doodle anchor: a fence over the embargo -->
+          <path d="M604 120 L604 144 M624 120 L624 144 M644 120 L644 144 M598 127 L650 127 M598 137 L650 137" stroke-width="1.6"/>
+
+          <!-- the counts -->
+          <rect x="190" y="262" width="180" height="64" rx="6" transform="rotate(-0.6 280 294)" fill="#FAF0F3"/>
+          <path d="M374 294 L414 294" marker-end="url(#p5bAr)"/>
+          <rect x="420" y="262" width="180" height="64" rx="6" transform="rotate(0.5 510 294)" fill="#EAF1F6"/>
+          <path d="M604 294 L644 294" marker-end="url(#p5bAr)"/>
+          <rect x="650" y="262" width="180" height="64" rx="6" transform="rotate(-0.4 740 294)" fill="#FFFFFF"/>
+        </g>
+
+        <text class="p5bL" x="30" y="66">Fold 1 of 5</text>
+        <text class="p5bS" x="30" y="81">test block first</text>
+        <text class="p5bS" x="237" y="69" text-anchor="middle">test, 0 to 149</text>
+        <text class="p5bS" x="579" y="69" text-anchor="middle">train, 150 to 750, before any purge</text>
+
+        <text class="p5bB" x="430" y="108" text-anchor="middle">obs 149 and obs 153: 4 apart, both hold day 154</text>
+        <text class="p5bL" x="30" y="164">Zoomed in:</text>
+        <text class="p5bS" x="30" y="180">obs 144 to 163</text>
+        <text class="p5bW" x="446" y="172" text-anchor="middle">purged</text>
+
+        <text class="p5bL" x="285" y="206" text-anchor="middle">test block</text>
+        <text class="p5bS" x="285" y="221" text-anchor="middle">obs 144 to 149</text>
+        <text class="p5bL" x="446" y="206" text-anchor="middle">purged</text>
+        <text class="p5bS" x="446" y="221" text-anchor="middle">obs 150 to 153</text>
+        <text class="p5bL" x="590" y="206" text-anchor="middle">embargo of 5</text>
+        <text class="p5bS" x="590" y="221" text-anchor="middle">obs 154 to 158</text>
+        <text class="p5bL" x="751" y="206" text-anchor="middle">training resumes</text>
+        <text class="p5bS" x="751" y="221" text-anchor="middle">obs 159 onward</text>
+
+        <text class="p5bL" x="30" y="290">Training rows</text>
+        <text class="p5bS" x="30" y="306">in fold 1</text>
+        <text class="p5bV" x="280" y="294" text-anchor="middle">601</text>
+        <text class="p5bS" x="280" y="313" text-anchor="middle">no purge</text>
+        <text class="p5bV" x="510" y="294" text-anchor="middle">597</text>
+        <text class="p5bS" x="510" y="313" text-anchor="middle">purged: 4 fewer</text>
+        <text class="p5bV" x="740" y="294" text-anchor="middle">592</text>
+        <text class="p5bS" x="740" y="313" text-anchor="middle">plus embargo: 5 fewer</text>
+        <text class="p5bB" x="280" y="346" text-anchor="middle">out of sample -0.05</text>
+        <text class="p5bB" x="510" y="346" text-anchor="middle">out of sample 0.06</text>
+        <text class="p5bB" x="740" y="346" text-anchor="middle">out of sample -0.10</text>
+
+        <text class="p5bN" x="30" y="376">Middle blocks lose 4 on each side and 5 after; the last block has nothing after it; fold 1 has one edge.</text>
+        <text class="p5bN" x="30" y="394">All three out-of-sample means, 100 worlds each, sit within trial noise (about 0.07) of zero. The returns</text>
+        <text class="p5bN" x="30" y="412">have no memory, so the embargo has nothing to absorb here: the bench cannot show it on this world.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - on a blocked split the purge is a thin steel strip at each edge of a test block, which is why it costs 4 observations and not 460.</figcaption>
+    </figure>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Purging, measured on both kinds of split<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>Shuffled five-fold, five-day, purged.</strong> Out of sample -0.02: the leak is gone. But the fold the ladder reports kept 141 training observations of 601. When test observations are scattered through the whole history, almost every training observation is within four places of one, so the purge throws away about three quarters of the training data. The count varies fold by fold and world by world, because it depends on where the shuffle happened to put the test observations; the build-along prints all five folds for one world.</p>
+        <p>The in-sample figure jumps to 2.77. Nothing improved. This is session 3's problem on a shorter ruler: the best of 100 estimates made on a small sample is large, because each estimate is noisier. A researcher who reports "after purging, in-sample went up" has reported the purge's cost as if it were a finding.</p>
+        <p><strong>Blocked five-fold, five-day, purged.</strong> Out of sample 0.06, training observations 597 of 601. The test observations sit in one contiguous block, so only the four observations at each edge of the block share days with it. The purge costs 4 in the first fold, which has one edge, and 8 in the middle folds.</p>
+        <p>Which is why the cheap correct setting is blocked folds with a purge. A shuffled split with a purge is correct too, and expensive enough to make the in-sample number meaningless.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Marlow Street's researcher, constructed, purged the shuffled split, saw the in-sample figure climb from 1.11 to 2.77, and drafted a note saying the strategy was stronger than first thought. The head sent it back with one line: count the training rows. The desk's validation recipe for anything with a holding period is now blocked folds with a purge, and the note that explains why is two sentences long.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The embargo, as described and as measured<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>As described.</strong> Lopez de Prado's Advances in Financial Machine Learning (2018), chapter 7, is reported to treat two corrections for cross-validation on financial series: purging, which drops training observations whose label span overlaps a test observation's span, and the embargo, which drops training observations immediately after a test block to absorb serial correlation that a purge at the span level does not reach. The book's chapter structure is reported from catalogue listings and its text was not read; the code here implements both from that description and from first principles, and nothing in it reproduces the book.</p>
+        <p><strong>As measured.</strong> Blocked five-fold, five-day, purged, embargo of 5: 592 training observations, in-sample 1.24, out of sample -0.10. Against the purged row's 0.06 that looks like a move, but each mean carries trial noise of about 0.07 over 100 worlds, and both sit within noise of zero. The embargo changes nothing measurable here.</p>
+        <p><strong>Why.</strong> The returns in this generator have no memory: each day is independent of every other once the span is accounted for. The purge already removes every training observation whose span shares a day with a test span, and there is no further dependence after the span for the embargo to absorb. So the honest sentence is that this bench cannot show the embargo working. That is a limit of the world, not a verdict on the tool. On a series whose dependence outlasts a label's span, the embargo is the guard for exactly that dependence, and its size has to be argued from the series, which is where the disagreement below begins.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where serious people disagree<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>How big an embargo.</strong> One position sizes the embargo from how long dependence lasts in the series, and accepts the lost training data as the price of a clean wall. The other holds that once label spans are purged correctly the embargo is insurance whose right size cannot be read off a backtest, and that an embargo tuned by looking at results is one more parameter chosen on the same history, which is the selection problem again. This bench cannot settle it, because it has no dependence for an embargo to catch.</p>
+        <p><strong>Combinatorial purged cross-validation against a single walk-forward.</strong> The same book's chapter 12, by its reported structure, treats walk-forward testing, cross-validation and combinatorial purged cross-validation. The case for the combinatorial method: many purged train and test combinations give a distribution of out-of-sample paths rather than one, so a strategy is judged on more than one draw of history. The case for walk-forward: it is the only scheme that matches what a desk could have known at the time, and the many paths of the combinatorial method are cut from the same single history, so they are not independent evidence. Both camps agree on the purge. Which scheme to report is an open question, and it is taught here as one.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Sources, and how far each was read<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li>Lopez de Prado, M. (2018). Advances in Financial Machine Learning. Wiley. ISBN 978-1-119-48208-6. Reported: title and ISBN from the publisher's page; chapter structure from catalogue listings; text not read.</li>
+          <li>Bailey, D. H., Borwein, J. M., Lopez de Prado, M., and Zhu, Q. J. (2014). "Pseudo-Mathematics and Financial Charlatanism: The Effects of Backtest Overfitting on Out-of-Sample Performance." Notices of the American Mathematical Society 61(5), 458-471. DOI 10.1090/noti1105. Read at source: <a href="https://www.ams.org/notices/201405/rnoti-p458.pdf">https://www.ams.org/notices/201405/rnoti-p458.pdf</a></li>
+        </ul>
+        <p>The ladder on this page is not from either source. It is the generator's own output at the canon seeds, reproduced by an independent Python reference of the same random stream.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · build-along</span>
+      <h2>Find the shared days, purge them, measure the leak</h2>
+      <span class="tag build">18 min hands on</span>
+    </div>
+    <p class="lede">Open this page's console. The engine is loaded as <span class="mono">QT</span>. The steps rebuild Marlow Street's leak from the inside: one world's observations, one shuffled fold, the shared days counted by hand, the purge switched on, and then the leak row and its fix measured over 100 worlds each. Every step uses a canon seed, so your numbers will match for the same seed. Rolling-origin evaluation of a forecast, and the error metrics that go with it, live in <a href="https://phoebefu6.github.io/learn-timeseries-forecasting-with-phoebe/courses/b8-backtesting-metrics.html">learn-timeseries-forecasting-with-phoebe, builder session 8</a>; here the thing evaluated is a selected strategy, not a forecast.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 270" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn pipeline of the six console steps. Top row, left to right: makeWorld then pnl at seed 84,001 with h of 5; 751 observations, which is 756 days minus 5; splits shuffled at seed 86,001 with five folds; shared days, 4, 3, 2 and 1 around test observation 1. An arrow drops to the second row, which runs right to left: splits with the purge on, same seed and same folds; training lengths before and after, per fold; ladderRung over 100 worlds at seed0 84,000; and a steel box reading out of sample 0.65, the leak, measured. A small magnifying glass sits beside the shared days box. A note gives the overlap rule and says the purged row at seed0 85,000 reads minus 0.02.">
+        <defs>
+          <filter id="p5cSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="59" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p5cHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#7A1F3D" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p5cAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p5cH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .p5cL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .p5cS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .p5cW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p5cN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="p5cH" x="30" y="26">SIX CONSOLE STEPS: COUNT THE OVERLAP, PURGE IT, THEN MEASURE THE LEAK OVER 100 WORLDS</text>
+
+        <g filter="url(#p5cSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="34" y="56" width="180" height="48" rx="6" transform="rotate(-0.8 124 80)" fill="#FAF0F3"/>
+          <path d="M216 80 L236 80" marker-end="url(#p5cAr)"/>
+          <rect x="240" y="56" width="180" height="48" rx="6" transform="rotate(0.6 330 80)" fill="#FFFFFF"/>
+          <path d="M422 80 L442 80" marker-end="url(#p5cAr)"/>
+          <rect x="446" y="56" width="180" height="48" rx="6" transform="rotate(-0.5 536 80)" fill="#FFFFFF"/>
+          <path d="M628 80 L648 80" marker-end="url(#p5cAr)"/>
+          <rect x="652" y="56" width="180" height="48" rx="6" transform="rotate(0.7 742 80)" fill="url(#p5cHc)"/>
+          <path d="M742 108 L742 146" marker-end="url(#p5cAr)"/>
+          <rect x="652" y="150" width="180" height="48" rx="6" transform="rotate(-0.6 742 174)" fill="#FFFFFF"/>
+          <path d="M650 174 L630 174" marker-end="url(#p5cAr)"/>
+          <rect x="446" y="150" width="180" height="48" rx="6" transform="rotate(0.5 536 174)" fill="#FFFFFF"/>
+          <path d="M444 174 L424 174" marker-end="url(#p5cAr)"/>
+          <rect x="240" y="150" width="180" height="48" rx="6" transform="rotate(-0.7 330 174)" fill="#FAF0F3"/>
+          <path d="M238 174 L218 174" marker-end="url(#p5cAr)"/>
+          <rect x="34" y="150" width="180" height="48" rx="6" transform="rotate(0.8 124 174)" fill="#3B6E8F"/>
+          <!-- doodle anchor: a magnifying glass on the shared days -->
+          <circle cx="852" cy="126" r="9" stroke-width="1.8"/>
+          <path d="M858 133 L866 142" stroke-width="2.4"/>
+        </g>
+
+        <text class="p5cL" x="124" y="77" text-anchor="middle">makeWorld, then pnl</text>
+        <text class="p5cS" x="124" y="93" text-anchor="middle">seed 84,001, h 5</text>
+        <text class="p5cL" x="330" y="77" text-anchor="middle">751 observations</text>
+        <text class="p5cS" x="330" y="93" text-anchor="middle">756 days minus 5</text>
+        <text class="p5cL" x="536" y="77" text-anchor="middle">splits, shuffled</text>
+        <text class="p5cS" x="536" y="93" text-anchor="middle">seed 86,001, five folds</text>
+        <text class="p5cL" x="742" y="77" text-anchor="middle">shared days</text>
+        <text class="p5cS" x="742" y="93" text-anchor="middle">4, 3, 2, 1 around test 1</text>
+        <text class="p5cL" x="742" y="171" text-anchor="middle">splits, purge on</text>
+        <text class="p5cS" x="742" y="187" text-anchor="middle">same seed, same folds</text>
+        <text class="p5cL" x="536" y="171" text-anchor="middle">training lengths</text>
+        <text class="p5cS" x="536" y="187" text-anchor="middle">before and after, per fold</text>
+        <text class="p5cL" x="330" y="171" text-anchor="middle">ladderRung</text>
+        <text class="p5cS" x="330" y="187" text-anchor="middle">100 worlds, seed0 84,000</text>
+        <text class="p5cW" x="124" y="170" text-anchor="middle">out of sample 0.65</text>
+        <text class="p5cW" x="124" y="187" text-anchor="middle">the leak, measured</text>
+
+        <text class="p5cN" x="30" y="236">Test observation j and training observation i share 5 - |i - j| days whenever |i - j| &lt; 5. Purge them,</text>
+        <text class="p5cN" x="30" y="254">and the purged row at seed0 85,000 reads -0.02 over its 100 worlds. Same seeds, same numbers.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the hatched box is the step that matters: once you have counted the shared days by hand, the 0.65 stops being a surprise.</figcaption>
+    </figure>
+
+    <div class="steps">
+      <div class="step"><div>
+        <h4>Count the observations on a five-day world</h4>
+        <p>Seed 84,001 is the first world of the leak row. One random rule held for five days gives one observation per day that still has five days ahead of it: 756 days minus 5. Your numbers will match for the same seed.</p>
+        <div class="prompt-box good"><span class="label">console</span>var w = QT.makeWorld({ trueSR: 0, seed: 84001 });
+var x = QT.makeStrategies(w, { N: 1, seed: w.seed + 1000 })[0];
+QT.pnl(w, x, { h: 5 }).length</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Split those 751 observations the way the desk did</h4>
+        <p>The shuffle seed is the world seed plus 2000, so 86,001 is the exact shuffle the leak row's first world uses. It prints five folds, 601 training and 150 test observations in the first, and the first eight test indices: 1, 2, 12, 13, 17, 19, 43, 51. Scattered from the very start of history.</p>
+        <div class="prompt-box good"><span class="label">console</span>var f = QT.splits(751, { method: "shuffled", h: 5, purge: false, k: 5, seed: 86001 });
+[f.length, f[0].train.length, f[0].test.length, f[0].test.slice(0, 8)]</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Count the shared days by hand</h4>
+        <p>Take test observation 1 and list its training neighbours within four places, each with the days it shares: 5 minus the distance. Observation 2 is also a test observation, so it is missing from the list. Then ask how many of the 150 test observations have at least one training neighbour. At this seed it prints all 150.</p>
+        <div class="prompt-box good"><span class="label">console</span>var train = new Set(f[0].train), j = f[0].test[0], nb = [];
+for (var i = j - 4; i &lt;= j + 4; i++) if (train.has(i)) nb.push([i, 5 - Math.abs(i - j)]);
+var touched = f[0].test.filter(function (t) { for (var d = 1; d &lt; 5; d++) if (train.has(t - d) || train.has(t + d)) return true; return false; }).length;
+[JSON.stringify(nb), touched]</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Switch the purge on and compare the training lengths</h4>
+        <p>Same seed, so the same test observations; only the training side changes. Before the purge every fold trains on 600 or 601 observations. After it, the five folds keep 86, 64, 100, 88 and 84. That is the price of a purge on a shuffled split, fold by fold.</p>
+        <div class="prompt-box good"><span class="label">console</span>var fp = QT.splits(751, { method: "shuffled", h: 5, purge: true, k: 5, seed: 86001 });
+var len = function (folds) { return folds.map(function (g) { return g.train.length; }); };
+[len(f), len(fp)]</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Do the same on blocked folds, with and without an embargo</h4>
+        <p>Blocked folds need no seed. Purged, the five folds keep 597, 593, 593, 593 and 596: four lost at each edge a test block touches. With an embargo of 5 they keep 592, 588, 588, 588 and 596: five more after each block that has training data after it, and none for the last block.</p>
+        <div class="prompt-box good"><span class="label">console</span>[0, 5].map(function (e) { return len(QT.splits(751, { method: "blocked", h: 5, purge: true, embargo: e, k: 5 })); })</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Now measure the leak and its fix over 100 worlds each</h4>
+        <p>The split ladder's first seeds are 80,000 plus 1,000 times the row's position, counting from zero: 80,000 for walk-forward on one-day observations through 87,000 for the embargo row. The leak row is 84,000 and prints 1.11 in-sample and 0.65 out of sample; the purged row, 85,000, prints 2.77 and -0.02 with 141 training observations in the fold it reports. Together they take about a second.</p>
+        <div class="prompt-box good"><span class="label">console</span>var leak = QT.ladderRung({ N: 100, trueSR: 0, method: "shuffled", h: 5, purge: false, k: 5 }, 100, 84000);
+var fixed = QT.ladderRung({ N: 100, trueSR: 0, method: "shuffled", h: 5, purge: true, k: 5 }, 100, 85000);
+[leak.isSR.toFixed(2), leak.oosSR.toFixed(2), fixed.isSR.toFixed(2), fixed.oosSR.toFixed(2), fixed.trainSize]</div>
+      </div></div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> Before reading any cross-validated or walk-forward number on a time series, ask two things: how many steps does one observation's label span, and how were the folds drawn? If the span is longer than one step and the folds were shuffled without a purge, the held-out score has measured the choosing, and nothing else about it needs reading.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">On zero alpha, 100 rules and 100 worlds, a shuffled five-fold split reads 0.10 out of sample on one-day observations and 0.65 on five-day observations. What makes the difference?</p>
+      <div class="qopt">A · Five-day returns are more volatile, so their Sharpe ratios are larger</div>
+      <div class="qopt">B · Overlap: a five-day test observation shares up to 4 of its 5 days with a training neighbour, so the days that chose the rule are scored again; one-day observations share nothing</div>
+      <div class="qopt">C · The two rows use different shuffle seeds, and 0.65 is a bad draw</div>
+      <q class="qwhy">The leak needs overlap. Observations i and j share 5 - |i - j| days when they are fewer than 5 apart, and a shuffle puts nearly every test observation next to training ones. With one-day spans there is nothing to share, and 0.10 is within trial noise of the walk-forward's -0.05. Seeds move a mean by about 0.07 at 100 worlds, not by 0.55.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">Purging the shuffled split brings the out-of-sample figure to -0.02, but the best in-sample figure rises from 1.11 to 2.77. What happened?</p>
+      <div class="qopt">A · Purging removed noise from the training data, revealing a stronger rule</div>
+      <div class="qopt">B · Purging moved some test observations into training</div>
+      <div class="qopt">C · Purging a shuffled split left 141 of 601 training observations in the fold reported, and the best of 100 estimates on a small sample is large: session 3's problem on a shorter ruler</div>
+      <q class="qwhy">Nothing about the rules changed and nothing is real. Fewer training observations make each estimate noisier, and the maximum of 100 noisy estimates is higher. A purged blocked split loses 4 observations instead and its in-sample figure stays at 1.26.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">Adding an embargo of 5 to the purged blocked split moves the out-of-sample figure from 0.06 to -0.10 and costs 5 more training observations. What is the honest reading?</p>
+      <div class="qopt">A · Nothing measurable: both means are within trial noise (about 0.07 at 100 worlds) of zero, and with no memory in the returns there is nothing after a test block for the embargo to absorb. The bench cannot show it on this world</div>
+      <div class="qopt">B · The embargo makes results worse and should be dropped</div>
+      <div class="qopt">C · The embargo removed a leak worth 0.16 that the purge had missed</div>
+      <q class="qwhy">A tool that cannot be shown on a world is not thereby shown to be useless. The embargo guards against dependence that outlasts a label's span, and this generator has none. Teach it as Lopez de Prado describes it (reported), and size it on a series that has the dependence it is meant to catch.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before session 6</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">About forty minutes, in the console or in Python.</p>
+    <div class="steps">
+      <div class="step"><div>
+        <h4>Purge the walk-forward seam</h4>
+        <p>Call <span class="mono">QT.splits</span> on 751 observations with the walk-forward method, h of 5 and <span class="mono">purge: true</span>, and check that the training set lost exactly the four observations before the cut. Then run the walk-forward five-day row with <span class="mono">purge: true</span> over 100 worlds at a seed0 of your own. Your numbers will differ from any canon figure; write down whether the out-of-sample mean moved by more than trial noise.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Draw the leak as a function of the span</h4>
+        <p>Before running anything, sketch what you expect the shuffled, unpurged out-of-sample figure to do as h goes 1, 2, 3, 5 and 10. Then run each with 100 rules over 50 worlds at a seed0 of your own. Your numbers will differ; compare the shape with your sketch, and note where the leak first rises clearly above noise.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Audit one split from your own work</h4>
+        <p>Pick one model you validated in the last year. Write down how many steps each label spans, how the folds were drawn, and whether anything was purged. If the span was longer than one step and the folds were shuffled, write the one-line note you would have wanted to read. Session 6 plants a real signal and leans on clean splits for every number.</p>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Walk-forward against shuffled k-fold</span><span class="note">Zero alpha, 100 rules, 100 worlds per row: walk-forward -0.05 (one-day) and -0.07 (five-day); shuffled five-fold 0.10 and 0.65.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The leak needs overlap</span><span class="note">Observations i and j share h - |i - j| days when |i - j| is below h; with one-day observations nothing is shared and nothing leaks.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The split code, read exactly</span><span class="note">A cut at two thirds, contiguous blocks, a seeded Fisher-Yates shuffle; the purge and the embargo as two index tests.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Purging on both kinds of split</span><span class="note">Shuffled: -0.02 with 141 of 601 training observations in the fold reported. Blocked: 0.06 at a cost of 4.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The in-sample jump after a purge</span><span class="note">2.77 on a purged shuffle is the best of 100 on a small sample, not a stronger rule.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The embargo, described and measured</span><span class="note">592 training observations, -0.10: nothing measurable on a world without memory. Described from Lopez de Prado 2018, chapter 7 (reported).</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">The walk-forward seam</span><span class="note">Four overlapping observations at the cut, too few to show. Purged in the homework.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Combinatorial purged cross-validation</span><span class="note">Named from the reported structure of chapter 12, and taught as an open question against a single walk-forward.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">A real signal under these splits</span><span class="note">Session 6 plants one and asks whether the corrections keep it.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Rolling-origin forecast evaluation and forecast error metrics</span><span class="note">Live in <a href="https://phoebefu6.github.io/learn-timeseries-forecasting-with-phoebe/courses/b8-backtesting-metrics.html">learn-timeseries-forecasting-with-phoebe, builder session 8</a>. Here the object evaluated is a selected strategy.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Any market, price or instrument</span><span class="note">Out of scope by design. Synthetic data only, and nothing here is investment advice.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>The one sentence.</strong> A split is part of the experiment: when test and training share days, the held-out score measures the choosing.</div>
+      <div class="cheat-item"><strong>The leak row.</strong> Shuffled five-fold on five-day observations, nothing real: 0.65 out of sample over 100 worlds. Walk-forward: -0.07.</div>
+      <div class="cheat-item"><strong>The overlap rule.</strong> Observations i and j share h - |i - j| days when |i - j| is below h. With h = 1, nothing; 0.10 against -0.05.</div>
+      <div class="cheat-item"><strong>The purge.</strong> Drop training observations whose span touches a test span. Shuffled: 141 of 601 left. Blocked: 4 fewer.</div>
+      <div class="cheat-item"><strong>The embargo.</strong> Drop training observations right after a test block, for dependence past the span. Nothing measurable here: no memory.</div>
+      <div class="cheat-item"><strong>The cheap correct setting.</strong> Blocked folds plus a purge: 597 of 601 kept, 0.06 out of sample.</div>
+      <div class="cheat-item"><strong>The trap after the fix.</strong> A purged shuffle trains on a sliver, and its in-sample 2.77 is the best of 100 on a small sample.</div>
+      <div class="cheat-item"><strong>The question.</strong> Before reading a held-out number on a time series: how long is one label's span, and how were the folds drawn?</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Practitioner session 5 of 10 · learn-quant-trading-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="p4-the-deflated-sharpe-haircut.html">← Practitioner session 4 · The deflated Sharpe haircut</a>
+        <a href="p6-planting-a-true-signal.html">Practitioner session 6 · Planting a true signal →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/qt-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof QT === "undefined") return;
+  var sel = document.getElementById("p5-split-row");
+  var runBtn = document.getElementById("p5-split-run");
+  var out = document.getElementById("p5-split-out");
+  var verdict = document.getElementById("p5-split-verdict");
+  var self = document.getElementById("p5-split-self");
+  var TRIALS = 100;
+
+  /* ladder D: the eight canon rows, first seed 80000 + 1000 * row index */
+  var ROWS = [
+    { name: "Walk-forward, one-day", opts: { method: "walkforward", h: 1 } },
+    { name: "Shuffled five-fold, one-day, no purge", opts: { method: "shuffled", h: 1, purge: false, k: 5 } },
+    { name: "Walk-forward, five-day", opts: { method: "walkforward", h: 5 } },
+    { name: "Blocked five-fold, five-day, no purge", opts: { method: "blocked", h: 5, purge: false, k: 5 } },
+    { name: "Shuffled five-fold, five-day, no purge", opts: { method: "shuffled", h: 5, purge: false, k: 5 } },
+    { name: "Shuffled five-fold, five-day, purged", opts: { method: "shuffled", h: 5, purge: true, k: 5 } },
+    { name: "Blocked five-fold, five-day, purged", opts: { method: "blocked", h: 5, purge: true, k: 5 } },
+    { name: "Blocked five-fold, five-day, purged, embargo 5", opts: { method: "blocked", h: 5, purge: true, embargo: 5, k: 5 } }
+  ];
+  var done = {};
+  var pending = 0;
+
+  function explain(idx, r) {
+    var oos = r.oosSR.toFixed(2), is = r.isSR.toFixed(2);
+    switch (idx) {
+      case 0: return "Walk-forward on one-day observations: the best of 100 rules on nothing read " + is + " in-sample and " + oos + " on the observations after the cut. The baseline: the coin kept flipping on days it had not seen.";
+      case 1: return "Shuffled folds on one-day observations: " + oos + " out of sample, within trial noise (about 0.07 at 100 worlds) of the walk-forward baseline. One-day observations share no days, so the shuffle has nothing to leak.";
+      case 2: return "Walk-forward on five-day observations: " + oos + " out of sample. The cut has a seam of four overlapping observations, one edge, too few to carry a selection.";
+      case 3: return "Blocked folds on five-day observations, no purge: " + oos + " out of sample. Contiguous blocks touch training data only at their edges, a handful of observations, too few to show at this size.";
+      case 4: return "Shuffled folds on five-day observations: the kept rule reads " + oos + " out of sample on nothing. Each test observation shares up to 4 of its 5 days with a training neighbour, so the days that chose the rule are scored again. The split produced this number, not the rule.";
+      case 5: return "Purged: " + oos + " out of sample, back to noise. The fold reported kept " + r.trainSize + " training observations, and the in-sample " + is + " is the best of 100 estimates on a small sample. Correct, and expensive.";
+      case 6: return "Blocked and purged: " + oos + " out of sample with " + r.trainSize + " training observations in the first fold. The purge cost 4 observations at the block's one edge. The cheap correct setting.";
+      default: return "Blocked, purged, embargo of 5: " + oos + " out of sample with " + r.trainSize + " training observations. Within trial noise of the purged row: the returns have no memory, so there is nothing after a test block for the embargo to absorb. The bench cannot show it on this world.";
+    }
+  }
+
+  function render() {
+    var idx = pending, row = ROWS[idx], seed0 = 80000 + 1000 * idx;
+    var o = { N: 100, trueSR: 0 }, key;
+    for (key in row.opts) o[key] = row.opts[key];
+    var r = QT.ladderRung(o, TRIALS, seed0);
+    done[idx] = r;
+
+    var html = '<div class="sql-tablewrap"><table class="sql-table"><thead><tr><th>Quantity</th><th>Value</th><th>What it is</th></tr></thead><tbody>';
+    html += "<tr><td>Training observations</td><td>" + r.trainSize + "</td><td>" + (row.opts.method === "walkforward" ? "before the cut" : "first fold of the last world" + (row.opts.purge ? ", after the purge" + (row.opts.embargo ? " and the embargo" : "") : "")) + "</td></tr>";
+    html += "<tr><td>Test observations</td><td>" + r.testSize + "</td><td>" + (row.opts.method === "walkforward" ? "one fold, the last third" : "one of five folds, each scored in turn") + "</td></tr>";
+    html += "<tr><td>Best in-sample Sharpe ratio</td><td><b>" + r.isSR.toFixed(2) + "</b></td><td>the best of 100 on the training observations</td></tr>";
+    html += '<tr><td>The kept rule, out of sample</td><td><b class="' + (r.oosSR > 0.3 ? "p5-bad" : "p5-ok") + '">' + r.oosSR.toFixed(2) + "</b></td><td>should be noise around zero; nothing is real</td></tr>";
+    html += "<tr><td>Worlds averaged</td><td>" + TRIALS + "</td><td>canon seeds, first seed " + (seed0 + 1).toLocaleString("en-US") + "</td></tr>";
+    html += "</tbody></table></div>";
+
+    var ran = Object.keys(done).map(Number).sort(function (a, b) { return a - b; });
+    if (ran.length > 1) {
+      html += '<p class="sql-note">Rows you have run so far</p><div class="sql-tablewrap"><table class="sql-table"><thead><tr><th>Split</th><th>Train / test</th><th>In-sample</th><th>Out of sample</th></tr></thead><tbody>';
+      ran.forEach(function (i) {
+        var d = done[i];
+        html += "<tr><td>" + (i + 1) + " · " + ROWS[i].name + "</td><td>" + d.trainSize + " / " + d.testSize + "</td><td>" + d.isSR.toFixed(2) + '</td><td><b class="' + (d.oosSR > 0.3 ? "p5-bad" : "p5-ok") + '">' + d.oosSR.toFixed(2) + "</b></td></tr>";
+      });
+      html += "</tbody></table></div>";
+    }
+    out.innerHTML = html;
+    verdict.textContent = explain(idx, r);
+    runBtn.disabled = false;
+  }
+
+  function start(idx) {
+    pending = idx;
+    runBtn.disabled = true;
+    out.innerHTML = '<p class="sql-note">Running row ' + (idx + 1) + ": " + TRIALS + " worlds, 100 rules each" + (ROWS[idx].opts.k ? ", five folds per world" : "") + "...</p>";
+    verdict.textContent = "...";
+    /* give the note a frame to paint, then compute */
+    setTimeout(function () { setTimeout(render, 0); }, 20);
+  }
+
+  var t = QT.selfTest();
+  self.textContent = t.ok
+    ? "The generator's six properties pass in this browser, so the figures above are the figures any correct run gives. Synthetic data only: nothing here describes a real market, and nothing here is investment advice."
+    : "The generator's self test did not pass in this browser, so nothing above should be believed.";
+
+  sel.addEventListener("change", function () {
+    verdict.textContent = "Row " + (Number(sel.value) + 1) + " selected. Press Run to compute it over " + TRIALS + " worlds.";
+  });
+  runBtn.addEventListener("click", function () { start(Number(sel.value)); });
+  start(0);
+})();
+</script>
+<style>
+  #p5-split .sql-code { border: 1px solid var(--hairline); border-radius: 8px; max-width: 28rem; }
+  #p5-split table.sql-table { margin: .6rem 0 .2rem; font-size: .85rem; }
+  #p5-split table.sql-table td:first-child, #p5-split table.sql-table td:last-child { white-space: normal; }
+  #p5-split .p5-ok { color: var(--indigo); }
+  #p5-split .p5-bad { color: var(--amber); }
+</style>
+</body>
+</html>

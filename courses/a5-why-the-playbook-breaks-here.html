@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Leader session 5 of 6. Five places the data-science playbook assumes something a market does not give: the source, the identity, the ground truth, the feedback loop and the cost of being wrong. Marlow Street reviews a strategy pitch against them. Synthetic data only, not investment advice.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="Why the data-science playbook breaks here - learn quant with phoebe">
+<meta property="og:description" content="Leader session 5 of 6. A churn model's customer never reads the model; a market does. A real Sharpe ratio of 1.0 reads -0.23 out of sample at 20 basis points per flip. Measured, 200 worlds.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/courses/a5-why-the-playbook-breaks-here.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Why the data-science playbook breaks here - learn quant with phoebe">
+<meta name="twitter:description" content="The target fights back, the experiment cannot be rerun, and the paper result is not the live result. Five contrasts, each drawn.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Leader session 5 · Why the data-science playbook breaks here - learn quant with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-quant-trading-with-phoebe</a> / Leader session 5 of 6</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Quant Trading with Phoebe · Leader session 5 of 6</div>
+    <h1>Why the data-science playbook <span class="accent">breaks here</span></h1>
+    <p class="sub">A data team that has shipped a churn model, a demand forecast or a credit score carries a playbook it no longer notices: pull the data, join it on an ID, wait for the label, ship, monitor, retrain. Every step of it assumes something about the world. A market quietly withdraws five of those assumptions: where the data comes from, what a row stays attached to, how clean the answer is, whether the target reads your model, and when being wrong starts to cost. Marlow Street, a constructed research desk, is about to review a strategy pitch with that playbook in hand. Tonight is where each step breaks, drawn as a mechanism, with the generator's measured figures beside it. Synthetic data only; nothing here is investment advice.</p>
+    <div class="chip-row">
+      <span class="chip level">🟠 Leader track</span>
+      <span class="chip audience">Anyone who has shipped a churn, demand or credit model</span>
+      <span class="chip audience">Anyone asked to review a strategy pitch</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:3">0-13 · The target fights back</span>
+      <span class="a2" style="flex:2">13-22 · No rerun</span>
+      <span class="a3" style="flex:2">22-30 · Paper is not live</span>
+      <span class="a4" style="flex:3">30-45 · Build-along and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Marlow Street, the day the old playbook is opened on a new desk</h2>
+    </div>
+    <p class="lede">Marlow Street is a constructed desk: four researchers, one head, a budget for two strategies a year, and a backtested Sharpe ratio of 1.8 that has now been through four sessions of questions. The head came from a product data team. Her instinct, when a pitch arrives, is to run it through the review she ran for every churn and credit model she ever signed off: where does the data come from, what is the label, how will we monitor it, what happens if it is wrong. Every one of those questions is still the right question. What changes is the answer, and the answer changes for a reason that can be drawn.</p>
+
+    <div class="legend">
+      <span class="pill">Live = presented in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with tonight.</strong> Five contrasts between a conventional data-science project and a trading strategy, each drawn as the mechanism rather than a slogan: the source, the identity, the ground truth, the feedback loop and the cost of being wrong. The measured size of three of them on a generator whose truth is known, with the trial count beside every figure, and the published measurement of a fourth. An honest line on what the generator cannot show: decay, capacity and price impact. And a five-question review of a strategy pitch that a leader can run without writing a line of code. Synthetic data only; nothing here is advice on what to buy, sell or trade.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Five places the playbook assumes something<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Take any model a data team ships, a churn model is the cleanest, and list what it quietly relies on. Each item below is an assumption that holds there and fails here, and each failure has a mechanism that the three Parts draw.</p>
+        <ul>
+          <li><strong>The source.</strong> A churn model gets a fresh cohort of customers every month. A strategy gets one history, shared with everyone, that grows by one day per day.</li>
+          <li><strong>The identity.</strong> A churn row is a customer with an ID who is still that customer next month. A market has no row that stays attached to anyone; the other side of a trade is whoever turns up that day.</li>
+          <li><strong>The ground truth.</strong> A churn label is a recorded fact: the customer left or stayed. A strategy's label is a return, and its signal-to-noise ratio is close to zero.</li>
+          <li><strong>The feedback loop.</strong> A churn customer never reads the model. A market does: once a signal is found and traded, the edge it measured shrinks.</li>
+          <li><strong>The cost of being wrong.</strong> A wrong churn score wastes a voucher and is found next quarter. A wrong trade pays its cost on the day, and the size of the position decides whether the mistake is survivable.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The words that keep coming back<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Reflexive.</strong> Acting on a prediction changes the data the prediction was built from. Session 2 named it; Part 1 draws the loop.</li>
+          <li><strong>Decay.</strong> The shrinking of a measured edge after it is found. McLean and Pontiff (2016) published its size for 97 predictors.</li>
+          <li><strong>Independent history.</strong> Observations that are not reruns of the same days. It cannot be resampled into existence; it arrives at one day per day.</li>
+          <li><strong>Signal-to-noise.</strong> How large the effect is against the spread of its estimate. For a Sharpe ratio on two years of daily data, the spread is about 0.71 by formula.</li>
+          <li><strong>Turnover.</strong> How much the position changes per day. A cost is charged on the change, not on the holding.</li>
+          <li><strong>Capacity.</strong> How much money a strategy can run before its own trades move the price against it. Named tonight, not measured: the generator has no price impact.</li>
+          <li><strong>Leverage.</strong> Position size as a multiple of capital. At leverage 6, a 1 percent move against you is a 6 percent loss.</li>
+          <li><strong>Paper result.</strong> What the backtest reports. The live result is what the same rule earns with real costs, a real size and a market that has read the paper.</li>
+          <li><strong>Constructed.</strong> Marlow Street, the pitch and every figure from the generator are invented so that the truth is known. No figure describes a real market.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers the identity and the feedback loop</span>
+      <h2>The target fights back</h2>
+      <span class="tag concept">10 min live</span>
+    </div>
+    <p class="lede">A churn model works on a target that holds still. The customer it scores is the same person next month, and nothing about the score changes what that person would have done, unless you act on it on purpose and measure the effect with a hold-out. A trading signal works on a target that does neither. There is no person on the other side to hold still, and the crowd that is there can find the same signal and trade it away. The figure draws the two contrasts as four panels: what a row stays attached to, and whether the target reads you.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 510" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn two by two comparison. Top row, the identity. Left, a churn model: the same customer card with ID C-1042 appears in month 1, month 2 and month 3, so the row you model is the row you score. Right, a trading signal: three boxes of anonymous dots for day 1, day 2 and day 3, each arranged differently, so the other side is whoever trades that day. Bottom row, the feedback loop. Left: churn model to offer to customer, with a dashed path from the model to a hold-out group that gets no offer, so the offer's effect is measured and the customer never reads the score. Right: signal to trades to price, with a steel loop from price back to signal labelled others read it and trade it, the edge shrinks. Beside it three bars for 97 published predictors: in sample at full height, 26 percent lower out of sample, 58 percent lower after publication, from McLean and Pontiff 2016. A small doodle of a printed paper. A note says the generator is stationary, so the decay is the published figure, not a bench figure.">
+        <defs>
+          <filter id="a5aSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="51" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="a5aHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#7A1F3D" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="a5aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+          <marker id="a5aArS" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#3B6E8F" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .a5aH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .a5aL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .a5aS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .a5aB { font: 800 11px Inter, sans-serif; fill: #2A5068; }
+          .a5aA { font: 700 11px Inter, sans-serif; fill: #7A1F3D; }
+          .a5aN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="a5aH" x="30" y="26">WHO IS ON THE OTHER SIDE, AND DOES IT READ YOUR MODEL</text>
+        <text class="a5aH" x="30" y="52">A CHURN MODEL</text>
+        <text class="a5aH" x="470" y="52">A TRADING SIGNAL</text>
+
+        <g filter="url(#a5aSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- divider -->
+          <path d="M440 40 L440 456" stroke="#DCC9CF" stroke-width="1.5"/>
+
+          <!-- row 1 left: one customer card, three months -->
+          <rect x="40" y="90" width="100" height="50" rx="6" transform="rotate(-1 90 115)" fill="#FFFFFF"/>
+          <rect x="170" y="90" width="100" height="50" rx="6" transform="rotate(0.8 220 115)" fill="#FFFFFF"/>
+          <rect x="300" y="90" width="100" height="50" rx="6" transform="rotate(-0.6 350 115)" fill="#FFFFFF"/>
+          <path d="M143 115 L166 115" marker-end="url(#a5aAr)"/>
+          <path d="M273 115 L296 115" marker-end="url(#a5aAr)"/>
+
+          <!-- row 1 right: anonymous crowds, rearranged each day -->
+          <rect x="480" y="90" width="100" height="50" rx="6" transform="rotate(0.7 530 115)" fill="#FAF0F3" stroke-dasharray="5 4"/>
+          <rect x="610" y="90" width="100" height="50" rx="6" transform="rotate(-0.9 660 115)" fill="#FAF0F3" stroke-dasharray="5 4"/>
+          <rect x="740" y="90" width="100" height="50" rx="6" transform="rotate(0.5 790 115)" fill="#FAF0F3" stroke-dasharray="5 4"/>
+          <circle cx="498" cy="104" r="3" fill="#2A1118"/><circle cx="520" cy="126" r="3" fill="#2A1118"/><circle cx="544" cy="108" r="3" fill="#2A1118"/><circle cx="560" cy="128" r="3" fill="#2A1118"/><circle cx="530" cy="100" r="3" fill="#2A1118"/>
+          <circle cx="628" cy="126" r="3" fill="#2A1118"/><circle cx="646" cy="102" r="3" fill="#2A1118"/><circle cx="672" cy="118" r="3" fill="#2A1118"/><circle cx="690" cy="104" r="3" fill="#2A1118"/>
+          <circle cx="756" cy="114" r="3" fill="#2A1118"/><circle cx="772" cy="100" r="3" fill="#2A1118"/><circle cx="786" cy="128" r="3" fill="#2A1118"/><circle cx="806" cy="110" r="3" fill="#2A1118"/><circle cx="824" cy="124" r="3" fill="#2A1118"/><circle cx="800" cy="98" r="3" fill="#2A1118"/>
+
+          <!-- row 2 left: model, offer, customer, hold-out -->
+          <rect x="40" y="244" width="120" height="40" rx="6" transform="rotate(-0.8 100 264)" fill="#FFFFFF"/>
+          <rect x="190" y="244" width="90" height="40" rx="6" transform="rotate(1 235 264)" fill="#FFFFFF"/>
+          <rect x="310" y="244" width="110" height="40" rx="6" transform="rotate(-0.6 365 264)" fill="#FAF0F3"/>
+          <rect x="310" y="320" width="110" height="36" rx="6" transform="rotate(0.8 365 338)" fill="#FFFFFF" stroke-dasharray="5 4"/>
+          <path d="M163 264 L186 264" marker-end="url(#a5aAr)"/>
+          <path d="M283 264 L306 264" marker-end="url(#a5aAr)"/>
+          <path d="M100 286 L100 338 L306 338" stroke-dasharray="6 5" marker-end="url(#a5aAr)"/>
+
+          <!-- row 2 right: signal, trades, price, and the loop back -->
+          <rect x="480" y="244" width="90" height="40" rx="6" transform="rotate(0.9 525 264)" fill="#FFFFFF"/>
+          <rect x="600" y="244" width="90" height="40" rx="6" transform="rotate(-0.7 645 264)" fill="#FFFFFF"/>
+          <rect x="720" y="244" width="110" height="40" rx="6" transform="rotate(0.6 775 264)" fill="#FFFFFF"/>
+          <path d="M573 264 L596 264" marker-end="url(#a5aAr)"/>
+          <path d="M693 264 L716 264" marker-end="url(#a5aAr)"/>
+          <path d="M775 287 L775 300 L525 300 L525 290" stroke="#3B6E8F" stroke-width="2.5" marker-end="url(#a5aArS)"/>
+
+          <!-- decay bars, published figures -->
+          <path d="M490 410 L796 410" stroke-width="2.5"/>
+          <rect x="500" y="350" width="40" height="60" fill="url(#a5aHc)" transform="rotate(-0.8 520 380)"/>
+          <rect x="620" y="366" width="40" height="44" fill="#FAF0F3" transform="rotate(0.7 640 388)"/>
+          <rect x="740" y="385" width="40" height="25" fill="#FFFFFF" transform="rotate(-0.5 760 397)"/>
+
+          <!-- doodle: the printed paper -->
+          <rect x="812" y="340" width="34" height="42" rx="2" transform="rotate(4 829 361)" fill="#FFFFFF" stroke-width="1.6"/>
+          <path d="M818 352 L840 353 M818 360 L838 361 M818 368 L834 369" stroke-width="1.2"/>
+        </g>
+
+        <text class="a5aA" x="30" y="76">1 · the identity: what does a row stay attached to?</text>
+        <text class="a5aL" x="90" y="120" text-anchor="middle">C-1042</text>
+        <text class="a5aL" x="220" y="120" text-anchor="middle">C-1042</text>
+        <text class="a5aL" x="350" y="120" text-anchor="middle">C-1042</text>
+        <text class="a5aS" x="90" y="158" text-anchor="middle">month 1</text>
+        <text class="a5aS" x="220" y="158" text-anchor="middle">month 2</text>
+        <text class="a5aS" x="350" y="158" text-anchor="middle">month 3</text>
+        <text class="a5aS" x="30" y="190">same ID, same person: the row you model is the row you score</text>
+
+        <text class="a5aS" x="530" y="158" text-anchor="middle">day 1</text>
+        <text class="a5aS" x="660" y="158" text-anchor="middle">day 2</text>
+        <text class="a5aS" x="790" y="158" text-anchor="middle">day 3</text>
+        <text class="a5aS" x="470" y="190">no ID: the other side is whoever trades that day</text>
+
+        <text class="a5aA" x="30" y="226">2 · the feedback loop: does the target read you?</text>
+        <text class="a5aL" x="100" y="269" text-anchor="middle">churn model</text>
+        <text class="a5aL" x="235" y="269" text-anchor="middle">offer</text>
+        <text class="a5aL" x="365" y="269" text-anchor="middle">customer</text>
+        <text class="a5aL" x="365" y="343" text-anchor="middle">hold-out</text>
+        <text class="a5aS" x="200" y="328" text-anchor="middle">no offer</text>
+        <text class="a5aS" x="30" y="392">the offer changes the customer, and a hold-out measures</text>
+        <text class="a5aS" x="30" y="410">by how much; the customer never reads the score</text>
+
+        <text class="a5aL" x="525" y="269" text-anchor="middle">signal</text>
+        <text class="a5aL" x="645" y="269" text-anchor="middle">trades</text>
+        <text class="a5aL" x="775" y="269" text-anchor="middle">price</text>
+        <text class="a5aB" x="650" y="318" text-anchor="middle">others read it and trade it: the edge shrinks</text>
+        <text class="a5aS" x="520" y="426" text-anchor="middle">in sample</text>
+        <text class="a5aS" x="640" y="426" text-anchor="middle">26 percent lower</text>
+        <text class="a5aS" x="760" y="426" text-anchor="middle">58 percent lower</text>
+        <text class="a5aS" x="829" y="398" text-anchor="middle">the paper</text>
+        <text class="a5aS" x="490" y="444">97 published predictors, McLean and Pontiff (2016)</text>
+
+        <text class="a5aN" x="30" y="476">The churn row stays attached to one person who never sees the model. The market's other side is a crowd that</text>
+        <text class="a5aN" x="30" y="494">reads and adapts. The generator is stationary, so the decay is the published figure, not a bench figure.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the steel loop is the one a churn model never has: the target reads the result and moves.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The identity: a churn row keeps its ID, a market has no row<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Most of a data team's craft rests on the join. Customer C-1042 has a history, a segment, a tenure and a label, and every one of those can be attached to the same ID next month. When the model is wrong about C-1042, you can look at C-1042 and ask why. A credit model works the same way with an applicant, and a demand forecast with a store and a product.</p>
+        <p>A trading strategy has nothing to join on. The return on a day is the net result of everyone who traded that day, for their own reasons, and tomorrow it is a different crowd with different reasons. There is no entity whose behaviour you are modelling, only an aggregate whose members change without telling you. That has a practical consequence a leader should hear in plain words: you cannot debug a wrong prediction by looking at who did what. The unit of analysis is the pattern, and a pattern has no identity to inspect.</p>
+        <p>It also changes what "the same model, next month" means. A churn model retrained on next month's data is learning about the same customers plus some new ones. A strategy re-estimated on next month's data is learning about a crowd that may have changed its mind, which is session 2's non-stationarity seen from the data team's side.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The feedback loop: an offer changes a customer, a trade changes the price<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A churn model does have a feedback loop, and a good team designs it. The model scores customers, the offer goes to the high scorers, and a hold-out group gets no offer so that the effect of the offer can be measured. The customer is changed by the offer on purpose, and nobody on the customer side has read the model. The loop is closed by the team, through an experiment, which is the subject of <a href="https://phoebefu6.github.io/learn-experimentation-with-phoebe/">the experimentation sessions</a>.</p>
+        <p>In a market the loop is closed by somebody else. A signal is found, published or simply discovered independently, and other people trade it. Their trades move the price towards where the signal said it would go, earlier and harder, and the edge that was measured gets smaller. McLean and Pontiff measured this across 97 published predictors: "Portfolio returns are 26% lower out-of-sample and 58% lower post-publication". They attribute the difference to traders learning from the papers: "We estimate a 32% (58%-26%) lower return from publication-informed trading". The Journal of Finance 71(1), 2016, read at source in the published version.</p>
+        <p>The generator behind every session is stationary: its signal is as strong on the last day as on the first, and nobody reads it. So the bench cannot show decay, and no number on these pages is a decay measured on the generator. The published figures are the evidence, and the mechanism is the loop in the figure.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Marlow Street's head (constructed) asked the question she always asked of a churn model: "What is the monitoring plan?" The researcher had one: re-estimate the rule each quarter. She pointed at the loop. Re-estimating tells you the edge shrank after it has shrunk. The question for a strategy is how many other desks could have found the same rule from the same public history, and the honest answer for a rule built on two years of shared data is "any of them".</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where serious people disagree<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>How much does an edge decay once it is found?</strong> McLean and Pontiff's published headline is 26 percent lower out of sample and 58 percent lower after publication, across 97 variables, in The Journal of Finance, 2016. Earlier drafts of the same study are reported, from summaries of working-paper abstracts that were not read at source, to have used a different number of characteristics and to have given other percentages. The estimate moved as the sample grew. That is normal for a study of a moving target, and it is the reason to quote the published figures with the journal and the year rather than as a constant.</p>
+        <p><strong>Decayed or gone?</strong> The published study measures a smaller average edge after publication, not a vanished one, and it measures it over many predictors, not for any one. Some readers take that as proof that published signals still pay; others take the 26 percent pre-publication drop, which is there before anyone has read the paper, as a sign of how much of any in-sample edge was the search rather than the world. Both readings fit the same numbers. A leader does not need to settle it to act on it: a pitch should state what decay it assumes and why, and a pitch that assumes none has picked a side without saying so.</p>
+        <p><strong>Zero or worse?</strong> A separate open question sits underneath: whether an overfit rule earns nothing afterwards or less than nothing. Bailey, Borwein, Lopez de Prado and Zhu (2014) say zero for a series without memory and worse for a series with memory. The generator has no memory, so overfit rules earn zero here, not less than zero.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the source and the ground truth</span>
+      <h2>You cannot rerun the experiment</h2>
+      <span class="tag concept">9 min live</span>
+    </div>
+    <p class="lede">A churn model reruns itself. Every month a new cohort arrives, the model scores it, and a month later the labels come in and say how it did. There is no A/B test of a trading strategy, and there is no next cohort either: there is one history, everyone has the same copy, and the label it gives back is a return whose noise dwarfs the effect. The figure draws both contrasts, where more data comes from and how clean the answer is, with the generator's measurements on the right.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 546" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn two by two comparison. Top row, the source. Left, four cohort boxes, cohort 1 to cohort 4, each with an arrow into the same model, so the experiment reruns itself every month. Right, one wobbly path of history that ends in a steel dashed extension labelled one day per day, and below it four bars for a real Sharpe ratio of 1.5 among 100 random rules: the share of 100 trials that passes the deflated test is 0.03 at 3 years, 0.06 at 6 years, 0.45 at 12 years and 0.94 at 24 years. Bottom row, the ground truth. Left, cohort 1 splits into stayed or left, known a month later: the label is a recorded fact. Right, a bell curve of one Sharpe estimate on two years with nothing there, ticks at minus 0.70 and 0.70, and a burgundy line at a single 1.0. Notes say the spread is 0.70 measured over 200 null worlds and 0.71 by formula, and that a single 1.0 sits about one and a half spreads from zero.">
+        <defs>
+          <filter id="a5bSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="53" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="a5bHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#7A1F3D" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="a5bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+          <marker id="a5bArS" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#3B6E8F" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .a5bH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .a5bL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .a5bS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .a5bB { font: 800 11px Inter, sans-serif; fill: #2A5068; }
+          .a5bA { font: 700 11px Inter, sans-serif; fill: #7A1F3D; }
+          .a5bN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="a5bH" x="30" y="26">NO RERUN: WHERE MORE DATA COMES FROM, AND HOW CLEAN THE ANSWER IS</text>
+        <text class="a5bH" x="30" y="52">A CHURN MODEL</text>
+        <text class="a5bH" x="470" y="52">A BACKTEST</text>
+
+        <g filter="url(#a5bSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- divider -->
+          <path d="M440 40 L440 488" stroke="#DCC9CF" stroke-width="1.5"/>
+
+          <!-- row 1 left: four cohorts into the same model -->
+          <rect x="40" y="90" width="80" height="40" rx="6" transform="rotate(-1 80 110)" fill="#FFFFFF"/>
+          <rect x="135" y="90" width="80" height="40" rx="6" transform="rotate(0.8 175 110)" fill="#FFFFFF"/>
+          <rect x="230" y="90" width="80" height="40" rx="6" transform="rotate(-0.6 270 110)" fill="#FFFFFF"/>
+          <rect x="325" y="90" width="80" height="40" rx="6" transform="rotate(1 365 110)" fill="#FAF0F3"/>
+          <rect x="150" y="168" width="160" height="34" rx="6" transform="rotate(-0.5 230 185)" fill="#FFFFFF"/>
+          <path d="M84 133 L168 165" marker-end="url(#a5bAr)"/>
+          <path d="M178 133 L212 165" marker-end="url(#a5bAr)"/>
+          <path d="M268 133 L246 165" marker-end="url(#a5bAr)"/>
+          <path d="M360 133 L294 165" marker-end="url(#a5bAr)"/>
+
+          <!-- row 1 right: one path, extended one day per day -->
+          <path d="M480 110 C500 96 515 124 535 106 C555 90 575 122 600 104 C625 88 640 118 665 102 C690 88 705 116 730 102 L760 106" stroke="#7A1F3D" stroke-width="2.5"/>
+          <path d="M764 106 L836 106" stroke="#3B6E8F" stroke-width="2.5" stroke-dasharray="6 5" marker-end="url(#a5bArS)"/>
+          <!-- doodle: a small clock at the end of the path -->
+          <circle cx="852" cy="78" r="10" fill="#FFFFFF" stroke-width="1.6"/>
+          <path d="M852 78 L852 71 M852 78 L857 81" stroke-width="1.4"/>
+          <!-- B3 bars -->
+          <path d="M486 228 L826 228" stroke-width="2.5"/>
+          <rect x="502" y="226" width="36" height="2" fill="url(#a5bHc)"/>
+          <rect x="592" y="224" width="36" height="4" fill="url(#a5bHc)"/>
+          <rect x="682" y="199" width="36" height="29" fill="url(#a5bHc)" transform="rotate(0.8 700 213)"/>
+          <rect x="772" y="168" width="36" height="60" fill="url(#a5bHc)" transform="rotate(-0.7 790 198)"/>
+
+          <!-- row 2 left: one cohort, a clean label -->
+          <rect x="40" y="335" width="120" height="40" rx="6" transform="rotate(-0.8 100 355)" fill="#FFFFFF"/>
+          <rect x="230" y="310" width="80" height="34" rx="6" transform="rotate(0.9 270 327)" fill="#FFFFFF"/>
+          <rect x="230" y="364" width="80" height="34" rx="6" transform="rotate(-0.7 270 381)" fill="#FAF0F3"/>
+          <path d="M163 348 L226 330" marker-end="url(#a5bAr)"/>
+          <path d="M163 362 L226 378" marker-end="url(#a5bAr)"/>
+
+          <!-- row 2 right: the noise of one Sharpe estimate -->
+          <path d="M480 420 L820 420" stroke-width="2.5"/>
+          <path d="M490 418.6 L510 416.5 L530 411.9 L550 403.8 L570 391.2 L590 374.9 L610 358.0 L630 344.9 L650 340.0 L670 344.9 L690 358.0 L710 374.9 L730 391.2 L750 403.8 L770 411.9 L790 416.5 L810 418.6" fill="url(#a5bHc)"/>
+          <path d="M594 420 L594 371" stroke-dasharray="4 4" stroke-width="1.5"/>
+          <path d="M706 420 L706 371" stroke-dasharray="4 4" stroke-width="1.5"/>
+          <path d="M730 420 L730 330" stroke="#7A1F3D" stroke-width="2.5"/>
+        </g>
+
+        <text class="a5bA" x="30" y="76">3 · the source: can you draw more data?</text>
+        <text class="a5bL" x="80" y="115" text-anchor="middle">cohort 1</text>
+        <text class="a5bL" x="175" y="115" text-anchor="middle">cohort 2</text>
+        <text class="a5bL" x="270" y="115" text-anchor="middle">cohort 3</text>
+        <text class="a5bL" x="365" y="115" text-anchor="middle">cohort 4</text>
+        <text class="a5bL" x="230" y="190" text-anchor="middle">the same model</text>
+        <text class="a5bS" x="30" y="234">a fresh cohort every month: the experiment reruns itself</text>
+
+        <text class="a5bA" x="480" y="76">the only path there is</text>
+        <text class="a5bS" x="796" y="94" text-anchor="middle">one day per day</text>
+        <text class="a5bS" x="480" y="146">a real 1.5 among 100: share passing the deflated test</text>
+        <text class="a5bB" x="520" y="218" text-anchor="middle">0.03</text>
+        <text class="a5bB" x="610" y="216" text-anchor="middle">0.06</text>
+        <text class="a5bB" x="700" y="191" text-anchor="middle">0.45</text>
+        <text class="a5bB" x="790" y="161" text-anchor="middle">0.94</text>
+        <text class="a5bS" x="520" y="244" text-anchor="middle">3 years</text>
+        <text class="a5bS" x="610" y="244" text-anchor="middle">6 years</text>
+        <text class="a5bS" x="700" y="244" text-anchor="middle">12 years</text>
+        <text class="a5bS" x="790" y="244" text-anchor="middle">24 years</text>
+        <text class="a5bS" x="480" y="262">100 trials each; history cannot be bought faster</text>
+
+        <text class="a5bA" x="30" y="290">4 · the ground truth: how clean is the label?</text>
+        <text class="a5bL" x="100" y="360" text-anchor="middle">cohort 1</text>
+        <text class="a5bL" x="270" y="332" text-anchor="middle">stayed</text>
+        <text class="a5bL" x="270" y="386" text-anchor="middle">left</text>
+        <text class="a5bS" x="324" y="360">a month later</text>
+        <text class="a5bS" x="30" y="458">the label is a recorded fact: they left or they stayed</text>
+        <text class="a5bS" x="30" y="476">the noise is in the model, not in the label</text>
+
+        <text class="a5bS" x="480" y="310">one Sharpe estimate on two years, with nothing there</text>
+        <text class="a5bA" x="736" y="336">a single 1.0</text>
+        <text class="a5bS" x="594" y="436" text-anchor="middle">-0.70</text>
+        <text class="a5bS" x="650" y="436" text-anchor="middle">0</text>
+        <text class="a5bS" x="706" y="436" text-anchor="middle">0.70</text>
+        <text class="a5bS" x="470" y="458">spread 0.70 measured over 200 null worlds, 0.71 by formula</text>
+        <text class="a5bS" x="470" y="476">a single 1.0 sits about one and a half spreads from zero</text>
+
+        <text class="a5bN" x="30" y="512">No rerun and no clean label. The only cure is more independent history, and it arrives one day per day.</text>
+        <text class="a5bN" x="30" y="530">Resampling the same path reshuffles one history; it does not add a second one.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the left column gets a new sample every month; the right column gets one more day, and needs twelve years before a real 1.5 among 100 passes the test in 45 of 100 trials.</figcaption>
+    </figure>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The source: a new cohort every month, against one shared path<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>When a churn model looks shaky, the fix is often to wait: next month's cohort is a fresh, independent sample from the same process, and in a year there are twelve of them. The data is also yours. Nobody else has your customers' records, so whatever you find in them is yours to use.</p>
+        <p>A backtest has neither property. The history is one realised path, the same path every other desk has, and the only way to get more of it is to wait for it to happen, at one day per day. The generator puts a number on what that costs. Plant one real strategy with a Sharpe ratio of 1.5 among 99 that know nothing, select the best on the training years, and test it with the deflated Sharpe ratio. On 3 years of data the planted one passes in 3 of 100 trials; on 6 years, 6; on 12 years, 45; on 24 years, 94. Over all of those runs, every strategy that passed was the planted one, so the test made no false discoveries; it simply had no power until the history was long.</p>
+        <p>This is the generator's version of what Bailey, Borwein, Lopez de Prado and Zhu (2014) call the minimum backtest length: the number of years a search of a given size needs before its best result means anything. The only input that moves it is independent history, and independent history cannot be manufactured.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The ground truth: a label you can read, against one you mostly cannot<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A churn label is about as clean as data gets. A month after the score, the customer either left or stayed, and the record says which. The noise in a churn project is in the model, not in the label. A credit label takes longer to arrive, but when it arrives it is still a fact about one borrower.</p>
+        <p>A strategy's label is its return, and the signal-to-noise ratio of that label is close to zero. One estimate of an annualised Sharpe ratio on 503 daily observations, roughly two years, has a spread of 0.71 by formula when there is nothing there at all; measured over 200 generated null worlds the spread is 0.70. A single rule reporting 1.0 sits about one and a half spreads from zero. Sharpe's 1994 paper gives the same fact from the other side: "The t-statistic will equal the Sharpe Ratio times the square root of T", and T on two years is small.</p>
+        <p>Put that noise beside the selection of session 3 and the result is stark. A real Sharpe of 1.5 hidden among 100 rules on three years passes the deflated test in 0 of 200 trials in one ladder of the generator, 1.5 percent of 200 in a second, and 3 percent of 100 in a third that uses fresh seeds. "Almost never", not "never": the label is not silent, it is just very quiet against the search.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Marlow Street's head (constructed) offered the researcher what she would have offered a churn team: "Run it live for a quarter and we will look at the result." A quarter is about 63 trading days. If two years of data give a spread of 0.71, a quarter gives a spread several times wider by the same formula, so the live quarter could not confirm or refute a 1.8 whatever it showed. She kept the idea and changed what it was for: a quarter of paper running checks the plumbing, the costs and the fills, not the edge.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Why there is no A/B test of a strategy<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>An A/B test works because a random draw splits one population into two groups that live through the same period, so the only difference between them is the treatment. A strategy has no population to split. There is one market and one period, and the strategy either ran in it or did not. Running it on half the money and not the other half does not help, because both halves face the same prices on the same days; the only thing the split measures is the size of the position. <a href="https://phoebefu6.github.io/learn-experimentation-with-phoebe/">The experimentation sessions</a> teach the A/B test properly, and the difference is the one session 1 started with: an A/B test can be rerun, a backtest cannot.</p>
+        <p>Resampling is the other tempting fix. A bootstrap draws thousands of reshuffled histories from the one you have, and every one of them is built from the same days. It can show how unstable an estimate is on that history; it cannot add the history you do not have, and the deflated test does not treat it as if it did. The figure's last line is the short version: resampling reshuffles one history, it does not add a second one.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · covers costs, capacity and sizing</span>
+      <h2>The paper result is not the live result</h2>
+      <span class="tag concept">8 min live</span>
+    </div>
+    <p class="lede">When a churn model is wrong, the cost is a voucher sent to a customer who would have stayed anyway, and the team finds out next quarter and retrains. The error is small, late and reversible. When a trading rule is wrong, the cost lands on the day: every change of position pays a cost whether the rule was right or not, and the size of the position decides whether a run of bad days is a dent or the end. The figure draws where the cost is charged, then puts the generator's measurements of costs and size side by side.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 484" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn comparison and two bar charts. Top left, a churn model is wrong: an offer to the wrong customer leads to a wasted voucher, with a dashed loop back labelled seen next quarter, model retrained, and a small clock: the error is small, late and reversible. Top right, a trading rule's position steps between plus 1 and minus 1, with a burgundy dot at each of six flips labelled a cost is charged at every flip; the position flips on about 20 percent of days, about 0.41 units a day. Bottom left, a real Sharpe ratio of 1.0 out of sample by cost per flip over 200 worlds: 1.05 at 0 basis points, 0.98 at 1, 0.93 at 2, 0.74 at 5, 0.43 at 10 and minus 0.23 at 20, the last bar in steel. Bottom right, the same real 1.0 at leverage 1, 6 and 12 over three years and 200 paths: median wealth 1.57, 4.80 and 1.45, mean 1.61, 14.57 and 71.48, share of paths that lost half 0, 98.5 and 100 percent. A note says price impact is not modelled, so the live gap is wider.">
+        <defs>
+          <filter id="a5cSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="57" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="a5cHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#7A1F3D" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="a5cAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .a5cH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .a5cL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .a5cS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .a5cV { font: 800 16px Inter, sans-serif; fill: #4A1024; }
+          .a5cB { font: 800 11px Inter, sans-serif; fill: #2A5068; }
+          .a5cA { font: 700 11px Inter, sans-serif; fill: #7A1F3D; }
+          .a5cN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="a5cH" x="30" y="26">WHEN BEING WRONG COSTS SOMETHING, AND WHAT THE PAPER FIGURE LEAVES OUT</text>
+        <text class="a5cH" x="30" y="52">A CHURN MODEL IS WRONG</text>
+        <text class="a5cH" x="470" y="52">A TRADING RULE IS WRONG</text>
+
+        <g filter="url(#a5cSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- divider -->
+          <path d="M440 40 L440 204" stroke="#DCC9CF" stroke-width="1.5"/>
+
+          <!-- row 1 left: wrong offer, wasted voucher, loop next quarter -->
+          <rect x="36" y="86" width="214" height="36" rx="6" transform="rotate(-0.8 143 104)" fill="#FFFFFF"/>
+          <rect x="276" y="86" width="140" height="36" rx="6" transform="rotate(1 346 104)" fill="#FAF0F3"/>
+          <path d="M253 104 L272 104" marker-end="url(#a5cAr)"/>
+          <path d="M346 125 L346 146 L143 146 L143 128" stroke-dasharray="6 5" marker-end="url(#a5cAr)"/>
+          <!-- doodle: a clock, next quarter -->
+          <circle cx="380" cy="160" r="10" fill="#FFFFFF" stroke-width="1.6"/>
+          <path d="M380 160 L380 153 M380 160 L386 163" stroke-width="1.4"/>
+
+          <!-- row 1 right: the position steps, a cost at every flip -->
+          <path d="M480 96 L530 96 L530 132 L560 132 L560 96 L640 96 L640 132 L700 132 L700 96 L716 96 L716 132 L790 132 L790 96 L840 96" stroke-width="2.2"/>
+          <circle cx="530" cy="114" r="4" fill="#7A1F3D" stroke="#7A1F3D"/>
+          <circle cx="560" cy="114" r="4" fill="#7A1F3D" stroke="#7A1F3D"/>
+          <circle cx="640" cy="114" r="4" fill="#7A1F3D" stroke="#7A1F3D"/>
+          <circle cx="700" cy="114" r="4" fill="#7A1F3D" stroke="#7A1F3D"/>
+          <circle cx="716" cy="114" r="4" fill="#7A1F3D" stroke="#7A1F3D"/>
+          <circle cx="790" cy="114" r="4" fill="#7A1F3D" stroke="#7A1F3D"/>
+
+          <!-- row 2 left: costs against a real 1.0, out of sample -->
+          <path d="M40 370 L412 370" stroke-width="2.5"/>
+          <rect x="52" y="286" width="36" height="84" fill="url(#a5cHc)" transform="rotate(-0.8 70 328)"/>
+          <rect x="112" y="292" width="36" height="78" fill="url(#a5cHc)" transform="rotate(0.6 130 331)"/>
+          <rect x="172" y="296" width="36" height="74" fill="url(#a5cHc)" transform="rotate(-0.5 190 333)"/>
+          <rect x="232" y="311" width="36" height="59" fill="url(#a5cHc)" transform="rotate(0.7 250 340)"/>
+          <rect x="292" y="336" width="36" height="34" fill="url(#a5cHc)" transform="rotate(-0.6 310 353)"/>
+          <rect x="352" y="370" width="36" height="18" fill="#3B6E8F" stroke="#3B6E8F" transform="rotate(0.5 370 379)"/>
+
+          <!-- row 2 right: median wealth at three sizes -->
+          <path d="M480 370 L840 370" stroke-width="2.5"/>
+          <rect x="508" y="351" width="44" height="19" fill="url(#a5cHc)" transform="rotate(-0.8 530 360)"/>
+          <rect x="633" y="312" width="44" height="58" fill="url(#a5cHc)" transform="rotate(0.6 655 341)"/>
+          <rect x="758" y="353" width="44" height="17" fill="url(#a5cHc)" transform="rotate(-0.5 780 361)"/>
+        </g>
+
+        <text class="a5cA" x="30" y="72">5 · the cost of being wrong: when does it land?</text>
+        <text class="a5cL" x="143" y="109" text-anchor="middle">offer to the wrong customer</text>
+        <text class="a5cL" x="346" y="109" text-anchor="middle">a wasted voucher</text>
+        <text class="a5cS" x="244" y="164" text-anchor="middle">seen next quarter, model retrained</text>
+        <text class="a5cS" x="30" y="194">the error is small, late and reversible</text>
+
+        <text class="a5cS" x="474" y="100" text-anchor="end">+1</text>
+        <text class="a5cS" x="474" y="136" text-anchor="end">-1</text>
+        <text class="a5cA" x="480" y="160">a cost is charged at every flip</text>
+        <text class="a5cS" x="470" y="194">flips on about 20 percent of days: about 0.41 units a day</text>
+
+        <text class="a5cH" x="30" y="226">PAPER AGAINST LIVE, MEASURED ON THE GENERATOR</text>
+        <text class="a5cS" x="30" y="250">a real 1.0, out of sample, by cost per flip, 200 worlds each</text>
+        <text class="a5cB" x="70" y="280" text-anchor="middle">1.05</text>
+        <text class="a5cB" x="130" y="286" text-anchor="middle">0.98</text>
+        <text class="a5cB" x="190" y="290" text-anchor="middle">0.93</text>
+        <text class="a5cB" x="250" y="305" text-anchor="middle">0.74</text>
+        <text class="a5cB" x="310" y="330" text-anchor="middle">0.43</text>
+        <text class="a5cB" x="370" y="402" text-anchor="middle">-0.23</text>
+        <text class="a5cS" x="70" y="420" text-anchor="middle">0 bp</text>
+        <text class="a5cS" x="130" y="420" text-anchor="middle">1 bp</text>
+        <text class="a5cS" x="190" y="420" text-anchor="middle">2 bp</text>
+        <text class="a5cS" x="250" y="420" text-anchor="middle">5 bp</text>
+        <text class="a5cS" x="310" y="420" text-anchor="middle">10 bp</text>
+        <text class="a5cS" x="370" y="420" text-anchor="middle">20 bp</text>
+
+        <text class="a5cS" x="470" y="248">a real 1.0 at three sizes, three years, 200 paths each</text>
+        <text class="a5cS" x="470" y="264">bar: median; above: mean; below: share that lost half</text>
+        <text class="a5cA" x="530" y="323" text-anchor="middle">mean 1.61</text>
+        <text class="a5cA" x="655" y="284" text-anchor="middle">mean 14.57</text>
+        <text class="a5cA" x="780" y="325" text-anchor="middle">mean 71.48</text>
+        <text class="a5cV" x="530" y="343" text-anchor="middle">1.57</text>
+        <text class="a5cV" x="655" y="304" text-anchor="middle">4.80</text>
+        <text class="a5cV" x="780" y="345" text-anchor="middle">1.45</text>
+        <text class="a5cL" x="530" y="388" text-anchor="middle">leverage 1</text>
+        <text class="a5cL" x="655" y="388" text-anchor="middle">leverage 6</text>
+        <text class="a5cL" x="780" y="388" text-anchor="middle">leverage 12</text>
+        <text class="a5cS" x="530" y="404" text-anchor="middle">0 percent</text>
+        <text class="a5cS" x="655" y="404" text-anchor="middle">98.5 percent</text>
+        <text class="a5cS" x="780" y="404" text-anchor="middle">100 percent</text>
+
+        <text class="a5cN" x="30" y="450">Left, a real 1.0 is gone by 15 basis points per flip and negative at 20. Right, the mean climbs with size</text>
+        <text class="a5cN" x="30" y="468">while the median peaks at leverage 6 and falls. Price impact is not modelled, so the live gap is wider.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the burgundy dots are where a cost is paid, right or wrong; the steel bar is a real edge that the dots ate.</figcaption>
+    </figure>
+
+    <div class="wk" id="a5-paper">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">The generator behind every session, running in this page. One planted strategy with a real Sharpe ratio of 1.0 and no competitors, so nothing here is selection: only the cost per flip and the size change. Means over 200 worlds at the canon seeds. The sizing rows are cost-free and start from a wealth of 1.</span>
+      </div>
+      <div class="wk-body">
+        <label class="sql-label" for="a5-paper-cost">Cost per unit of position change, in basis points</label>
+        <select class="sql-code" id="a5-paper-cost">
+          <option value="0">0, the paper figure</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="5">5</option>
+          <option value="10" selected>10</option>
+          <option value="20">20</option>
+        </select>
+        <label class="sql-label" for="a5-paper-lev">Leverage, position size as a multiple of capital</label>
+        <select class="sql-code" id="a5-paper-lev">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="4">4</option>
+          <option value="6" selected>6, the growth peak on this world</option>
+          <option value="8">8</option>
+          <option value="12">12</option>
+          <option value="16">16</option>
+          <option value="24">24</option>
+        </select>
+        <div id="a5-paper-out"></div>
+        <p class="sql-note" id="a5-paper-verdict">...</p>
+      </div>
+      <div class="wk-foot" id="a5-paper-self">...</div>
+    </div>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Costs are charged on the position change<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A strategy's paper result is usually gross: it assumes every change of position was free. The generator charges a cost per unit of position change, which is the simplest honest model, and runs one real strategy with a Sharpe ratio of 1.0 at six cost levels, 200 worlds each. Out of sample it reads 1.05 at no cost, 0.98 at 1 basis point, 0.93 at 2, 0.74 at 5, 0.43 at 10 and -0.23 at 20. In sample the pattern is the same, ending at -0.30.</p>
+        <p>The arithmetic is short enough to do in a meeting. On this world the position flips on about 20 percent of days (the sign of the hidden signal changes with probability 0.205), so turnover is about 0.41 units a day, and each 5 basis points costs about 0.32 of annualised Sharpe. A real edge of 1.0 is gone by 15 basis points and negative at 20. Nothing about the edge changed; it was eaten one flip at a time.</p>
+        <p>The churn analogue would be a model whose every score, right or wrong, cost money to act on, charged the moment it was acted on. Few data teams have run one, which is why the habit of reading a gross number survives the move.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Capacity and slippage: what the generator cannot show<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A flat cost per flip is the floor, not the bill. Two more costs grow with size. Slippage is the gap between the price the backtest assumed and the price the trade actually got. Capacity is the size beyond which a strategy's own trades move the price against it, so that each extra unit of money earns less than the last and, past some point, less than nothing. A churn model has no equivalent: scoring ten times as many customers does not make each score worse.</p>
+        <p>The generator has no price impact. Its cost per flip is the same at any size, so it cannot measure slippage or capacity, and no number on these pages is either one. Execution and market microstructure are out of scope by design. What a leader can do without them is ask the pitch for the size it was tested at, the size it is asking to run at, and what it assumed about the difference. A pitch that tested at one size and asks for ten has a capacity assumption whether it wrote one down or not.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Sizing: the mean says lever up, the median says stop<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The same real 1.0, cost-free, compounded over three years at rising leverage, 200 paths each. At leverage 1 the median path ends at 1.57 and none lost half its value at any point. At leverage 6 the median is 4.80, the highest growth rate on the ladder, and 98.5 percent of paths lost half at some point along the way. At leverage 12 the mean is 71.48 and still rising, while the median has fallen back to 1.45. At leverage 24 the median path ends at 0.00 to two decimals and the growth rate per year is below -4.</p>
+        <p>Leverage 6 is the growth peak because it is the full-Kelly fraction for this world: a daily mean of 0.00063 over a daily variance of 0.0001 gives 6.3. Past it, more size buys a higher mean, carried by a few extraordinary paths, and a lower median, which is what a typical path actually lives through. Never read the mean column without the median beside it.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Marlow Street's pitch (constructed) had a slide titled "Scaling" showing the average outcome at four times the tested size. The head asked for one more line on the same slide: the median, and the share of paths that lost half on the way. A credit team would recognise the move. It is the difference between the expected loss of a portfolio and the loss the institution has to survive in a bad year, and in a strategy the bad year is chosen by the size, not by the market.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Why "assist, never advise" is the same rule here<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Every figure in this Part is a property of a generator with a planted signal of known strength: a cost level, a size, a median. None is a property of anything anybody can trade, and none is a recommendation to use any cost assumption or any leverage. The rule held in <a href="https://phoebefu6.github.io/learn-ai-finance-with-phoebe/courses/b9-markets-investing.html">Markets and investing with AI</a>, assist, never advise, applies unchanged: what a leader takes from here is a way of reviewing a claim, not a view on any market.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 4 ============ -->
+  <section class="section" id="part-4">
+    <div class="section-kicker">
+      <span class="klabel">Part 4 · build-along</span>
+      <h2>A leader's review of a strategy pitch</h2>
+      <span class="tag build">13 min hands on</span>
+    </div>
+    <p class="lede">No code. The pitch is constructed: the deck Marlow Street's researcher would bring to fund the 1.8, written the way such decks are usually written. You review it the way you would review a churn model's launch deck, except that each of your five questions is now the contrast it came from. The figure is the review card; pin it to the deck.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn review card. On the left, a constructed strategy pitch slide with the heading strategy pitch, constructed, the headline Sharpe ratio 1.8, the subtitle two-year backtest, gross of costs, a rising equity curve on axes, and a small magnifying glass over the curve. On the right, five tags, each joined to the slide by a steel arrow. One, how many things were tried: the best of 100 rules on nothing reads 1.80. Two, which split, in time order: a shuffled split with five-day overlap reads 0.65 on nothing. Three, which costs, at what turnover: a real 1.0 reads minus 0.23 at 20 basis points per flip. Four, what decay is assumed: 58 percent lower after publication, McLean and Pontiff 2016. Five, what size and what drawdown: at leverage 6, 98.5 percent of paths once lost half. A note says a missing answer is the finding.">
+        <defs>
+          <filter id="a5dSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="59" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="a5dHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3B6E8F" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="a5dAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#3B6E8F" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .a5dH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .a5dL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .a5dS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .a5dV { font: 800 18px Inter, sans-serif; fill: #4A1024; }
+          .a5dN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="a5dH" x="30" y="26">FIVE QUESTIONS PINNED TO ONE SLIDE</text>
+
+        <g filter="url(#a5dSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- the constructed pitch slide -->
+          <rect x="40" y="56" width="330" height="282" rx="8" transform="rotate(-0.8 205 197)" fill="#FFFFFF"/>
+          <path d="M64 304 L350 304 M64 304 L64 160" stroke-width="1.6"/>
+          <path d="M66 292 C100 286 120 270 150 262 C180 254 200 240 230 228 C260 216 280 206 310 190 C325 182 336 176 348 170" stroke="#7A1F3D" stroke-width="2.5"/>
+          <!-- doodle: a magnifying glass over the curve -->
+          <circle cx="290" cy="236" r="16" fill="#EAF1F6" stroke-width="1.8"/>
+          <path d="M302 248 L318 264" stroke-width="3"/>
+
+          <!-- five tags -->
+          <rect x="470" y="56" width="380" height="50" rx="6" transform="rotate(0.6 660 81)" fill="#FAF0F3"/>
+          <rect x="470" y="114" width="380" height="50" rx="6" transform="rotate(-0.5 660 139)" fill="#FAF0F3"/>
+          <rect x="470" y="172" width="380" height="50" rx="6" transform="rotate(0.7 660 197)" fill="#FAF0F3"/>
+          <rect x="470" y="230" width="380" height="50" rx="6" transform="rotate(-0.6 660 255)" fill="#FAF0F3"/>
+          <rect x="470" y="288" width="380" height="50" rx="6" transform="rotate(0.5 660 313)" fill="#FAF0F3"/>
+
+          <!-- steel connectors from each question to the slide -->
+          <path d="M466 81 L376 81" stroke="#3B6E8F" marker-end="url(#a5dAr)"/>
+          <path d="M466 139 L376 139" stroke="#3B6E8F" marker-end="url(#a5dAr)"/>
+          <path d="M466 197 L376 197" stroke="#3B6E8F" marker-end="url(#a5dAr)"/>
+          <path d="M466 255 L376 255" stroke="#3B6E8F" marker-end="url(#a5dAr)"/>
+          <path d="M466 313 L376 313" stroke="#3B6E8F" marker-end="url(#a5dAr)"/>
+        </g>
+
+        <text class="a5dH" x="62" y="86">STRATEGY PITCH, CONSTRUCTED</text>
+        <text class="a5dV" x="62" y="116">Sharpe ratio 1.8</text>
+        <text class="a5dS" x="62" y="136">two-year backtest, gross of costs</text>
+        <text class="a5dS" x="64" y="324">the curve every deck carries</text>
+
+        <text class="a5dL" x="486" y="77">1 · How many things were tried?</text>
+        <text class="a5dS" x="486" y="95">best of 100 rules on nothing reads 1.80 in sample</text>
+        <text class="a5dL" x="486" y="135">2 · Which split, in time order?</text>
+        <text class="a5dS" x="486" y="153">shuffled split, five-day overlap: 0.65 on nothing</text>
+        <text class="a5dL" x="486" y="193">3 · Which costs, at what turnover?</text>
+        <text class="a5dS" x="486" y="211">a real 1.0 reads -0.23 at 20 basis points per flip</text>
+        <text class="a5dL" x="486" y="251">4 · What decay is assumed?</text>
+        <text class="a5dS" x="486" y="269">58 percent lower after publication (McLean and Pontiff)</text>
+        <text class="a5dL" x="486" y="309">5 · What size, and what drawdown?</text>
+        <text class="a5dS" x="486" y="327">leverage 6: 98.5 percent of paths once lost half</text>
+
+        <text class="a5dN" x="30" y="366">One question per contrast. A missing answer is the finding; the line under each is what skipping it costs.</text>
+        <text class="a5dN" x="30" y="384">Every figure is from the generator or the published paper; the pitch itself is constructed.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - five steel arrows, one per question; a pitch that cannot answer one has told you where its number came from.</figcaption>
+    </figure>
+
+    <div class="steps">
+      <div class="step"><div>
+        <h4>Lay out the constructed deck</h4>
+        <p>Six slides, as Marlow Street's researcher wrote them: a headline Sharpe ratio of 1.8 on a two-year backtest; an equity curve that rises steadily; "robust across parameter settings"; "costs assumed negligible"; "monitoring: re-estimate quarterly"; and "scales to four times the tested size". Write each slide's claim on its own line, and leave space under each for the question it owes.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Ask how many things were tried</h4>
+        <p>"Robust across parameter settings" means parameter settings were tried. Count them, with the rules and features that were dropped, and write N. Then hold the headline against it: the best of 100 rules that know nothing reads 1.80 in sample on two years and earns nothing afterwards (200 trials). If N is unknown, write "unknown" under the headline and stop reading it as a result.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Ask which split, and whether it respected time</h4>
+        <p>Was the test period after the training period? Did observations overlap, and if so, was the overlap purged? A shuffled split on five-day observations reads 0.65 out of sample on a world with no alpha at all (100 worlds). Write the split down in one sentence; session 4's leak audit has the rest.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Ask which costs, at what turnover</h4>
+        <p>"Costs assumed negligible" is a number of zero. Ask for the cost per unit of position change and the number of changes per day, and multiply. On the generator, a real 1.0 that flips on about 20 percent of days is gone by 15 basis points and reads -0.23 at 20 (200 worlds). Then ask about size: what was the cost assumption at the size it asks to run at, and who checked capacity?</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Ask what decay is assumed, and what size and drawdown</h4>
+        <p>"Monitoring: re-estimate quarterly" assumes the edge holds still between estimates. Ask what decay the pitch assumes, and point at the published figures: 26 percent lower out of sample and 58 percent lower after publication across 97 predictors (McLean and Pontiff 2016). Then go to "scales to four times": ask for the median path and the share of paths that lost half at the proposed leverage, not the mean.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Write the one-page review</h4>
+        <p>Five lines, one per question: answered, answered badly, or unanswered. Under them, one sentence on what would have to be true for the 1.8 to survive all five, and one on what the desk should ask for next. Unanswered counts as a finding, never as a pass. The review is a judgement on a research claim, not a view on any market.</p>
+      </div></div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> Keep the playbook's questions and throw away its default answers. Where does the data come from, what is the label, who reads the model, what does being wrong cost: ask every one of them of a strategy pitch, and expect the answers to be one shared history, a label that is mostly noise, a crowd that reads, and a cost charged on every flip at a size the deck chose. A pitch that answers as if it were a churn model has not yet been reviewed.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">A churn model keeps its accuracy for years with quarterly retraining. A published return predictor does not. Which mechanism separates them?</p>
+      <div class="qopt">A · Market data is noisier, so the predictor was fitted less well in the first place</div>
+      <div class="qopt">B · The predictor was overfit, and every overfit model loses accuracy at the same rate</div>
+      <div class="qopt">C · The market reads it: others find and trade the signal, and McLean and Pontiff (2016) measure returns 26 percent lower out of sample and 58 percent lower after publication across 97 predictors</div>
+      <q class="qwhy">A churn customer never reads the model; a market's other side does, and its trades move the price the signal was measured on. Noise and overfitting are real but they are not the loop. The 26 percent drop before publication is the part a search leaves behind; the further fall after publication is the part they attribute to publication-informed trading.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">Marlow Street's researcher says the fix for a weak result is "more data". What is the honest constraint?</p>
+      <div class="qopt">A · Independent history arrives one day per day; a real 1.5 among 100 rules passes the deflated test in 3 of 100 trials on 3 years and 94 of 100 on 24 years</div>
+      <div class="qopt">B · None: a bootstrap of the two years can generate as many histories as needed</div>
+      <div class="qopt">C · None: shuffling the history into more folds gives more test sets</div>
+      <q class="qwhy">A bootstrap reshuffles the same days and adds no independent history, and shuffling overlapping observations leaks (0.65 on nothing in session 4). The only input that moves the test's power is more history, and it cannot be bought faster than it happens.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">A strategy with a real Sharpe ratio of 1.0 flips its position on about 20 percent of days. Its deck says "costs assumed negligible". What does the generator say?</p>
+      <div class="qopt">A · Costs only matter for very large strategies, so the assumption is fine at any normal size</div>
+      <div class="qopt">B · Turnover is about 0.41 units a day, each 5 basis points costs about 0.32 of Sharpe, and at 20 basis points it reads -0.23 out of sample over 200 worlds</div>
+      <div class="qopt">C · Costs lower the in-sample figure but not the out-of-sample one</div>
+      <q class="qwhy">A cost is charged on every change of position, at any size, so a small edge with high turnover is eaten one flip at a time. Size adds slippage and capacity on top, which the generator does not model. Costs land in and out of sample alike: -0.30 and -0.23 at 20 basis points.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before session 6</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">Twenty minutes, on a model your own team has shipped and on the review you just wrote.</p>
+    <div class="steps">
+      <div class="step"><div>
+        <h4>Run the five contrasts on one of your own models</h4>
+        <p>Pick a churn, demand or credit model your team runs. For each of the five, the source, the identity, the ground truth, the feedback loop and the cost of being wrong, write one line on what your model relies on. Mark the ones that would break first if the target started reading the model.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Sort your habits into three piles</h4>
+        <p>From your one-page review, list the habits from your old playbook that helped, the ones that were missing, and the ones that pointed the wrong way, such as reading a gross figure or trusting a quarter of live data. Session 6 turns the three piles into a transfer map.</p>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The identity</span><span class="note">A churn row stays attached to one customer; a market's other side is whoever trades that day, so a wrong prediction has no one to inspect.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The feedback loop</span><span class="note">McLean and Pontiff (2016), The Journal of Finance 71(1), read at source: 97 predictors, 26 percent lower out of sample, 58 percent lower after publication. Not benched: the generator is stationary.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The source</span><span class="note">One shared history, one day per day. A real 1.5 among 100 passes the deflated test in 3, 6, 45 and 94 of 100 trials at 3, 6, 12 and 24 years.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The ground truth</span><span class="note">One Sharpe estimate on two years: spread 0.71 by formula, 0.70 measured over 200 null worlds. A real 1.5 among 100 almost never passes on three years.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Costs against a small edge</span><span class="note">A real 1.0 out of sample: 1.05, 0.98, 0.93, 0.74, 0.43, -0.23 at 0, 1, 2, 5, 10, 20 basis points per flip. 200 worlds each.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Sizing</span><span class="note">Median 1.57, 4.80, 1.45 and mean 1.61, 14.57, 71.48 at leverage 1, 6, 12; 98.5 percent of paths lost half at leverage 6. 200 paths each.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The pitch review</span><span class="note">Five questions: how many tried, which split, which costs, what decay, what size and drawdown.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Capacity and slippage</span><span class="note">Named as mechanisms, not measured: the generator has no price impact. Execution and microstructure are out of scope.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">The transfer map</span><span class="note">What carries over, what to learn, what to unlearn. Session 6.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">A/B tests, power and peeking</span><span class="note">Live in learn-experimentation-with-phoebe; the contrast with a backtest is drawn here, the method is taught there.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Any market, price, instrument or trade</span><span class="note">Out of scope by design. Synthetic data only; nothing here is investment advice, and no figure describes a real market.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>The one line.</strong> Keep the playbook's questions; expect different answers to every one of them.</div>
+      <div class="cheat-item"><strong>The source.</strong> One shared history at one day per day. A real 1.5 among 100 passes in 3 of 100 trials on 3 years, 94 on 24.</div>
+      <div class="cheat-item"><strong>The identity.</strong> No row stays attached to anyone. The other side is whoever trades that day.</div>
+      <div class="cheat-item"><strong>The ground truth.</strong> The label is a return. Spread of one Sharpe estimate on two years: 0.71 by formula, 0.70 measured.</div>
+      <div class="cheat-item"><strong>The feedback loop.</strong> The market reads you: 26 percent lower out of sample, 58 percent after publication (McLean and Pontiff 2016).</div>
+      <div class="cheat-item"><strong>Costs.</strong> Charged on every flip. A real 1.0 is gone by 15 basis points and reads -0.23 at 20. 200 worlds.</div>
+      <div class="cheat-item"><strong>Size.</strong> Never the mean without the median: 71.48 against 1.45 at leverage 12. Growth peaks at 6.</div>
+      <div class="cheat-item"><strong>Not shown here.</strong> Decay, capacity and slippage: the generator is stationary and has no price impact. Ask the pitch for them.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Leader session 5 of 6 · learn-quant-trading-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="a4-the-leakage-classes.html">← Leader session 4 · The leakage classes</a>
+        <a href="a6-from-churn-model-to-trading-desk.html">Leader session 6 · From churn model to trading desk: the transfer map →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/qt-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof QT === "undefined") return;
+  var selC = document.getElementById("a5-paper-cost");
+  var selL = document.getElementById("a5-paper-lev");
+  var out = document.getElementById("a5-paper-out");
+  var verdict = document.getElementById("a5-paper-verdict");
+  var self = document.getElementById("a5-paper-self");
+  var free = null;
+
+  function row(q, v, w, cls) {
+    return "<tr><td>" + q + "</td><td><b" + (cls ? ' class="' + cls + '"' : "") + ">" + v + "</b></td><td>" + w + "</td></tr>";
+  }
+  function pct(x) { return (x * 100).toFixed(1).replace(/\.0$/, "") + " percent"; }
+
+  function render() {
+    var c = Number(selC.value), L = Number(selL.value);
+    /* canon seeds: ladder C uses seed0 = 70000 + cost, 200 worlds; at 0 bp it prints 1.05 out of sample */
+    if (!free) free = QT.ladderRung({ N: 1, trueSR: 1, method: "walkforward", costBp: 0 }, 200, 70000);
+    var paid = c === 0 ? free : QT.ladderRung({ N: 1, trueSR: 1, method: "walkforward", costBp: c }, 200, 70000 + c);
+    /* canon seeds: ladder E uses seed0 = 90000, 200 paths of three years, cost-free */
+    var e = QT.sizingRung(L, 200, 1, 90000);
+    var g = e.meanGrowthPerYear < -4 ? "below -4" : e.meanGrowthPerYear.toFixed(3);
+    var html = '<table class="sql-table"><thead><tr><th>Quantity</th><th>Value</th><th>What it is</th></tr></thead><tbody>';
+    html += row("Out of sample, cost-free", free.oosSR.toFixed(2), "the paper figure");
+    html += row("Out of sample at " + c + " bp per flip", paid.oosSR.toFixed(2), "the same rule, paying on every change of position", "a5-paper-hot");
+    html += row("In sample at " + c + " bp per flip", paid.isSR.toFixed(2), "the training years, same cost");
+    html += row("Median wealth after three years", e.medianTerminal.toFixed(2), "leverage " + L + ", what a typical path ends with", "a5-paper-hot");
+    html += row("Mean wealth, same paths", e.meanTerminal.toFixed(2), "carried by the few best paths; never read it alone");
+    html += row("Paths that lost half at some point", pct(e.shareHalved), "the drawdown a holder has to sit through");
+    html += row("Growth rate per year", g, L >= 24 ? "a mean that counts paths floored at zero as -10 a year" : "log growth; it peaks at leverage 6 on this world");
+    html += row("Worlds averaged", "200 each", "the canon trial count, at the canon seeds");
+    html += "</tbody></table>";
+    out.innerHTML = html;
+    var costLine = c === 0
+      ? "At no cost the real 1.0 reads " + free.oosSR.toFixed(2) + " out of sample: the paper figure."
+      : "At " + c + " basis points per flip the real 1.0 reads " + paid.oosSR.toFixed(2) + " out of sample against " + free.oosSR.toFixed(2) + " cost-free; nothing about the edge changed, it was charged on every flip.";
+    var sizeLine = " At leverage " + L + " the median path ends at " + e.medianTerminal.toFixed(2) + " and the mean at " + e.meanTerminal.toFixed(2) + ", with " + pct(e.shareHalved) + " of paths losing half on the way.";
+    verdict.textContent = costLine + sizeLine;
+  }
+
+  function start() {
+    out.innerHTML = '<p class="sql-note">Running the canon worlds...</p>';
+    verdict.textContent = "Running.";
+    setTimeout(render, 0);
+  }
+
+  var t = QT.selfTest();
+  self.textContent = t.ok
+    ? "The generator's six properties pass in this browser, so the figures above are the figures any correct run gives. Synthetic data only: nothing here describes a real market, and nothing here is investment advice."
+    : "The generator's self test did not pass in this browser, so nothing above should be believed.";
+
+  selC.addEventListener("change", start);
+  selL.addEventListener("change", start);
+  start();
+})();
+</script>
+<style>
+  #a5-paper .sql-code { border: 1px solid var(--hairline); border-radius: 8px; max-width: 32rem; }
+  #a5-paper table.sql-table { margin: .6rem 0 .2rem; font-size: .85rem; }
+  #a5-paper .a5-paper-hot { color: var(--amber); }
+</style>
+</body>
+</html>

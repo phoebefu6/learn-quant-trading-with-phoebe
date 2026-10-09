@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Leader session 4 of 6. Four ways information leaks into a backtest, each with a time-order mechanism of its own: lookahead, restatement, survivorship and shuffled splits. Marlow Street audits its 1.8 gate by gate. Synthetic data only. Not investment advice.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="The leakage classes - learn quant with phoebe">
+<meta property="og:description" content="Leader session 4 of 6. A rule shifted one day reads 6.11 on a random walk; survivors read 1.51 where the full universe reads -0.01; a shuffled split lifts nothing to 0.65. Measured, with trial counts.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/courses/a4-the-leakage-classes.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The leakage classes - learn quant with phoebe">
+<meta name="twitter:description" content="Lookahead, restatement, survivorship, shuffled splits: four leaks, four gates, and the question a leader asks at each.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Leader session 4 · The leakage classes - learn quant with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-quant-trading-with-phoebe</a> / Leader session 4 of 6</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Quant Trading with Phoebe · Leader session 4 of 6</div>
+    <h1>The <span class="accent">leakage classes</span></h1>
+    <p class="sub">Selection is one way a backtest flatters itself. Leakage is the other: information reaching the rule from a time it could not have seen. In a time-ordered series it arrives by four routes, and each route has a mechanism of its own. A rule reads the day it trades. A figure revised after the fact is used as if it had been known then. The universe is chosen at the end, so the losers were never in it. A shuffled split puts tomorrow's days in today's training set. Marlow Street, a constructed four-person research desk, is about to fund a backtest with a Sharpe ratio of 1.8, and tonight its head audits that number for all four. Synthetic data only; nothing here is investment advice.</p>
+    <div class="chip-row">
+      <span class="chip level">🟠 Leader track</span>
+      <span class="chip audience">Anyone who signs off a backtest</span>
+      <span class="chip audience">Anyone who reviews a research pipeline</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:3">3-18 · Lookahead and restatement</span>
+      <span class="a3" style="flex:3">18-28 · Survivors and shuffled splits</span>
+      <span class="a4" style="flex:4">28-45 · Build-along and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Marlow Street, the week the 1.8 goes to audit</h2>
+    </div>
+    <p class="lede">Marlow Street is a constructed desk: four researchers, one head, a budget for two strategies a year, and a backtested Sharpe ratio of 1.8 on the table. Session 3 settled how many rules were tried and what that does to the number. A second question is still open, and it is independent of the first: even if only one rule had been tried, could that rule have seen something it would not have known on the day it traded? A backtest that leaks does not need any selection to report a large number. The generator behind every session plants each leak on purpose, so the size of each one is measured on a world where the truth is known, and the catch for each is checked against it.</p>
+
+    <div class="legend">
+      <span class="pill">Live = presented in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with tonight.</strong> Four leakage classes named by their mechanism, not by their symptom: lookahead, restatement, survivorship and shuffled splits. A measured size for three of them on a random walk with no alpha, with the trial count beside each figure, and an honest statement that the fourth cannot be measured on this generator. One test a leader can ask for that catches lookahead outright. And a leak audit in five questions that Marlow Street's head puts to the 1.8 before reading it. Synthetic data only; nothing here is advice on what to buy, sell or trade.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why time-ordered leakage has classes of its own<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A data team already knows leakage as a general idea: a feature that carries the answer, a column filled in after the outcome, a preprocessing step fitted on the whole table. That general case, target leakage on a tabular model, is taught properly in <a href="https://phoebefu6.github.io/learn-feature-engineering-with-phoebe/courses/b5-leakage.html">Leakage: the session</a>, and the hunt for a leak inside one model is <a href="https://phoebefu6.github.io/learn-model-risk-with-phoebe/courses/p3-the-leak-hunt.html">The leak hunt</a>. Neither is retaught here.</p>
+        <p>What is different about a backtest is that every row has a time on it, and the rule is only honest if, at each time, it uses nothing from later. That one requirement breaks in four distinct places: in the rule's own inputs, in the record those inputs were read from, in the list of series the rule was allowed to trade, and in the way the history was split for testing. Each break has its own mechanism, its own size and its own catch, which is why they are taught as classes rather than as one warning.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The words that keep coming back<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Knowable.</strong> A value is knowable at a time if it had been published, recorded and could have been read by then. The date a value describes is not the date it became knowable.</li>
+          <li><strong>Lookahead.</strong> A rule whose position on a day uses data from that day's own return or later. The cleanest form is a signal shifted by one day.</li>
+          <li><strong>Restatement.</strong> A figure revised after it was first published. Using the revised value on a date before the revision existed is lookahead through the record, not through the rule.</li>
+          <li><strong>Point-in-time.</strong> A record that keeps every value as it was known on each date, with the date each version became known. The opposite of today's corrected record.</li>
+          <li><strong>Survivorship.</strong> Testing on the series that still exist, or still qualify, today. The ones that failed along the way were in the universe at the start and are missing from the test.</li>
+          <li><strong>Overlapping observations.</strong> When each observation earns the next five days, neighbouring observations share four of those days.</li>
+          <li><strong>Purge and embargo.</strong> Purging drops training observations whose span touches a test observation's span; the embargo also drops a few training observations straight after each test block. Both are described in Lopez de Prado (2018), chapter 7, as the catalogue descriptions report it.</li>
+          <li><strong>Constructed.</strong> Marlow Street and every figure here come from a generator whose truth is known. No figure describes a real market.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers lookahead and restatement</span>
+      <h2>What was knowable at the close of day t</h2>
+      <span class="tag concept">15 min live</span>
+    </div>
+    <p class="lede">Both leaks in this Part break the same line: the close of day t, the moment the position for day t+1 is decided. Lookahead breaks it inside the rule, by letting the rule read day t+1 before trading it. Restatement breaks it inside the record, by pasting a figure that arrived later back onto day t. The figure draws the line, the honest rule that stays behind it, and both ways across.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 482" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn knowability timeline. A row of day cells runs left to right: t minus 4, t minus 3, t minus 2, t minus 1, t, t plus 1, t plus 2, and a hatched cell labelled later. A dashed steel line stands between day t and day t plus 1, labelled close of day t, nothing right of here is known yet. Below the cells a bracket covers days t minus 4 to t, labelled honest rule reads days t minus 4 to t, with an arrow down to a box labelled position decided at the close of day t, and an arrow from that box to day t plus 1 labelled earns day t plus 1. Above the cells a second bracket covers days t minus 3 to t and an arrow continues across the steel line into day t plus 1; that arrow is struck through, labelled shifted rule reads t minus 3 to t plus 1, including the day it trades. A small box gives the measured readings over 200 worlds of zero alpha: honest Sharpe 0.02 with a correlation of minus 0.001 between position and traded day, shifted Sharpe 6.11 with a correlation of 0.358. A lower lane labelled restatement shows a box as first published, known at the close of day t, and a box today's corrected figure, arrived later after a revision, with a dashed arrow from the corrected figure back to the first box labelled pasted back as if known on day t. Under them: the point-in-time record keeps this, and today's record keeps only this. A note says the generator cannot show restatement because its returns are never revised.">
+        <defs>
+          <filter id="a4aSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="41" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="a4aHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#7A1F3D" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="a4aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+          <marker id="a4aArA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#7A1F3D" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .a4aH { font: 800 12px Inter, -apple-system, "Segoe UI", sans-serif; fill: #2A1118; }
+          .a4aL { font: 600 12px Inter, -apple-system, "Segoe UI", sans-serif; fill: #2A1118; }
+          .a4aS { font: 400 11px Inter, -apple-system, "Segoe UI", sans-serif; fill: #6B5159; }
+          .a4aB { font: 800 11px Inter, -apple-system, "Segoe UI", sans-serif; fill: #2A5068; }
+          .a4aA { font: 700 11px Inter, -apple-system, "Segoe UI", sans-serif; fill: #7A1F3D; }
+          .a4aN { font: 400 12px Inter, -apple-system, "Segoe UI", sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="a4aH" x="30" y="26">WHAT WAS KNOWABLE AT THE CLOSE OF DAY t, AND WHAT CAME LATER</text>
+
+        <g filter="url(#a4aSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- doodle anchor: a small clock at the close -->
+          <circle cx="514" cy="50" r="10" fill="#FFFFFF"/>
+          <path d="M514 50 L514 43 M514 50 L519 53" stroke-width="1.6"/>
+
+          <!-- the day cells -->
+          <rect x="40" y="110" width="90" height="44" rx="5" transform="rotate(-0.8 85 132)" fill="#FFFFFF"/>
+          <rect x="140" y="110" width="90" height="44" rx="5" transform="rotate(0.6 185 132)" fill="#FFFFFF"/>
+          <rect x="240" y="110" width="90" height="44" rx="5" transform="rotate(-0.5 285 132)" fill="#FFFFFF"/>
+          <rect x="340" y="110" width="90" height="44" rx="5" transform="rotate(0.7 385 132)" fill="#FFFFFF"/>
+          <rect x="440" y="110" width="90" height="44" rx="5" transform="rotate(-0.6 485 132)" fill="#FFFFFF"/>
+          <rect x="540" y="110" width="90" height="44" rx="5" transform="rotate(0.8 585 132)" fill="#EAF1F6"/>
+          <rect x="640" y="110" width="90" height="44" rx="5" transform="rotate(-0.7 685 132)" fill="#FFFFFF"/>
+          <rect x="740" y="110" width="90" height="44" rx="5" transform="rotate(0.5 785 132)" fill="url(#a4aHc)"/>
+
+          <!-- the close of day t: the one line the figure is about -->
+          <path d="M535 64 L535 288" stroke="#3B6E8F" stroke-width="2.5" stroke-dasharray="7 5"/>
+
+          <!-- shifted rule: bracket over t-3..t, then an arrow across the line into t+1 -->
+          <path d="M144 104 L144 96 L526 96" stroke="#7A1F3D"/>
+          <path d="M526 96 C552 96 572 96 584 106" stroke="#7A1F3D" marker-end="url(#a4aArA)"/>
+          <path d="M550 82 L580 108" stroke="#7A1F3D" stroke-width="2.5" data-strike="1"/>
+
+          <!-- honest rule: bracket under t-4..t, down to the decision -->
+          <path d="M44 160 L44 168 L526 168 L526 160"/>
+          <path d="M425 172 L425 210" marker-end="url(#a4aAr)"/>
+          <rect x="330" y="214" width="190" height="42" rx="6" transform="rotate(-0.6 425 235)" fill="#FAF0F3"/>
+          <!-- the decision earns the next day -->
+          <path d="M520 230 C548 220 570 190 584 160" marker-end="url(#a4aAr)"/>
+
+          <!-- readings box -->
+          <rect x="640" y="208" width="210" height="76" rx="6" transform="rotate(0.5 745 246)" fill="#FFFFFF"/>
+
+          <!-- restatement lane -->
+          <rect x="300" y="360" width="200" height="44" rx="6" transform="rotate(-0.7 400 382)" fill="#FFFFFF"/>
+          <rect x="620" y="360" width="220" height="44" rx="6" transform="rotate(0.6 730 382)" fill="#FAF0F3"/>
+          <path d="M720 358 C690 338 450 338 420 356" stroke="#7A1F3D" stroke-dasharray="6 5" marker-end="url(#a4aArA)"/>
+        </g>
+
+        <text class="a4aB" x="545" y="55">close of day t: nothing right of here is known</text>
+
+        <text class="a4aL" x="85" y="137" text-anchor="middle">t-4</text>
+        <text class="a4aL" x="185" y="137" text-anchor="middle">t-3</text>
+        <text class="a4aL" x="285" y="137" text-anchor="middle">t-2</text>
+        <text class="a4aL" x="385" y="137" text-anchor="middle">t-1</text>
+        <text class="a4aL" x="485" y="137" text-anchor="middle">t</text>
+        <text class="a4aL" x="585" y="137" text-anchor="middle">t+1</text>
+        <text class="a4aL" x="685" y="137" text-anchor="middle">t+2</text>
+        <text class="a4aS" x="785" y="174" text-anchor="middle">later</text>
+
+        <text class="a4aA" x="144" y="84">shifted rule reads t-3 to t+1, including the day it trades</text>
+        <text class="a4aS" x="50" y="190">honest rule reads days t-4 to t</text>
+        <text class="a4aL" x="425" y="233" text-anchor="middle">position decided</text>
+        <text class="a4aS" x="425" y="248" text-anchor="middle">at the close of day t</text>
+        <text class="a4aB" x="596" y="196">earns day t+1</text>
+
+        <text class="a4aB" x="652" y="226">200 worlds, zero alpha</text>
+        <text class="a4aS" x="652" y="243">honest: 0.02, corr -0.001</text>
+        <text class="a4aS" x="652" y="259">shifted: 6.11, corr 0.358</text>
+        <text class="a4aS" x="652" y="275">corr = position vs traded day</text>
+
+        <text class="a4aH" x="30" y="316">RESTATEMENT: A FIGURE REVISED AFTER THE FACT</text>
+        <text class="a4aA" x="560" y="330" text-anchor="middle">pasted back as if known on day t</text>
+        <text class="a4aL" x="400" y="380" text-anchor="middle">as first published</text>
+        <text class="a4aS" x="400" y="396" text-anchor="middle">known at the close of day t</text>
+        <text class="a4aL" x="730" y="380" text-anchor="middle">today's corrected figure</text>
+        <text class="a4aS" x="730" y="396" text-anchor="middle">arrived later, after a revision</text>
+        <text class="a4aS" x="400" y="424" text-anchor="middle">the point-in-time record keeps this</text>
+        <text class="a4aS" x="730" y="424" text-anchor="middle">today's record keeps only this</text>
+
+        <text class="a4aN" x="30" y="452">The generator cannot show restatement: its returns are never revised, so that lane is the mechanism with no number.</text>
+        <text class="a4aN" x="30" y="470">Lookahead is measurable: a position decided at the close of t cannot correlate with a day it has not seen.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - both leaks cross the same dashed line; one through the rule, one through the record.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Lookahead: the rule that reads the day it trades<span class="mini">5 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Take a plain five-day momentum rule on a random walk with no alpha: at the close of each day, average the last five returns, go long if the average is positive and short if it is negative, and hold for one day. Built honestly, from days up to and including t, it earns what a rule with no information should earn. Over 200 generated worlds the annualised Sharpe ratio is 0.02.</p>
+        <p>Now shift the signal by one day, so the five-day window ends at t+1 instead of t. Nothing else changes: same rule, same world, same code apart from one index. The window now includes the very return the position is about to earn, and over the same 200 worlds the Sharpe ratio is 6.11. A random walk has not become predictable. The rule has been allowed to read its own answer.</p>
+        <p>The shift is usually not written as a shift. It is a timestamp that means "the day this value describes" being joined to a table where it should mean "the day this value could be read", or a figure computed at the close being used to trade at that same close. One misaligned join is enough.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The catch is one correlation, and only one<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A leader cannot read every join in a pipeline. A leader can ask for one number: the correlation between the position held on each day and the return earned on that same day. In a world with no alpha, a position decided honestly at the close of t cannot be correlated with day t+1, because it has not seen it. Over 200 worlds the honest rule reads -0.001. The shifted rule reads 0.358.</p>
+        <p>There is a second correlation that looks like a test and is not one: the position against the previous day's return. It reads 0.358 for the honest rule and 0.355 for the shifted one, almost the same. That is just the momentum rule reading its own inputs, since yesterday's return is part of the five-day average either way. Asking for it proves nothing. Ask for the traded day.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Marlow Street's head (constructed) asked the researcher for the position against the traded-day return on the 1.8. The researcher had never computed it and produced it in an afternoon. It came back close to zero, which is the honest reading and not proof of skill: it rules out the full one-day shift, the loudest form of lookahead, and nothing else. The head wrote "lookahead: checked by correlation" on the proposal and moved to the next gate.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Restatement: the figure that was not known then<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Many figures a rule might read are revised after they are first published: a count corrected, an estimate updated, an error fixed. The corrected version is better data, and that is exactly the trap. A backtest that reads today's corrected record is using, on each historical date, a value that did not exist on that date. The rule never looks ahead; the record has been rewritten under it.</p>
+        <p>The fix is a point-in-time record: every value kept as it was first published, with each later version stored beside it and stamped with the date it became known. The backtest then reads, on each date, the latest version knowable by that date. Today's corrected record cannot answer that question, because it only keeps the final version.</p>
+        <p>The generator behind these pages cannot show this class. Its returns are drawn once and never revised, so there is no corrected figure to paste back and no number to measure. That is said plainly rather than filled with an invented figure. How much a restatement moves a backtest depends on how large the revisions were and whether they leaned in the rule's favour, and only the real record can answer that.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Why the planted lookahead is so large, and the real one usually is not<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A Sharpe ratio of 6.11 on a random walk is a deliberately loud leak: the whole of the traded day's return sits inside the signal, weighted one fifth. Real lookahead is often quieter. A value read a few hours early, or a revision that only sometimes leans the rule's way, leaks a fraction of a day, and the inflation is smaller and easier to believe. The generator here plants only the full one-day shift, so it says nothing about the size of the quieter forms.</p>
+        <p>What carries over is the catch. Any leak from the traded day shows up as a correlation between position and traded-day return that a no-alpha world cannot produce. On a real series, where there may be a genuine edge, the honest correlation is no longer zero, so the reading is a comparison: compute it on a version of the rule that is known to be lagged safely, and see whether the live version reads higher. Practitioner session 8 plants and catches both leaks in code.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers survivorship and shuffled splits</span>
+      <h2>The universe chosen at the end, and the split that shares days</h2>
+      <span class="tag concept">10 min live</span>
+    </div>
+    <p class="lede">The two leaks in this Part never touch the rule. Survivorship leaks through the list of series the rule was tested on: the list was drawn up at the end, so the series that failed along the way are missing. A shuffled split leaks through the test design: when observations overlap in time, a random fold puts a test observation's own days into its neighbours in the training set. The figure draws both.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 456" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn two-panel figure. Left panel, the universe chosen after the fact: several random series fan out from a common start; a floor line marks an end value of minus 20 percent; two dashed series that ended below the floor run into a hatched zone and are labelled dropped from today's list, 9.5 of 50 on average over 100 trials. A thick steel line, the survivors' average, rises across the panel; a dashed ink line, the average of all 50 point in time, stays flat. Readings: survivors only 1.51, point-in-time universe of all 50 minus 0.01. Right panel, a shuffled fold with 5-day observations: a row of day cells in time order, and three bars each 5 days long: a hatched training neighbour from the day before, a steel test observation, and a hatched training neighbour from the day after, offset by one day each. Dashed lines mark the test's 5 days; 4 of them sit inside each training neighbour's span. Readings for the best of 100 rules on nothing, out of sample, 100 worlds: shuffled with 5-day observations 0.65, shuffled and purged with 141 observations left to train minus 0.02, shuffled with 1-day observations 0.10.">
+        <defs>
+          <filter id="a4bSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="43" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="a4bHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#7A1F3D" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="a4bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .a4bH { font: 800 12px Inter, -apple-system, "Segoe UI", sans-serif; fill: #2A1118; }
+          .a4bL { font: 600 12px Inter, -apple-system, "Segoe UI", sans-serif; fill: #2A1118; }
+          .a4bS { font: 400 11px Inter, -apple-system, "Segoe UI", sans-serif; fill: #6B5159; }
+          .a4bB { font: 800 11px Inter, -apple-system, "Segoe UI", sans-serif; fill: #2A5068; }
+          .a4bA { font: 700 11px Inter, -apple-system, "Segoe UI", sans-serif; fill: #7A1F3D; }
+          .a4bV { font: 800 16px Inter, -apple-system, "Segoe UI", sans-serif; fill: #4A1024; }
+          .a4bN { font: 400 12px Inter, -apple-system, "Segoe UI", sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="a4bH" x="30" y="26">THE UNIVERSE CHOSEN AFTER THE FACT</text>
+        <text class="a4bH" x="470" y="26">A SHUFFLED FOLD: NEIGHBOURS SHARE DAYS</text>
+
+        <g filter="url(#a4bSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- divider -->
+          <path d="M445 40 L445 396" stroke="#DCC9CF" stroke-width="1.5"/>
+
+          <!-- doodle anchor: today's list, a clipboard -->
+          <rect x="380" y="36" width="24" height="30" rx="3" transform="rotate(1 392 51)" fill="#FFFFFF"/>
+          <path d="M386 46 L398 46 M386 52 L398 52 M386 58 L394 58" stroke-width="1.4"/>
+
+          <!-- below the floor: hatched zone -->
+          <rect x="50" y="242" width="370" height="46" fill="url(#a4bHc)" stroke="none"/>
+          <path d="M50 240 L420 240" stroke="#7A1F3D" stroke-width="2"/>
+
+          <!-- survivors -->
+          <path d="M60 170 C120 150 170 175 230 140 C290 112 340 130 410 106" stroke="#6B5159" stroke-width="1.4"/>
+          <path d="M60 170 C110 185 180 150 240 165 C300 180 350 150 410 150" stroke="#6B5159" stroke-width="1.4"/>
+          <path d="M60 170 C130 160 190 200 260 185 C320 172 360 200 410 196" stroke="#6B5159" stroke-width="1.4"/>
+          <path d="M60 170 C120 140 200 130 260 150 C320 168 370 120 410 126" stroke="#6B5159" stroke-width="1.4"/>
+          <path d="M60 170 C100 200 180 210 250 200 C310 192 370 222 410 228" stroke="#6B5159" stroke-width="1.4"/>
+          <!-- dropped: ended below the floor -->
+          <path d="M60 170 C110 190 190 220 260 235 C320 248 370 255 410 262" stroke="#BF8398" stroke-width="1.6" stroke-dasharray="5 5"/>
+          <path d="M60 170 C120 200 200 200 250 230 C300 260 360 270 410 280" stroke="#BF8398" stroke-width="1.6" stroke-dasharray="5 5"/>
+          <!-- point-in-time average: flat -->
+          <path d="M60 170 C150 174 280 166 410 172" stroke-width="2" stroke-dasharray="7 6"/>
+          <!-- survivors' average: rising, the one thing this panel is about -->
+          <path d="M60 170 C140 162 260 150 410 128" stroke="#3B6E8F" stroke-width="3.5"/>
+
+          <!-- right panel: day cells in time order -->
+          <rect x="612" y="104" width="22" height="20" rx="3" fill="#FFFFFF"/>
+          <rect x="638" y="104" width="22" height="20" rx="3" fill="#FFFFFF"/>
+          <rect x="664" y="104" width="22" height="20" rx="3" fill="#EAF1F6"/>
+          <rect x="690" y="104" width="22" height="20" rx="3" fill="#EAF1F6"/>
+          <rect x="716" y="104" width="22" height="20" rx="3" fill="#EAF1F6"/>
+          <rect x="742" y="104" width="22" height="20" rx="3" fill="#EAF1F6"/>
+          <rect x="768" y="104" width="22" height="20" rx="3" fill="#EAF1F6"/>
+          <rect x="794" y="104" width="22" height="20" rx="3" fill="#FFFFFF"/>
+          <rect x="820" y="104" width="22" height="20" rx="3" fill="#FFFFFF"/>
+
+          <!-- three observations, each 5 days long, one day apart -->
+          <rect x="638" y="144" width="126" height="24" rx="4" transform="rotate(-0.6 701 156)" fill="url(#a4bHc)"/>
+          <rect x="664" y="180" width="126" height="24" rx="4" transform="rotate(0.5 727 192)" fill="#3B6E8F" stroke="#3B6E8F"/>
+          <rect x="690" y="216" width="126" height="24" rx="4" transform="rotate(-0.5 753 228)" fill="url(#a4bHc)"/>
+
+          <!-- the test's five days -->
+          <path d="M664 128 L664 248" stroke="#2A5068" stroke-width="1.4" stroke-dasharray="4 4"/>
+          <path d="M790 128 L790 248" stroke="#2A5068" stroke-width="1.4" stroke-dasharray="4 4"/>
+        </g>
+
+        <text class="a4bB" x="30" y="52">steel: survivors' average, rising</text>
+        <text class="a4bS" x="30" y="70">dashed ink: all 50, point in time, flat</text>
+        <text class="a4bS" x="392" y="82" text-anchor="middle">today's list</text>
+
+        <text class="a4bA" x="40" y="306">below the floor: dropped from today's list</text>
+        <text class="a4bS" x="40" y="322">ended below -20 percent; 9.5 of 50 on average, 100 trials</text>
+        <text class="a4bL" x="40" y="352">survivors only</text>
+        <text class="a4bV" x="420" y="352" text-anchor="end">1.51</text>
+        <text class="a4bL" x="40" y="378">point-in-time universe, all 50</text>
+        <text class="a4bV" x="420" y="378" text-anchor="end">-0.01</text>
+
+        <text class="a4bS" x="470" y="48">each observation earns the next 5 days</text>
+        <text class="a4bS" x="470" y="66">a shuffled split sends its neighbours to train</text>
+        <text class="a4bS" x="612" y="94">days, in time order</text>
+        <text class="a4bS" x="470" y="161">train, day before</text>
+        <text class="a4bB" x="470" y="197">test observation</text>
+        <text class="a4bS" x="470" y="233">train, day after</text>
+        <text class="a4bS" x="612" y="268">4 of the test's 5 days sit inside</text>
+        <text class="a4bS" x="612" y="284">each training neighbour's span</text>
+
+        <text class="a4bS" x="470" y="316">best of 100 rules on nothing, out of sample, 100 worlds</text>
+        <text class="a4bL" x="470" y="342">shuffled, 5-day observations</text>
+        <text class="a4bV" x="850" y="342" text-anchor="end">0.65</text>
+        <text class="a4bL" x="470" y="366">shuffled, purged: 141 left to train</text>
+        <text class="a4bV" x="850" y="366" text-anchor="end">-0.02</text>
+        <text class="a4bL" x="470" y="390">shuffled, 1-day observations</text>
+        <text class="a4bV" x="850" y="390" text-anchor="end">0.10</text>
+
+        <text class="a4bN" x="30" y="422">Left: the list was drawn up at the end, so the losers were never in the test. Right: the test's own days sit</text>
+        <text class="a4bN" x="30" y="440">inside its training neighbours' spans. Neither leak needs the rule itself to look ahead.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the steel line rises only because the dashed losers were removed; the steel bar scores well only because its neighbours trained on its days.</figcaption>
+    </figure>
+
+    <div class="wk" id="a4-leak">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">The generator behind every session, running in this page, with the leaks planted on purpose. Pick a class and the box prints the canon figures at the canon seeds, with the trial count beside them. Every world has zero alpha, so any number away from zero is the leak.</span>
+      </div>
+      <div class="wk-body">
+        <label class="sql-label" for="a4-leak-class">Which leak to plant</label>
+        <select class="sql-code" id="a4-leak-class">
+          <option value="honest" selected>Lookahead: the honest rule, days up to t (200 worlds)</option>
+          <option value="shifted">Lookahead: the rule shifted one day, includes the day it trades (200 worlds)</option>
+          <option value="survivorship">Survivorship: drop series that ended below -20 percent (100 trials of 50 series)</option>
+        </select>
+        <div id="a4-leak-out"></div>
+        <p class="sql-note" id="a4-leak-verdict">...</p>
+      </div>
+      <div class="wk-foot" id="a4-leak-self">...</div>
+    </div>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Survivorship: the losers were never in the test<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Generate 50 series with no alpha at all, 504 days each, about two years. Then apply a rule that sounds like housekeeping: drop anything that ended below -20 percent, because those are the ones that were delisted, closed or no longer qualify. On average the rule removes 9.5 of the 50. Hold the remaining series in equal weight from the start and the Sharpe ratio is 1.51. Hold all 50, the universe as it actually stood on day one, and it is -0.01. Means over 100 trials.</p>
+        <p>Nothing about the rule is wrong in itself. What is wrong is when it was applied. A list drawn up at the end of the period knows which series failed, and testing on that list is testing with knowledge of the outcome. The honest universe is point-in-time: on each date, the series that existed and qualified on that date, including the ones that later failed.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Marlow Street's researcher (constructed) had built the 1.8 on "the current list", a file downloaded once and kept. Asked which series were in the universe on the first day of the backtest, nobody could say, because the file had no history. The head did not assume the worst and did not assume it away. She wrote "survivorship: unknown" on the proposal and asked for the list as it stood on day one, with the dates each series joined and left.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Shuffled splits: when neighbours share days<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Every tabular tool shuffles rows before it folds them, and on independent rows that is correct. On a backtest whose observations each earn the next five days, it is a leak. A test observation's five days are four-fifths inside the training observation on either side of it, and a random fold almost always puts those neighbours in the training set. The rule is chosen partly on the very days it is then tested on.</p>
+        <p>The size, from 100 worlds with no alpha and the best of 100 rules kept: shuffled five-fold cross-validation on five-day observations reads 0.65 out of sample, on nothing. Purge the training observations whose span touches a test span and it falls back to -0.02. With one-day observations, which do not overlap, the shuffled split reads 0.10, within trial noise of zero (about 0.07 at 100 trials) and of the walk-forward's -0.05. So the leak needs both ingredients: a shuffle and overlap.</p>
+        <p>The engine's own self test checks this property on every page load: on its smaller check, a shuffled split reads 0.62 and the purged one -0.14. When the purge was deliberately broken into a step that removes nothing, that check failed, 0.62 then 0.62, which is how anyone can know the purge is doing work.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where serious people disagree<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>How far back must a point-in-time universe go, and how much does survivorship matter in practice?</strong> The generator can show that the mechanism exists and that, with a -20 percent floor on 50 zero-alpha series, it is large. It cannot say how large it is on any real universe, because that depends on how many series failed, how badly, how far back the record of failures reaches, and whether they were dropped before or after their losses. Those are facts about a real record, and none of them is in the generator. Reasonable reviewers differ on how far back a point-in-time universe must be rebuilt before the remaining gap stops mattering, and nothing measured here settles it. Treat the size as an empirical question for the real record, never as a constant carried over from this page.</p>
+        <p><strong>Purged k-fold or walk-forward?</strong> Lopez de Prado (2018), Advances in Financial Machine Learning, Wiley, is described in catalogue listings as explaining in chapter 7 why ordinary k-fold cross-validation fails in finance and offering a purged k-fold as the solution, and as setting walk-forward beside cross-validation and a combinatorial purged version in chapter 12. On that view a purged cross-validation uses more of the history than a single walk-forward path. Others prefer walk-forward because it is the only design in which the test always follows the training in time, which is how the strategy will actually be run. On this generator a purged blocked split reads 0.06 and walk-forward -0.07 on the five-day rung, both within noise of zero, so the bench does not choose between them. Both camps agree on what matters most: never shuffle overlapping observations without a purge.</p>
+        <p><strong>The embargo.</strong> It drops a few training observations straight after each test block, to absorb serial correlation that a purge might miss. On this generator it changes nothing measurable (-0.10 with it, 0.06 without, against a trial noise of about 0.07), because the purge already removes the overlap. That is a statement about this world, not about the embargo, which is taught as described and not shown.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>What a purge costs, and why the shuffled one looks worse<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Purging a blocked split, where the test fold is one contiguous stretch, costs only the few observations at its edges: 597 training observations against 601 unpurged. Purging a shuffled split is another matter. The test observations are scattered through the whole history, so almost every training observation touches one of them, and only 141 of 601 survive. On so small a sample the best of 100 rules reports 2.77 in-sample, because the maximum of many noisy estimates grows as the sample shrinks, while the out-of-sample figure stays at -0.02.</p>
+        <p>The lesson for a reviewer is that a purge is cheap on a split that respects time and ruinous on one that does not. If a pipeline needs a purge that discards three quarters of the data, the split was the wrong shape to begin with. Practitioner session 5 builds all eight rows of this comparison.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · build-along</span>
+      <h2>The leak audit</h2>
+      <span class="tag build">17 min hands on</span>
+    </div>
+    <p class="lede">No code. Marlow Street's head puts five questions to the researcher behind the 1.8, one gate per class plus the one test that catches lookahead outright. Work through them on a result your own team has presented. Every gate ends in one of three words: passed, failed or unanswered, and an unanswered gate is treated as failed until somebody answers it.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn audit path. A hatched pile on the left labelled 1.8, on the desk, sits at the start of a line running right through four gates, each made of two posts and a steel crossbar. Gate 1, lookahead: when could each input first be known; reading, traded-day correlation 0.358 when shifted, minus 0.001 honest. Gate 2, survivorship: which series were in the universe on day one; reading, survivors 1.51, all 50 minus 0.01. Gate 3, restatement: was any figure revised, and which version ran; no number here, the generator never revises. Gate 4, shuffled splits: split in time, and do observations overlap; reading, shuffled 0.65, purged minus 0.02. A note says the 1.8 is read only after it has passed all four gates, and an unanswered gate counts as failed.">
+        <defs>
+          <filter id="a4cSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="47" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="a4cHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#7A1F3D" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="a4cAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .a4cH { font: 800 12px Inter, -apple-system, "Segoe UI", sans-serif; fill: #2A1118; }
+          .a4cL { font: 600 12px Inter, -apple-system, "Segoe UI", sans-serif; fill: #2A1118; }
+          .a4cS { font: 400 11px Inter, -apple-system, "Segoe UI", sans-serif; fill: #6B5159; }
+          .a4cB { font: 800 11px Inter, -apple-system, "Segoe UI", sans-serif; fill: #2A5068; }
+          .a4cV { font: 800 16px Inter, -apple-system, "Segoe UI", sans-serif; fill: #4A1024; }
+          .a4cN { font: 400 12px Inter, -apple-system, "Segoe UI", sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="a4cH" x="80" y="26">THE LEAK AUDIT: FOUR GATES, ONE PER CLASS</text>
+
+        <g filter="url(#a4cSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- doodle anchor: a magnifier -->
+          <circle cx="44" cy="44" r="12" fill="#FFFFFF"/>
+          <path d="M53 53 L64 64" stroke-width="2.4"/>
+
+          <!-- the pile: the 1.8 on the desk -->
+          <path d="M30 180 C40 132 88 118 118 140 C138 156 136 174 130 180 Z" fill="url(#a4cHc)"/>
+
+          <!-- the audit path -->
+          <path d="M136 150 L866 150" marker-end="url(#a4cAr)"/>
+
+          <!-- gate 1 -->
+          <path d="M170 190 L170 94 M270 190 L270 94"/>
+          <path d="M164 92 L276 92" stroke="#3B6E8F" stroke-width="3.5"/>
+          <!-- gate 2 -->
+          <path d="M360 190 L360 94 M460 190 L460 94"/>
+          <path d="M354 92 L466 92" stroke="#3B6E8F" stroke-width="3.5"/>
+          <!-- gate 3 -->
+          <path d="M550 190 L550 94 M650 190 L650 94"/>
+          <path d="M544 92 L656 92" stroke="#3B6E8F" stroke-width="3.5"/>
+          <!-- gate 4 -->
+          <path d="M740 190 L740 94 M840 190 L840 94"/>
+          <path d="M734 92 L846 92" stroke="#3B6E8F" stroke-width="3.5"/>
+        </g>
+
+        <text class="a4cV" x="75" y="206" text-anchor="middle">1.8</text>
+        <text class="a4cS" x="75" y="222" text-anchor="middle">on the desk</text>
+
+        <text class="a4cH" x="220" y="78" text-anchor="middle">1 · lookahead</text>
+        <text class="a4cS" x="220" y="214" text-anchor="middle">when could each input</text>
+        <text class="a4cS" x="220" y="230" text-anchor="middle">first be known?</text>
+        <text class="a4cB" x="220" y="254" text-anchor="middle">traded-day corr 0.358</text>
+        <text class="a4cS" x="220" y="270" text-anchor="middle">shifted; honest reads -0.001</text>
+
+        <text class="a4cH" x="410" y="78" text-anchor="middle">2 · survivorship</text>
+        <text class="a4cS" x="410" y="214" text-anchor="middle">which series were in</text>
+        <text class="a4cS" x="410" y="230" text-anchor="middle">the universe on day one?</text>
+        <text class="a4cB" x="410" y="254" text-anchor="middle">survivors 1.51</text>
+        <text class="a4cS" x="410" y="270" text-anchor="middle">all 50 read -0.01</text>
+
+        <text class="a4cH" x="600" y="78" text-anchor="middle">3 · restatement</text>
+        <text class="a4cS" x="600" y="214" text-anchor="middle">was any figure revised,</text>
+        <text class="a4cS" x="600" y="230" text-anchor="middle">and which version ran?</text>
+        <text class="a4cB" x="600" y="254" text-anchor="middle">no number here</text>
+        <text class="a4cS" x="600" y="270" text-anchor="middle">the generator never revises</text>
+
+        <text class="a4cH" x="790" y="78" text-anchor="middle">4 · shuffled splits</text>
+        <text class="a4cS" x="790" y="214" text-anchor="middle">split in time, and do</text>
+        <text class="a4cS" x="790" y="230" text-anchor="middle">observations overlap?</text>
+        <text class="a4cB" x="790" y="254" text-anchor="middle">shuffled 0.65</text>
+        <text class="a4cS" x="790" y="270" text-anchor="middle">purged -0.02</text>
+
+        <text class="a4cN" x="30" y="304">The 1.8 is read only after it has passed all four gates. An unanswered gate counts as a failed one until somebody</text>
+        <text class="a4cN" x="30" y="322">answers it. Readings are canon means on zero alpha: 200 worlds for lookahead, 100 for the other two.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - four gates, one per class; a number that has skipped one has not been read yet.</figcaption>
+    </figure>
+
+    <div class="steps">
+      <div class="step"><div>
+        <h4>When was each input knowable?</h4>
+        <p>List every input the rule reads. Beside each, write two dates: the date the value describes, and the date it could first have been read. If the backtest joins on the first date, the rule is reading values before they existed. Marlow Street's researcher found one input stamped by the day it described and published the next morning, and moved it back a day.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Which series were in the universe on day one?</h4>
+        <p>Ask for the list of series as it stood on the first day of the backtest, with the date each joined and left. "Today's list" is not an answer. If the list cannot be produced, write "survivorship: unknown" and remember the generator's version of the gap: 1.51 on survivors against -0.01 on everyone, from series with no alpha at all.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Were any figures revised, and which version did the backtest read?</h4>
+        <p>For each input that can be corrected after publication, ask whether the backtest read it as first published on each date or as it stands today. Only a point-in-time record can answer the first way. There is no generator number to hold this against, so the answer is a yes or a no, and a no means the gate is not yet passed.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>How was the split made, and do the observations overlap?</h4>
+        <p>Two questions in one. Was the test period after the training period, or were the rows shuffled? And does each observation earn more than one day, so that neighbours share days? A shuffle with overlap and no purge is the combination that lifts nothing to 0.65; ask which of the three ingredients is present.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>What does the correlation of position with the traded day read?</h4>
+        <p>Ask for one number: the correlation between each day's position and the return earned on that same day, computed on the rule as it was backtested and on a version deliberately lagged one extra day. If the backtested rule reads well above the lagged one, something is reading the traded day. On the generator the honest rule reads -0.001 and the shifted one 0.358.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Write one word per gate</h4>
+        <p>Passed, failed or unanswered, for each of the four classes. Marlow Street's sheet read: lookahead passed after one input was moved, survivorship unanswered, restatement unanswered, split passed (walk-forward, daily observations). The head did not read the 1.8 again until the two unanswered gates were closed.</p>
+      </div></div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> Before reading any backtest number, ask what the rule could have known on the day it traded, and from which list and which version of the record. A leak needs no selection and no bad intent; one misaligned date is enough to turn a random walk into a 6.11. The number on the slide is only as honest as the dates under it.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">A five-day momentum rule on a random walk with no alpha reads 0.02 built honestly and 6.11 when its signal is shifted one day. Which number catches the shift?</p>
+      <div class="qopt">A · The correlation of the position with the previous day's return, which is high for the shifted rule</div>
+      <div class="qopt">B · The correlation of the position with the return on the day it trades: -0.001 honest against 0.358 shifted, over 200 worlds</div>
+      <div class="qopt">C · The Sharpe ratio alone, since anything above 3 must be a leak</div>
+      <q class="qwhy">The previous-day correlation is 0.358 against 0.355, nearly the same for both, because the rule reads its own inputs either way; it is not a test. Only the traded-day correlation separates them, since an honest position cannot have seen that day. A large Sharpe ratio is a reason to look, not a catch.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">Fifty series with no alpha are filtered to drop any that ended below -20 percent. The survivors held in equal weight read a Sharpe ratio of 1.51. What is the leak?</p>
+      <div class="qopt">A · The list was drawn up with knowledge of how each series ended; on the universe as it stood on day one, all 50, the same holding reads -0.01 over 100 trials</div>
+      <div class="qopt">B · The -20 percent floor is too strict, and a looser floor would remove the effect</div>
+      <div class="qopt">C · Equal weighting is the problem; any other weighting would read near zero</div>
+      <q class="qwhy">The rule is applied at the end, so it removes exactly the series that went on to lose, and the test never sees them. The fix is a point-in-time universe, not a different floor or weighting. How much this matters on a real universe is an empirical question the generator cannot answer.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">On the same zero-alpha world, shuffled five-fold cross-validation reads 0.65 out of sample with five-day observations but 0.10 with one-day observations. Why the difference?</p>
+      <div class="qopt">A · Five-day observations have a higher true Sharpe ratio</div>
+      <div class="qopt">B · Five folds is too few for daily data</div>
+      <div class="qopt">C · Five-day observations overlap, so a test observation shares four of its five days with the training neighbours on each side; purging those neighbours brings it back to -0.02</div>
+      <q class="qwhy">The leak needs a shuffle and overlap together. With one-day observations there is no overlap and 0.10 is within trial noise of zero (about 0.07 at 100 worlds). There is no alpha in either case, so a higher true Sharpe ratio is impossible.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before session 5</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">Twenty minutes, on one result your own team has reported, in any field where rows carry a date.</p>
+    <div class="steps">
+      <div class="step"><div>
+        <h4>Run the four gates on one real result</h4>
+        <p>Write one word per gate: passed, failed or unanswered. For each unanswered gate, write the name of the person who could answer it and the one artefact you would need from them: an availability date, a day-one list, a version history, a split description.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Find one date that means two things</h4>
+        <p>Look through one table your team uses and find a date column that could mean either "the day this describes" or "the day this was known". Write down which it actually means and how you found out. If nobody knows, that column is where your lookahead will come from.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Bring Marlow Street's two open gates</h4>
+        <p>Survivorship and restatement were left unanswered on the 1.8. Write one sentence on what the head should do if the day-one list never turns up. Session 5 adds the costs and the sizing that decide whether a clean 1.8 is still worth funding.</p>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Lookahead, planted and caught</span><span class="note">Five-day momentum rule on zero alpha: 0.02 honest, 6.11 shifted one day. Position against traded day: -0.001 against 0.358. 200 worlds.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The correlation that is not a test</span><span class="note">Position against the previous day: 0.358 honest, 0.355 shifted. The rule reading its own inputs, nothing more.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Restatement</span><span class="note">A figure revised after the fact used as if known then; point-in-time record against today's corrected record. No number: the generator never revises.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Survivorship, planted and caught</span><span class="note">50 zero-alpha series, 504 days: 9.5 dropped on average; survivors 1.51 against -0.01 point-in-time. 100 trials.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Shuffled splits</span><span class="note">Five-day observations: 0.65 out of sample on nothing, -0.02 purged; one-day observations 0.10, within noise. 100 worlds.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The leak audit</span><span class="note">Five questions, four gates, one word per gate: passed, failed or unanswered.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Purge, embargo and walk-forward in code</span><span class="note">All eight split rows built in practitioner session 5. The embargo's effect cannot be shown on this generator.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Why the playbook breaks here</span><span class="note">Costs, capacity and sizing against a clean result. Session 5.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Target leakage in general, and the leak hunt on one model</span><span class="note">Live in learn-feature-engineering-with-phoebe, builder session 5, and learn-model-risk-with-phoebe, practitioner session 3.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Any market, price, instrument or trade</span><span class="note">Out of scope by design. Synthetic data only; nothing here is investment advice, and no figure describes a real market.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>The one line.</strong> At the close of day t, the rule may use only what was knowable then, from the list and the record as they stood then.</div>
+      <div class="cheat-item"><strong>Lookahead.</strong> Shift a momentum rule one day on a random walk: 0.02 becomes 6.11. 200 worlds.</div>
+      <div class="cheat-item"><strong>The catch.</strong> Position against the traded day: -0.001 honest, 0.358 shifted. The previous day is not a test.</div>
+      <div class="cheat-item"><strong>Restatement.</strong> Today's corrected record is not what was known then. Ask for point-in-time. No generator number.</div>
+      <div class="cheat-item"><strong>Survivorship.</strong> Drop the losers at the end: 1.51 on survivors, -0.01 on all 50. 100 trials.</div>
+      <div class="cheat-item"><strong>Shuffled splits.</strong> Overlap plus shuffle: 0.65 on nothing. Purged: -0.02. No overlap: 0.10, within noise.</div>
+      <div class="cheat-item"><strong>The purge's price.</strong> Cheap on a split in time (601 to 597), ruinous on a shuffled one (601 to 141).</div>
+      <div class="cheat-item"><strong>The audit.</strong> One word per gate: passed, failed or unanswered. Unanswered counts as failed.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Leader session 4 of 6 · learn-quant-trading-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="a3-try-a-thousand-publish-the-best.html">← Leader session 3 · Try a thousand things, publish the best</a>
+        <a href="a5-why-the-playbook-breaks-here.html">Leader session 5 · Why the data-science playbook breaks here →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/qt-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof QT === "undefined") return;
+  var sel = document.getElementById("a4-leak-class");
+  var out = document.getElementById("a4-leak-out");
+  var verdict = document.getElementById("a4-leak-verdict");
+  var self = document.getElementById("a4-leak-self");
+
+  function row(q, v, w, cls) {
+    return "<tr><td>" + q + "</td><td><b" + (cls ? ' class="' + cls + '"' : "") + ">" + v + "</b></td><td>" + w + "</td></tr>";
+  }
+
+  function render() {
+    var c = sel.value, html = '<table class="sql-table"><thead><tr><th>Quantity</th><th>Value</th><th>What it is</th></tr></thead><tbody>';
+    if (c === "survivorship") {
+      /* canon seeds: ladder F uses seed0 = 100000, 100 trials of 50 series: 9.5 dropped, 1.51 survivors, -0.01 point-in-time */
+      var f = QT.survivorshipRung({ M: 50, floor: -0.2, days: 504 }, 100, 100000);
+      html += row("Equal-weight Sharpe ratio, survivors only", f.survivorsSR.toFixed(2), "the series still on today's list, held from day one", "a4-leak-hot");
+      html += row("The same holding, point-in-time universe", f.pointInTimeSR.toFixed(2), "all " + f.M + " series as they stood on day one");
+      html += row("Series dropped by the rule, on average", f.meanDropped.toFixed(1) + " of " + f.M, "ended below " + Math.round(f.floor * 100) + " percent after 504 days");
+      html += row("Trials averaged", f.trials, "the canon trial count, at the canon seed");
+      html += "</tbody></table>";
+      out.innerHTML = html;
+      verdict.textContent = "Every series has zero alpha. Dropping the " + f.meanDropped.toFixed(1) + " that ended below the floor lifts the survivors to " + f.survivorsSR.toFixed(2) + ", while the universe as it stood on day one reads " + f.pointInTimeSR.toFixed(2) + ". The gap is the list, not the rule.";
+    } else {
+      var shift = c === "shifted" ? -1 : 0;
+      /* canon seeds: ladder G uses seed0 = 110000, 200 worlds: honest 0.02 / -0.001 / 0.358, shifted 6.11 / 0.358 / 0.355 */
+      var g = QT.lookaheadRung(shift, 200, 110000);
+      html += row("Annualised Sharpe ratio", g.meanSR.toFixed(2), shift ? "the rule's window includes the day it trades" : "the rule reads days up to t, trades t+1", shift ? "a4-leak-hot" : "");
+      html += row("Position against the traded day's return", g.corrWithTradedDay.toFixed(3), "the catch: an honest position has not seen this day", "a4-leak-hot");
+      html += row("Position against the previous day's return", g.corrWithPastDay.toFixed(3), "the rule reading its own inputs; not a test");
+      html += row("Worlds averaged", g.trials, "the canon trial count, at the canon seed");
+      html += "</tbody></table>";
+      out.innerHTML = html;
+      verdict.textContent = shift
+        ? "Shifted one day, the same rule on the same random walks reads " + g.meanSR.toFixed(2) + ", and its position correlates " + g.corrWithTradedDay.toFixed(3) + " with the day it trades. Nothing became predictable; the rule read its own answer."
+        : "Built honestly, the rule reads " + g.meanSR.toFixed(2) + " on a random walk, and its position correlates " + g.corrWithTradedDay.toFixed(3) + " with the day it trades: nothing, as it must be. Switch to the shifted rule and watch the second row.";
+    }
+  }
+
+  function start() {
+    out.innerHTML = '<p class="sql-note">Running the canon worlds...</p>';
+    verdict.textContent = "Running.";
+    setTimeout(render, 0);
+  }
+
+  var t = QT.selfTest();
+  self.textContent = t.ok
+    ? "The generator's six properties pass in this browser, so the figures above are the figures any correct run gives. Synthetic data only: nothing here describes a real market, and nothing here is investment advice."
+    : "The generator's self test did not pass in this browser, so nothing above should be believed.";
+
+  sel.addEventListener("change", start);
+  start();
+})();
+</script>
+<style>
+  #a4-leak .sql-code { border: 1px solid var(--hairline); border-radius: 8px; max-width: 32rem; }
+  #a4-leak table.sql-table { margin: .6rem 0 .2rem; font-size: .85rem; }
+  #a4-leak .a4-leak-hot { color: var(--amber); }
+</style>
+</body>
+</html>

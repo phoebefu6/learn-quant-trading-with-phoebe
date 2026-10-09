@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Sixteen sessions on the one experiment that cannot be rerun. Strategy search as a multiple-testing problem, the deflated Sharpe ratio, purged walk-forward, the leakage classes, costs and sizing. Synthetic data only, measured in the page. Not investment advice. Free.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="Learn Quant Trading with Phoebe">
+<meta property="og:description" content="The best of 100 random rules reports a Sharpe ratio of 1.80 on nothing and earns nothing afterwards. A data-science course about the backtest, not a trading course.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Learn Quant Trading with Phoebe">
+<meta name="twitter:description" content="One history, no rerun, and the number was chosen. Measured on a generator where the truth is a dial.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Learn Quant Trading with Phoebe</title>
+<link rel="stylesheet" href="assets/style.css?v=1">
+<style>
+
+  .stats-row { display: flex; gap: 2.4rem; margin-top: 1.5rem; flex-wrap: wrap; }
+  .stat b { display: block; font-size: 2.1rem; font-weight: 800; line-height: 1.05; font-variant-numeric: tabular-nums; }
+  .stat span { font-size: .72rem; opacity: .85; text-transform: uppercase; letter-spacing: .09em; font-weight: 600; }
+
+  .course-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+  .course-card {
+    border: 1px solid var(--hairline);
+    border-top: 4px solid var(--diff, var(--indigo));
+    border-radius: var(--radius);
+    padding: 1.2rem 1.3rem 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    text-decoration: none;
+    color: var(--ink);
+    background: #fff;
+    transition: box-shadow .15s ease, border-color .15s ease, transform .15s ease;
+    position: relative;
+  }
+  .course-card:hover { border-color: var(--indigo-soft); border-top-color: var(--diff, var(--indigo)); box-shadow: 0 8px 28px rgba(122,31,61,.16); transform: translateY(-3px); }
+  .course-card .cicon { font-size: 1.7rem; line-height: 1; }
+  .course-card .cnum { font-size: .72rem; font-weight: 700; color: var(--indigo); text-transform: uppercase; letter-spacing: .1em; }
+  .course-card h3 { font-size: 1.05rem; font-weight: 800; line-height: 1.3; }
+  .course-card p { font-size: .85rem; color: var(--muted); flex: 1; }
+  .course-card .meta { display: flex; gap: .4rem; flex-wrap: wrap; }
+
+  .diff-legend { display: flex; gap: 1rem; margin-top: 1.6rem; font-size: .74rem; color: var(--muted); font-weight: 600; flex-wrap: wrap; }
+  .diff-legend i { display: inline-block; width: .85rem; height: .35rem; border-radius: 999px; margin-right: .35rem; vertical-align: middle; }
+
+  .paths { margin-top: 2.6rem; }
+  .paths h2 { font-size: 1.3rem; font-weight: 800; margin-bottom: .3rem; }
+  .paths .plede { color: var(--muted); font-size: .92rem; margin-bottom: .8rem; }
+  .path { display: flex; gap: .55rem; align-items: center; padding: .75rem 0; border-bottom: .5px solid var(--hairline); flex-wrap: wrap; }
+  .path:last-child { border-bottom: none; }
+  .path b { min-width: 15.5rem; font-size: .9rem; }
+  .path .pstep { background: var(--indigo-50); color: var(--indigo); border-radius: 999px; padding: .16rem .68rem; font-weight: 700; font-size: .8rem; text-decoration: none; transition: all .12s ease; }
+  .path .pstep:hover { background: var(--indigo); color: #fff; }
+  .path .parr { color: var(--muted); font-weight: 700; }
+
+  .transfer { margin-top: 2.6rem; }
+  .transfer h2 { font-size: 1.3rem; font-weight: 800; margin-bottom: .3rem; }
+  .transfer .plede { color: var(--muted); font-size: .92rem; margin-bottom: .9rem; }
+  .transfer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 1rem; }
+  .transfer-col { border: 1px solid var(--hairline); border-radius: var(--radius); background: #fff; padding: 1rem 1.1rem 1rem; }
+  .transfer-col h3 { font-size: .78rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; margin-bottom: .6rem; padding-bottom: .5rem; border-bottom: 2px solid var(--indigo-soft); color: var(--indigo-deep); }
+  .transfer-col.keep h3 { border-bottom-color: var(--indigo); }
+  .transfer-col.learn h3 { border-bottom-color: var(--amber); color: var(--amber-ink-text); }
+  .transfer-col.unlearn h3 { border-bottom-color: var(--ink); color: var(--ink); }
+  .transfer-col ul { list-style: none; margin: 0; padding: 0; }
+  .transfer-col li { font-size: .86rem; color: var(--ink); padding: .35rem 0 .35rem 1rem; position: relative; line-height: 1.5; }
+  .transfer-col li::before { content: ""; position: absolute; left: 0; top: .85rem; width: .45rem; height: .45rem; border-radius: 999px; background: var(--indigo-mid); }
+  .transfer-col.learn li::before { background: var(--amber); }
+  .transfer-col.unlearn li::before { background: var(--ink); }
+
+  .mm-section { margin-top: 1.6rem; }
+  .mm-section h2 { font-size: 1.3rem; font-weight: 800; margin-bottom: .2rem; }
+  .mm-section .mm-lede { color: var(--muted); font-size: .92rem; margin-bottom: .4rem; }
+  .mm-wrap { border: 1px solid var(--hairline); border-radius: var(--radius); background: linear-gradient(180deg,#fff,#FAF0F3); padding: .6rem; overflow-x: auto; }
+  .mm-svg { width: 100%; height: auto; display: block; max-width: 60rem; margin: 0 auto; min-width: 34rem; }
+  .mm-link { cursor: pointer; text-decoration: none; }
+  .mm-node rect { transition: opacity .15s ease, filter .15s ease; }
+  .mm-node text { pointer-events: none; }
+  .mm-link:hover .mm-node rect { filter: brightness(1.06); }
+  .mm-edge { transition: opacity .15s ease; }
+
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn with Phoebe · Emerging Tech</div>
+    <h1>Learn <span class="accent">Quant Trading</span> with Phoebe</h1>
+    <p class="sub">A data-science course about the one experiment that cannot be rerun. A backtest is one realised path of history, read once, by somebody who tried many rules on it and brought you the best. Strategy search is a multiple-testing problem; the market is adversarial, reflexive and non-stationary, so a signal decays once it is found; the signal-to-noise ratio is near zero; leakage has classes of its own; costs erase small edges; risk is the product. Every number is measured on a generator where the truth is a dial: the best of 100 random rules reports a Sharpe ratio of 1.80 on nothing and earns nothing afterwards, the deflated test lets through zero false discoveries and, on two years of data, zero real ones too, and a shuffled split lifts a rule with no information to 0.65. Six leader sessions on the decision, ten practitioner sessions on the build. Synthetic data only, no market series, no tickers, no prices, and nothing here is investment advice.</p>
+    <div class="stats-row">
+      <div class="stat"><b data-count="16">16</b><span>sessions, two tracks</span></div>
+      <div class="stat"><b>1.80</b><span>best-of-100 Sharpe ratio on nothing</span></div>
+      <div class="stat"><b>0.65</b><span>what a shuffled split gives a rule with nothing</span></div>
+      <div class="stat"><b data-count="6">6</b><span>engine properties, one fails on a no-op purge</span></div>
+      <div class="stat"><b data-count="45">45</b><span>min per session</span></div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="section">
+    <div class="paths" style="margin-top:0">
+      <h2>Leader track 🧭 <span style="font-size:.85rem;font-weight:600;color:var(--muted)">· six sessions, no code</span></h2>
+      <p class="plede">For anyone being asked to fund, approve or explain a research result that was backtested. What a backtest is and is not, why a market is not a customer, what the best of a thousand looks like on nothing, the leakage classes drawn as mechanisms, why the data-science playbook breaks here, and a transfer map for anyone arriving from a data team.</p>
+    </div>
+    <div class="course-grid">
+      <a class="course-card" href="courses/a1-one-history-not-an-experiment.html" style="--diff:#FBBF24">
+        <span class="cicon">🧪</span>
+        <span class="cnum">Leader session 1 · start here</span>
+        <h3>A backtest is one history, not an experiment</h3>
+        <p>No control group, no rerun, and the rule was chosen by reading the path it is scored on. The best of 100 on nothing: 1.80.</p>
+        <span class="meta"><span class="pill amber">▶ Start here</span></span>
+      </a>
+      <a class="course-card" href="courses/a2-the-market-is-not-a-customer.html" style="--diff:#FBBF24">
+        <span class="cicon">🪞</span>
+        <span class="cnum">Leader session 2</span>
+        <h3>The market is not a customer</h3>
+        <p>Adversarial, reflexive, decaying. Published predictors earn 26 percent less out of sample and 58 percent less after publication.</p>
+      </a>
+      <a class="course-card" href="courses/a3-try-a-thousand-publish-the-best.html" style="--diff:#FB923C">
+        <span class="cicon">🎯</span>
+        <span class="cnum">Leader session 3</span>
+        <h3>Try a thousand things, publish the best</h3>
+        <p>The expected maximum of N trials, the t above 3 argument, and the haircut that undoes selection and pays for it in power.</p>
+      </a>
+      <a class="course-card" href="courses/a4-the-leakage-classes.html" style="--diff:#FB923C">
+        <span class="cicon">🕳️</span>
+        <span class="cnum">Leader session 4</span>
+        <h3>The leakage classes</h3>
+        <p>Lookahead, survivorship, restatement and the shuffled split, each drawn as the mechanism that lets the future in.</p>
+      </a>
+      <a class="course-card" href="courses/a5-why-the-playbook-breaks-here.html" style="--diff:#F87171">
+        <span class="cicon">🧩</span>
+        <span class="cnum">Leader session 5</span>
+        <h3>Why the data-science playbook breaks here</h3>
+        <p>The source, the identity, the ground truth, the feedback loop and the cost of being wrong. Costs, capacity, paper against live.</p>
+      </a>
+      <a class="course-card" href="courses/a6-from-churn-model-to-trading-desk.html" style="--diff:#F87171">
+        <span class="cicon">🗺️</span>
+        <span class="cnum">Leader session 6</span>
+        <h3>From churn model to trading desk: the transfer map</h3>
+        <p>What carries over, what must be learned, what must be unlearned, and a 90-day self-study ladder on official sources.</p>
+      </a>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="paths" style="margin-top:0">
+      <h2>Practitioner track 🛠️ <span style="font-size:.85rem;font-weight:600;color:var(--muted)">· ten sessions, hands on</span></h2>
+      <p class="plede">For whoever has to build a backtest and defend its numbers. The honest null, a strategy as a function, the max of N measured, the deflated Sharpe ratio implemented, splits that respect time, a real signal planted, costs, survivorship and lookahead caught, sizing where the mean and the median part, and a bench with an anti-lever and a break button.</p>
+    </div>
+    <div class="course-grid">
+      <a class="course-card" href="courses/p1-the-honest-null.html" style="--diff:#FBBF24">
+        <span class="cicon">🎲</span>
+        <span class="cnum">Practitioner session 1 · start here</span>
+        <h3>Generating the honest null</h3>
+        <p>A seeded random walk with alpha as a dial, and the noise in one Sharpe estimate measured: 0.71 on two years of nothing.</p>
+        <span class="meta"><span class="pill amber">▶ Start here</span></span>
+      </a>
+      <a class="course-card" href="courses/p2-a-strategy-as-a-function.html" style="--diff:#FBBF24">
+        <span class="cicon">⚙️</span>
+        <span class="cnum">Practitioner session 2</span>
+        <h3>A strategy as a function</h3>
+        <p>Signal, position, pnl and the Sharpe ratio from scratch, with Sharpe's own 1994 definitions read at source.</p>
+      </a>
+      <a class="course-card" href="courses/p3-the-max-of-n.html" style="--diff:#FB923C">
+        <span class="cicon">📈</span>
+        <span class="cnum">Practitioner session 3</span>
+        <h3>The max of N</h3>
+        <p>Best-of-N Sharpe on pure noise, measured against the square root of 2 ln N and against the published formula.</p>
+      </a>
+      <a class="course-card" href="courses/p4-the-deflated-sharpe-haircut.html" style="--diff:#FB923C">
+        <span class="cicon">✂️</span>
+        <span class="cnum">Practitioner session 4</span>
+        <h3>The deflated Sharpe haircut</h3>
+        <p>The probabilistic Sharpe ratio, the expected maximum, and the deflated verdict implemented and run on nothing.</p>
+      </a>
+      <a class="course-card" href="courses/p5-time-ordered-splits.html" style="--diff:#FB923C">
+        <span class="cicon">⏳</span>
+        <span class="cnum">Practitioner session 5</span>
+        <h3>Time-ordered splits</h3>
+        <p>Walk-forward, purging and the embargo, and what a shuffled k-fold leaks when observations overlap: 0.65 on nothing.</p>
+      </a>
+      <a class="course-card" href="courses/p6-planting-a-true-signal.html" style="--diff:#F87171">
+        <span class="cicon">🌱</span>
+        <span class="cnum">Practitioner session 6</span>
+        <h3>Planting a true signal</h3>
+        <p>Does the correction keep a real edge? Zero false discoveries, and a real 1.5 among 100 that almost never passes on three years.</p>
+      </a>
+      <a class="course-card" href="courses/p7-costs-against-a-small-edge.html" style="--diff:#F87171">
+        <span class="cicon">🧾</span>
+        <span class="cnum">Practitioner session 7</span>
+        <h3>Costs against a small edge</h3>
+        <p>Turnover, spread and slippage as one number per trade. A real 1.0 is gone by 15 basis points and negative at 20.</p>
+      </a>
+      <a class="course-card" href="courses/p8-survivorship-and-lookahead-planted.html" style="--diff:#F87171">
+        <span class="cicon">🔍</span>
+        <span class="cnum">Practitioner session 8</span>
+        <h3>Survivorship and lookahead, planted and caught</h3>
+        <p>Survivors alone read 1.51 on nothing; a one-day shift reads 6.11. Each fault planted in the generator, each caught by a test.</p>
+      </a>
+      <a class="course-card" href="courses/p9-sizing-and-drawdown.html" style="--diff:#EF4444">
+        <span class="cicon">⚖️</span>
+        <span class="cnum">Practitioner session 9</span>
+        <h3>Sizing and drawdown: risk is the product</h3>
+        <p>At leverage 12 the mean terminal wealth is 71 and the median is 1.45. Growth peaks at 6, where 98 percent of paths have halved.</p>
+      </a>
+      <a class="course-card" href="courses/p10-the-backtest-bench.html" style="--diff:#EF4444">
+        <span class="cicon">🎛️</span>
+        <span class="cnum">Practitioner session 10 · capstone</span>
+        <h3>The backtest bench</h3>
+        <p>Every dial exposed. Deploy the best in-sample rule and watch the drop; shuffle time order and watch the leak appear.</p>
+      </a>
+    </div>
+    <div class="diff-legend">
+      <span><i style="background:#FBBF24"></i>Foundations</span>
+      <span><i style="background:#FB923C"></i>Working depth</span>
+      <span><i style="background:#F87171"></i>Advanced</span>
+      <span><i style="background:#EF4444"></i>Hardest</span>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="paths">
+      <h2>Three ways through</h2>
+      <p class="plede">Everyone starts at session 1 of their track. These are the shortest useful routes if you cannot take all sixteen.</p>
+      <div class="path"><b>Somebody wants me to fund this</b>
+        <a class="pstep" href="courses/a1-one-history-not-an-experiment.html">One history</a><span class="parr">→</span>
+        <a class="pstep" href="courses/a3-try-a-thousand-publish-the-best.html">The best of N</a><span class="parr">→</span>
+        <a class="pstep" href="courses/a5-why-the-playbook-breaks-here.html">Why it breaks</a>
+      </div>
+      <div class="path"><b>I have to defend a Sharpe ratio</b>
+        <a class="pstep" href="courses/p3-the-max-of-n.html">The max of N</a><span class="parr">→</span>
+        <a class="pstep" href="courses/p4-the-deflated-sharpe-haircut.html">The haircut</a><span class="parr">→</span>
+        <a class="pstep" href="courses/p6-planting-a-true-signal.html">A real signal</a><span class="parr">→</span>
+        <a class="pstep" href="courses/p10-the-backtest-bench.html">The bench</a>
+      </div>
+      <div class="path"><b>I own the pipeline</b>
+        <a class="pstep" href="courses/p1-the-honest-null.html">The null</a><span class="parr">→</span>
+        <a class="pstep" href="courses/p5-time-ordered-splits.html">Splits</a><span class="parr">→</span>
+        <a class="pstep" href="courses/p8-survivorship-and-lookahead-planted.html">Leaks caught</a><span class="parr">→</span>
+        <a class="pstep" href="courses/p9-sizing-and-drawdown.html">Sizing</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="transfer">
+      <h2>If you come from a data team</h2>
+      <p class="plede">Leader session 6 in three columns. What a conventional analyst, engineer or scientist already has that is worth more here, what is new, and what is actively dangerous.</p>
+      <div class="transfer-grid">
+        <div class="transfer-col keep">
+          <h3>Carries over</h3>
+          <ul>
+            <li>Multiple-testing instincts: Bonferroni, false discovery rates, the habit of asking how many were tried</li>
+            <li>Pipeline hygiene: seeds, reproducibility, a reference implementation that must agree to a stated precision</li>
+            <li>Leakage hunting on a timeline, from feature engineering and model validation</li>
+            <li>Reading a result as a distribution over trials rather than a single run</li>
+          </ul>
+        </div>
+        <div class="transfer-col learn">
+          <h3>Must learn</h3>
+          <ul>
+            <li>The Sharpe ratio and its standard error: about 0.71 on two years of daily data with nothing there</li>
+            <li>The expected maximum of N trials and the deflated Sharpe ratio (Bailey and Lopez de Prado 2014)</li>
+            <li>Purged and embargoed walk-forward, and why overlapping observations make a shuffled split leak</li>
+            <li>Costs as turnover times basis points, and sizing where the mean and the median part ways</li>
+          </ul>
+        </div>
+        <div class="transfer-col unlearn">
+          <h3>Must unlearn</h3>
+          <ul>
+            <li>Shuffled k-fold as the default split; on overlapping observations it reports a finding on nothing</li>
+            <li>A good holdout score as evidence; the holdout is consumed by being read and cannot be redrawn</li>
+            <li>Reporting the mean path; at leverage 12 the mean is 71 and the median is 1.45</li>
+            <li>Treating the series as a customer who holds still; the signal decays once it is found and traded</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section mm-section">
+    <h2>The whole thing on one page</h2>
+    <p class="mm-lede">Every idea in the course and the session that owns it. Click any node to jump there.</p>
+    <div class="mm-wrap"><div id="mindmap"></div></div>
+  </section>
+
+  <section class="section">
+    <div class="paths">
+      <h2>What is real here</h2>
+      <p class="plede">Every number was computed before any page quoted it, on a generator whose truth is a dial. The algorithms run over it are the ordinary ones.</p>
+      <table class="pp-strip" style="width:100%;border-collapse:collapse">
+        <tr><td style="padding:.5rem 0;font-weight:700">The selection</td><td style="padding:.5rem 0;color:var(--muted)">N random rules scored on 503 days, the best kept and scored on the next 252. 200 worlds per rung. The best of 100 on nothing: 1.80 in-sample, -0.06 out</td></tr>
+        <tr><td style="padding:.5rem 0;font-weight:700">The haircut</td><td style="padding:.5rem 0;color:var(--muted)">The probabilistic and deflated Sharpe ratio from the 2014 paper, implemented from its equations and checked against its own Python snippet. Zero false discoveries on every planted rung</td></tr>
+        <tr><td style="padding:.5rem 0;font-weight:700">The split</td><td style="padding:.5rem 0;color:var(--muted)">Walk-forward, blocked and shuffled folds with a purge and an embargo. Shuffled on five-day holds: 0.65 on nothing. Purged: -0.02</td></tr>
+        <tr><td style="padding:.5rem 0;font-weight:700">The engine checks itself</td><td style="padding:.5rem 0;color:var(--muted)">Six properties on every page load; one fails when the purge is made a no-op. A Python reference reproduces all 635 canon numbers to 3.3e-13</td></tr>
+        <tr><td style="padding:.5rem 0;font-weight:700">No market</td><td style="padding:.5rem 0;color:var(--muted)">No series, no ticker, no price, no venue, no named fund or incident. Nothing here is investment advice, and no figure describes a real market</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span class="meta">part of <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a> · by Phoebe Fu · nothing here is investment advice · rolling-origin forecast evaluation lives in <a href="https://phoebefu6.github.io/learn-timeseries-forecasting-with-phoebe/">learn timeseries forecasting ↗</a> and model validation in <a href="https://phoebefu6.github.io/learn-model-risk-with-phoebe/">learn model risk ↗</a></span>
+  </footer>
+
+</main>
+
+<script>
+window.MINDMAP_DATA = {
+  "title": "The backtest\nthat lies",
+  "centerColor": "#4A1024",
+  "sessions": [
+    {
+      "label": "One history",
+      "href": "courses/a1-one-history-not-an-experiment.html",
+      "concepts": [
+        {"label": "The honest null", "href": "courses/p1-the-honest-null.html"},
+        {"label": "A strategy as a function", "href": "courses/p2-a-strategy-as-a-function.html"},
+        {"label": "The 0.71 ruler", "href": "courses/p1-the-honest-null.html"}
+      ]
+    },
+    {
+      "label": "Not a customer",
+      "href": "courses/a2-the-market-is-not-a-customer.html",
+      "concepts": [
+        {"label": "Post-publication decay", "href": "courses/a2-the-market-is-not-a-customer.html"},
+        {"label": "Signal to noise near zero", "href": "courses/a2-the-market-is-not-a-customer.html"},
+        {"label": "Reflexive, adversarial", "href": "courses/a5-why-the-playbook-breaks-here.html"}
+      ]
+    },
+    {
+      "label": "The best of N",
+      "href": "courses/a3-try-a-thousand-publish-the-best.html",
+      "concepts": [
+        {"label": "The max of N, measured", "href": "courses/p3-the-max-of-n.html"},
+        {"label": "The deflated Sharpe ratio", "href": "courses/p4-the-deflated-sharpe-haircut.html"},
+        {"label": "A real signal planted", "href": "courses/p6-planting-a-true-signal.html"}
+      ]
+    },
+    {
+      "label": "The leakage classes",
+      "href": "courses/a4-the-leakage-classes.html",
+      "concepts": [
+        {"label": "Time-ordered splits", "href": "courses/p5-time-ordered-splits.html"},
+        {"label": "Survivorship, caught", "href": "courses/p8-survivorship-and-lookahead-planted.html"},
+        {"label": "Lookahead, caught", "href": "courses/p8-survivorship-and-lookahead-planted.html"}
+      ]
+    },
+    {
+      "label": "Why the playbook breaks",
+      "href": "courses/a5-why-the-playbook-breaks-here.html",
+      "concepts": [
+        {"label": "Costs against an edge", "href": "courses/p7-costs-against-a-small-edge.html"},
+        {"label": "Sizing and drawdown", "href": "courses/p9-sizing-and-drawdown.html"},
+        {"label": "Paper against live", "href": "courses/a5-why-the-playbook-breaks-here.html"}
+      ]
+    },
+    {
+      "label": "The transfer map",
+      "href": "courses/a6-from-churn-model-to-trading-desk.html",
+      "concepts": [
+        {"label": "Carries over, learn, unlearn", "href": "courses/a6-from-churn-model-to-trading-desk.html"},
+        {"label": "The 90-day ladder", "href": "courses/a6-from-churn-model-to-trading-desk.html"},
+        {"label": "The backtest bench", "href": "courses/p10-the-backtest-bench.html"}
+      ]
+    }
+  ]
+};
+</script>
+<script src="assets/mindmap.js?v=1"></script>
+<script src="assets/app.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Practitioner session 9 of 10. Size one real Sharpe ratio of 1.0 at eight leverages over three years, read the mean beside the median and the drawdown, find the growth peak of this world at the Kelly fraction, and watch what sizing on an overstated Sharpe does. Synthetic data only, not investment advice.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="Sizing and drawdown: risk is the product - learn quant with phoebe">
+<meta property="og:description" content="Practitioner session 9 of 10. At leverage 12 the mean terminal wealth over 200 worlds is 71.48 and the median is 1.45. Growth peaks at 6. Measured.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/courses/p9-sizing-and-drawdown.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Sizing and drawdown: risk is the product - learn quant with phoebe">
+<meta name="twitter:description" content="The same edge, sized differently, is a different product. Read the median and the drawdown, never the mean alone.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Practitioner session 9 · Sizing and drawdown: risk is the product - learn quant with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-quant-trading-with-phoebe</a> / Practitioner session 9 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Quant Trading with Phoebe · Practitioner session 9 of 10</div>
+    <h1>Sizing and drawdown: <span class="accent">risk is the product</span></h1>
+    <p class="sub">Sessions 3 to 8 asked whether an edge is real and what is left of it after costs and planted faults. Tonight takes an edge that is real, a Sharpe ratio of exactly 1.0 planted in the generator, and changes only one thing: how much of it is held. Same signal, same 200 worlds, eight leverages. The mean outcome keeps climbing long after the typical outcome has started to fall, the growth rate peaks at one leverage and then collapses, and the leverage that maximises growth here turns out to be a number you can work out from two constants of the generator. The data is synthetic throughout, and nothing here is investment advice.</p>
+    <div class="chip-row">
+      <span class="chip level">🔴 Advanced</span>
+      <span class="chip audience">Anyone who will build or check a backtest</span>
+      <span class="chip audience">Comfortable with a browser console</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:3">3-15 · Mean against median</span>
+      <span class="a3" style="flex:3">15-27 · Drawdown and the growth peak</span>
+      <span class="a4" style="flex:4">27-45 · Build-along and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Marlow Street decides how much</h2>
+    </div>
+    <p class="lede">Marlow Street is a constructed research desk, four people and a head who has been handed a backtest with a Sharpe ratio of 1.8 and asked whether to fund it. Every earlier session asked a version of "is it real?". Tonight asks the question that comes after a yes: at what size? The answer is not a footnote to the strategy. Two desks holding the same real edge at different sizes are running two different products, with different typical outcomes, different worst stretches and a different chance of ever reaching the end. Everything here is measured on synthetic worlds, and nothing here is investment advice.</p>
+
+    <div class="legend">
+      <span class="pill">Live = presented in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with tonight.</strong> One measured ladder, a real Sharpe of 1.0 compounded over three years at eight leverages, 200 worlds per rung: the mean terminal wealth beside the median at every rung, so you can see them part (14.57 against 4.80 at leverage 6, 71.48 against 1.45 at 12). The maximum drawdown and the share of paths that lost half at some point, which is already 98.5 percent at leverage 6. The growth rate per year, which peaks at 0.502 at leverage 6 and is negative by 16. The arithmetic that puts the peak there: daily mean over daily variance, 0.00063 over 0.0001, about 6.3, the Kelly fraction of this world. And what happens to the same worlds when they are sized for the 1.8 a best-of-100 search reports instead of the 1.0 that is really there.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why the size is part of the strategy<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A data scientist who ships a model usually ships one version of it. A strategy ships with a dial on it, the leverage, and every setting of that dial is a different distribution of outcomes. The Sharpe ratio does not change when the dial turns, because leverage multiplies the mean and the standard deviation alike. Almost everything a person living through the result cares about does change: how much it grows in the typical case, how far it falls on the way, and whether it survives the worst stretch.</p>
+        <p>That is the sense in which risk is the product. The edge decides whether there is anything to sell. The size decides what is being sold, and a desk that reports the edge without the size has described the ingredient, not the dish.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Marlow Street's head, constructed like the rest of the desk, asked two researchers for a sizing proposal on the same rule. One proposed the leverage with the highest average outcome; the other proposed the leverage with the highest typical outcome. They were three rungs apart on the ladder below, and both had computed their numbers correctly. They had answered different questions, and only one of them was the question the desk would live with.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The words that keep coming back<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Leverage.</strong> How many units of the rule are held per unit of wealth, rebalanced to the same multiple every day. Each day wealth is multiplied by 1 plus leverage times that day's return on the rule.</li>
+          <li><strong>Terminal wealth.</strong> What one unit of starting wealth has become after 755 daily observations, three years of the generator.</li>
+          <li><strong>Mean terminal wealth.</strong> The average of that number across 200 worlds. Pulled up by the few paths that compound furthest.</li>
+          <li><strong>Median terminal wealth.</strong> The middle path when the 200 are sorted. What a typical world ends with.</li>
+          <li><strong>Drawdown.</strong> On any day, one minus wealth over the highest wealth reached so far. The maximum drawdown is the worst of those on one path.</li>
+          <li><strong>Lost half.</strong> A path whose maximum drawdown reached 0.5 at some point, whatever it did afterwards.</li>
+          <li><strong>Growth rate per year.</strong> The log of terminal wealth, times 252, over the number of observations. The pace a single path compounds at.</li>
+          <li><strong>Kelly fraction.</strong> Here, the leverage that maximises the growth rate in this stated synthetic world: daily mean over daily variance. A property of the world, not a recommendation.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where tonight sits among the ten sessions<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Sessions 1 and 2 built the null and the strategy; 3 and 4 measured selection and corrected for it; 5 cleaned the splits; 6 planted a real signal; 7 charged it for trading; 8 planted survivorship and lookahead in the data and caught them. Tonight assumes all of that went well and the edge is a real 1.0, then asks how much of it to hold. Session 10's bench drives every ladder at once, including this one.</p>
+        <p>Sizing is where a backtest most easily turns into advice, so the rule here is the same one that governs AI in markets generally: <a href="https://phoebefu6.github.io/learn-ai-finance-with-phoebe/courses/b9-markets-investing.html">assist, never advise</a>. The Kelly fraction below is the growth peak of one generated world with known constants. It is not a size for anything real.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers mean against median as leverage rises</span>
+      <h2>The same edge, sized differently</h2>
+      <span class="tag concept">12 min live</span>
+    </div>
+    <p class="lede">Take the planted rule, the one with a real Sharpe of 1.0, and run it on 200 worlds of three years each. Compound each world's daily returns at leverage 1, then at 2, 4, 6, 8, 12, 16 and 24. Nothing else changes: same signal, same worlds, same days. At leverage 1 the mean and the median terminal wealth are 1.61 and 1.57, almost the same number. By leverage 12 they are 71.48 and 1.45. The rule did not change. The shape of the outcomes did.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 398" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn fan of eight schematic wealth paths starting at wealth 1.0 and running over 755 daily observations at leverage 6. Two paths climb far above the rest, five end in a cluster a little above the start, and two end below it. At the right end a steel bracket joins two markers: the mean at 14.57, high up near the two runaway paths, and the median at 4.80, in the middle of the cluster. Beside the fan, a table of the canon rows over 200 worlds per rung gives leverage, mean and median: 1, 1.61, 1.57; 2, 2.56, 2.28; 4, 6.31, 3.85; 6, 14.57, 4.80; 8, 29.91, 4.40; 12, 71.48, 1.45, highlighted; 16, 62.27, 0.12; 24, 1.04, 0.00. A note says the mean is carried by the few paths that compound furthest while the median is the path in the middle.">
+        <defs>
+          <filter id="p9aSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="91" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p9aHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#7A1F3D" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p9aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p9aH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .p9aL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .p9aS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .p9aB { font: 800 11px Inter, sans-serif; fill: #2A5068; }
+          .p9aV { font: 800 16px Inter, sans-serif; fill: #4A1024; }
+          .p9aW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p9aA { font: 700 11px Inter, sans-serif; fill: #7A1F3D; }
+          .p9aN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="p9aH" x="30" y="26">ONE REAL EDGE OF 1.0 AT LEVERAGE 6: WHERE THE MEAN AND THE MEDIAN END UP</text>
+        <text class="p9aS" x="30" y="46">schematic paths, constructed; the two markers and the table are canon means over 200 worlds</text>
+
+        <g filter="url(#p9aSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- start flag doodle -->
+          <path d="M80 238 L80 210 L98 217 L80 224" stroke-width="1.8"/>
+          <!-- wealth 1.0 baseline -->
+          <path d="M80 240 L500 240" stroke="#DCC9CF" stroke-dasharray="6 5"/>
+          <!-- the fan: schematic paths -->
+          <path d="M80 240 C180 220 260 180 330 150 S440 90 500 72" stroke="#BF8398" stroke-width="1.8"/>
+          <path d="M80 240 C170 230 250 200 320 190 S430 130 500 112" stroke="#BF8398" stroke-width="1.8"/>
+          <path d="M80 240 C160 236 240 214 320 206 S430 190 500 186" stroke="#BF8398" stroke-width="1.8"/>
+          <path d="M80 240 C170 244 250 222 330 216 S440 206 500 200" stroke="#BF8398" stroke-width="1.8"/>
+          <path d="M80 240 C160 232 260 236 340 222 S440 214 500 210" stroke="#BF8398" stroke-width="1.8"/>
+          <path d="M80 240 C170 250 250 246 330 238 S430 226 500 222" stroke="#BF8398" stroke-width="1.8"/>
+          <path d="M80 240 C160 250 240 262 320 270 S430 268 500 262" stroke="#BF8398" stroke-width="1.8"/>
+          <path d="M80 240 C170 256 250 280 330 292 S440 300 500 304" stroke="#BF8398" stroke-width="1.8"/>
+          <!-- time axis -->
+          <path d="M80 322 L500 322" marker-end="url(#p9aAr)"/>
+          <!-- mean and median ticks with the steel gap bracket -->
+          <path d="M504 118 L520 118" stroke="#3B6E8F" stroke-width="2.6"/>
+          <path d="M504 206 L520 206" stroke="#3B6E8F" stroke-width="2.6"/>
+          <path d="M512 122 L512 202" stroke="#3B6E8F" stroke-dasharray="4 4"/>
+          <!-- table frame and the highlighted row -->
+          <rect x="660" y="54" width="200" height="216" rx="6" transform="rotate(-0.5 760 162)" fill="#FFFFFF"/>
+          <path d="M668 76 L852 76" stroke="#DCC9CF" stroke-width="1.4"/>
+          <rect x="666" y="198" width="188" height="20" rx="4" fill="#3B6E8F" stroke="#2A5068" stroke-width="1.4"/>
+        </g>
+
+        <text class="p9aL" x="72" y="244" text-anchor="end">1.0</text>
+        <text class="p9aS" x="80" y="340">755 daily observations, three years</text>
+        <text class="p9aB" x="526" y="122">mean 14.57</text>
+        <text class="p9aS" x="526" y="138">set by a few paths</text>
+        <text class="p9aB" x="526" y="210">median 4.80</text>
+        <text class="p9aS" x="526" y="226">the middle path</text>
+
+        <text class="p9aL" x="672" y="70">leverage</text>
+        <text class="p9aL" x="790" y="70" text-anchor="end">mean</text>
+        <text class="p9aL" x="850" y="70" text-anchor="end">median</text>
+        <text class="p9aS" x="672" y="94">1</text><text class="p9aS" x="790" y="94" text-anchor="end">1.61</text><text class="p9aS" x="850" y="94" text-anchor="end">1.57</text>
+        <text class="p9aS" x="672" y="118">2</text><text class="p9aS" x="790" y="118" text-anchor="end">2.56</text><text class="p9aS" x="850" y="118" text-anchor="end">2.28</text>
+        <text class="p9aS" x="672" y="142">4</text><text class="p9aS" x="790" y="142" text-anchor="end">6.31</text><text class="p9aS" x="850" y="142" text-anchor="end">3.85</text>
+        <text class="p9aA" x="672" y="166">6</text><text class="p9aA" x="790" y="166" text-anchor="end">14.57</text><text class="p9aA" x="850" y="166" text-anchor="end">4.80</text>
+        <text class="p9aS" x="672" y="190">8</text><text class="p9aS" x="790" y="190" text-anchor="end">29.91</text><text class="p9aS" x="850" y="190" text-anchor="end">4.40</text>
+        <text class="p9aW" x="672" y="213">12</text><text class="p9aW" x="790" y="213" text-anchor="end">71.48</text><text class="p9aW" x="850" y="213" text-anchor="end">1.45</text>
+        <text class="p9aS" x="672" y="238">16</text><text class="p9aS" x="790" y="238" text-anchor="end">62.27</text><text class="p9aS" x="850" y="238" text-anchor="end">0.12</text>
+        <text class="p9aS" x="672" y="262">24</text><text class="p9aS" x="790" y="262" text-anchor="end">1.04</text><text class="p9aS" x="850" y="262" text-anchor="end">0.00</text>
+        <text class="p9aS" x="664" y="290">canon, 200 worlds per rung</text>
+        <text class="p9aS" x="664" y="306">the mean never without the median</text>
+
+        <text class="p9aN" x="30" y="368">The mean is carried by the few paths that compound furthest; the median is the path in the middle.</text>
+        <text class="p9aN" x="30" y="386">From leverage 6 they part fast, and at 12 the mean is 71.48 while the median is 1.45.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the highlighted row is the whole lesson: the highest mean on the table belongs to a leverage whose typical world ends barely above where it started.</figcaption>
+    </figure>
+
+    <div class="wk" id="p9-size">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">Ladder E, running in this page. The planted rule with a real Sharpe of 1.0, compounded over 755 daily observations at the leverage you pick, 200 worlds at the canon seeds. Each setting takes a fraction of a second.</span>
+      </div>
+      <div class="wk-body">
+        <label class="sql-label" for="p9-size-lev">Leverage: <b id="p9-size-lev-val">1</b></label>
+        <input class="sql-code" id="p9-size-lev" type="range" min="0" max="7" step="1" value="0">
+        <div id="p9-size-out"></div>
+        <p class="sql-note" id="p9-size-verdict">...</p>
+      </div>
+      <div class="wk-foot" id="p9-size-self">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why the mean runs away from the median<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Wealth compounds by multiplication, so terminal wealth is a product of 755 daily factors. A product of many factors is skewed: a handful of paths that string together good days end far above the rest, and nothing can end below zero. The median is the middle of that skewed pile and follows the growth rate of a typical path. The mean adds the far tail on top, and the tail gets longer as leverage stretches every daily factor further from 1.</p>
+        <p>In expectation each day multiplies wealth by 1 plus leverage times a positive mean, so the true mean of terminal wealth keeps rising with leverage. The 200-world mean does not: it reads 71.48 at 12, then 62.27 at 16 and 1.04 at 24. That is not the true mean turning down. It is the mean becoming unmeasurable, because the paths that carry it are too rare to appear in 200 draws. A quantity that falls when the thing it estimates is rising cannot be the number a desk plans on.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Marlow Street's first researcher, constructed, proposed leverage 12 on the strength of the mean: 71.48, the highest on the table. The head asked for the median beside it. It was 1.45, below the 1.57 of leverage 1. The proposal had sized for the best few worlds and would have handed the desk one of the typical ones.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Reading the box<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Every rung is the same planted rule on the same 200 worlds, seeds 90,001 to 90,200; only the leverage changes. Drag from the left.</p>
+        <ul>
+          <li><strong>1 and 2.</strong> Mean 1.61 and median 1.57; then 2.56 and 2.28. The two agree, the worst drawdown averages 0.18 then 0.34, and no path lost half at 1, 8 percent at 2.</li>
+          <li><strong>4.</strong> Mean 6.31, median 3.85. The median is still rising, but 72.5 percent of paths lost half on the way.</li>
+          <li><strong>6.</strong> Mean 14.57, median 4.80, the highest median on the ladder. 98.5 percent of paths lost half at some point.</li>
+          <li><strong>8 and 12.</strong> Mean 29.91 and 71.48; median 4.40 and 1.45. The mean keeps climbing while the median turns down, and every path lost half.</li>
+          <li><strong>16 and 24.</strong> Mean 62.27 and 1.04; median 0.12 and 0.00. The typical world is wiped out, and the mean has stopped meaning anything.</li>
+        </ul>
+        <p>The Sharpe ratio of the rule is 1.0 on every rung. Nothing about the edge distinguishes these eight products; only the size does.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>equity(), line by line<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The engine's sizing is eight lines, and each one is a decision worth knowing about.</p>
+        <ul>
+          <li><strong>w starts at 1, peak at 1.</strong> Every path begins with one unit of wealth, which is also its first high-water mark.</li>
+          <li><strong>w *= 1 + leverage * y[i].</strong> Daily rebalancing to a constant multiple. There is no cost on the rebalance; session 7's cost is not charged here, which flatters every rung and the high ones most.</li>
+          <li><strong>If w falls to zero or below, it is zero and the path stops.</strong> Wealth cannot go negative here, and a path that hits zero has a maximum drawdown of 1.</li>
+          <li><strong>peak and drawdown.</strong> The running maximum, and one minus wealth over it, kept as the worst value seen.</li>
+          <li><strong>growth = log(w) * 252 / n.</strong> The per-year compounding pace of this one path. A path at zero has no log; sizingRung counts it as -10 a year so the mean can still be taken. That floor is why the leverage 24 growth must be read as "below -4", not as a measured return.</li>
+          <li><strong>sizingRung sorts the 200 terminals and takes the 101st.</strong> That is the median it reports, beside the mean, the mean maximum drawdown and the share with a drawdown of at least 0.5.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers drawdown, the half-loss share and the Kelly peak</span>
+      <h2>What a single path lives through, and where growth peaks</h2>
+      <span class="tag concept">12 min live</span>
+    </div>
+    <p class="lede">A desk does not receive the mean of 200 worlds. It receives one path, and it lives through every day of it. Two numbers describe that path better than any average: how far it fell from its best, and how fast it compounded. The second one has a peak, and in this world the peak sits at a leverage you can compute before running anything.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 526" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn chart of growth per year against leverage for a real Sharpe of 1.0, canon means over 200 worlds per rung, rungs evenly spaced. The curve rises from 0.147 at leverage 1 through 0.268 and 0.436 to a steel peak of 0.502 at leverage 6, where a dashed steel line marks the full Kelly fraction of 6.3 by arithmetic. It falls to 0.466 at 8, 0.080 at 12, minus 0.750 at 16, and runs off the scale at 24, below minus 4. Rows under the chart give, for each leverage, the growth, the median terminal wealth, 1.57, 2.28, 3.85, 4.80, 4.40, 1.45, 0.12, 0.00, and the share of paths that lost half, 0.000, 0.080, 0.725, 0.985, then 1.000 from leverage 8. A side panel shows how one drawdown is measured: a schematic path rises to a running peak, falls below a dashed line at half the peak, and an arrow marks the drawdown as one minus wealth over the running peak.">
+        <defs>
+          <filter id="p9bSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="93" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p9bHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3B6E8F" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p9bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p9bH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .p9bL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .p9bS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .p9bB { font: 800 11px Inter, sans-serif; fill: #2A5068; }
+          .p9bA { font: 700 11px Inter, sans-serif; fill: #7A1F3D; }
+          .p9bN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="p9bH" x="30" y="26">GROWTH PEAKS AT THE KELLY FRACTION; PAST IT THE MEDIAN SHRINKS AND EVERY PATH LOSES HALF</text>
+        <text class="p9bS" x="30" y="46">growth per year, canon means over 200 worlds per rung; rungs evenly spaced, not to scale</text>
+
+        <g filter="url(#p9bSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- zero line -->
+          <path d="M100 200 L570 200" stroke="#DCC9CF"/>
+          <!-- the Kelly line, steel, with a flag doodle -->
+          <path d="M300 74 L300 380" stroke="#3B6E8F" stroke-dasharray="7 5"/>
+          <path d="M300 74 L300 60 L316 66 L300 72" stroke="#3B6E8F" stroke-width="1.8"/>
+          <!-- growth curve: y = 200 - g * 170 -->
+          <path d="M120 175 L180 154.4 L240 125.9 L300 114.7 L360 120.8 L420 186.4 L480 327.5" stroke="#7A1F3D" stroke-width="2.5"/>
+          <!-- leverage 24: off scale -->
+          <path d="M480 327.5 L536 360" stroke="#7A1F3D" stroke-dasharray="5 5" marker-end="url(#p9bAr)"/>
+          <!-- points -->
+          <circle cx="120" cy="175" r="5" fill="#FFFFFF"/>
+          <circle cx="180" cy="154.4" r="5" fill="#FFFFFF"/>
+          <circle cx="240" cy="125.9" r="5" fill="#FFFFFF"/>
+          <circle cx="300" cy="114.7" r="6" fill="#3B6E8F" stroke="#2A5068"/>
+          <circle cx="360" cy="120.8" r="5" fill="#FFFFFF"/>
+          <circle cx="420" cy="186.4" r="5" fill="#FFFFFF"/>
+          <circle cx="480" cy="327.5" r="5" fill="#FFFFFF"/>
+          <!-- row rules under the chart -->
+          <path d="M30 410 L570 410" stroke="#EBDDE2" stroke-width="1.4"/>
+          <!-- drawdown panel -->
+          <path d="M700 310 L856 310" stroke="#DCC9CF"/>
+          <path d="M700 200 C715 175 732 140 750 120 C770 140 790 230 810 250 C825 240 840 220 855 205" stroke="#7A1F3D" stroke-width="2.2"/>
+          <path d="M750 120 L856 120" stroke-dasharray="6 5"/>
+          <path d="M700 215 L856 215" stroke="#3B6E8F" stroke-dasharray="4 4"/>
+          <path d="M810 182 L810 128" marker-end="url(#p9bAr)"/>
+          <path d="M810 192 L810 244" marker-end="url(#p9bAr)"/>
+        </g>
+
+        <text class="p9bS" x="94" y="204" text-anchor="end">0</text>
+        <text class="p9bB" x="322" y="70">full Kelly 6.3, by arithmetic</text>
+        <text class="p9bB" x="310" y="102">peak 0.502</text>
+        <text class="p9bA" x="430" y="190">0.080</text>
+        <text class="p9bA" x="466" y="331" text-anchor="end">-0.750</text>
+        <text class="p9bS" x="534" y="384" text-anchor="end">off scale, below -4</text>
+
+        <text class="p9bL" x="30" y="432">leverage</text>
+        <text class="p9bL" x="120" y="432" text-anchor="middle">1</text>
+        <text class="p9bL" x="180" y="432" text-anchor="middle">2</text>
+        <text class="p9bL" x="240" y="432" text-anchor="middle">4</text>
+        <text class="p9bB" x="300" y="432" text-anchor="middle">6</text>
+        <text class="p9bL" x="360" y="432" text-anchor="middle">8</text>
+        <text class="p9bL" x="420" y="432" text-anchor="middle">12</text>
+        <text class="p9bL" x="480" y="432" text-anchor="middle">16</text>
+        <text class="p9bL" x="540" y="432" text-anchor="middle">24</text>
+
+        <text class="p9bS" x="30" y="454">growth</text>
+        <text class="p9bS" x="120" y="454" text-anchor="middle">0.147</text>
+        <text class="p9bS" x="180" y="454" text-anchor="middle">0.268</text>
+        <text class="p9bS" x="240" y="454" text-anchor="middle">0.436</text>
+        <text class="p9bB" x="300" y="454" text-anchor="middle">0.502</text>
+        <text class="p9bS" x="360" y="454" text-anchor="middle">0.466</text>
+        <text class="p9bS" x="420" y="454" text-anchor="middle">0.080</text>
+        <text class="p9bS" x="480" y="454" text-anchor="middle">-0.750</text>
+        <text class="p9bS" x="540" y="454" text-anchor="middle">below -4</text>
+
+        <text class="p9bS" x="30" y="476">median</text>
+        <text class="p9bS" x="120" y="476" text-anchor="middle">1.57</text>
+        <text class="p9bS" x="180" y="476" text-anchor="middle">2.28</text>
+        <text class="p9bS" x="240" y="476" text-anchor="middle">3.85</text>
+        <text class="p9bB" x="300" y="476" text-anchor="middle">4.80</text>
+        <text class="p9bS" x="360" y="476" text-anchor="middle">4.40</text>
+        <text class="p9bS" x="420" y="476" text-anchor="middle">1.45</text>
+        <text class="p9bS" x="480" y="476" text-anchor="middle">0.12</text>
+        <text class="p9bS" x="540" y="476" text-anchor="middle">0.00</text>
+
+        <text class="p9bS" x="30" y="498">lost half</text>
+        <text class="p9bS" x="120" y="498" text-anchor="middle">0.000</text>
+        <text class="p9bS" x="180" y="498" text-anchor="middle">0.080</text>
+        <text class="p9bS" x="240" y="498" text-anchor="middle">0.725</text>
+        <text class="p9bB" x="300" y="498" text-anchor="middle">0.985</text>
+        <text class="p9bS" x="360" y="498" text-anchor="middle">1.000</text>
+        <text class="p9bS" x="420" y="498" text-anchor="middle">1.000</text>
+        <text class="p9bS" x="480" y="498" text-anchor="middle">1.000</text>
+        <text class="p9bS" x="540" y="498" text-anchor="middle">1.000</text>
+
+        <text class="p9bH" x="610" y="96">HOW ONE DRAWDOWN IS MEASURED</text>
+        <text class="p9bS" x="692" y="124" text-anchor="end">running peak</text>
+        <text class="p9bB" x="692" y="219" text-anchor="end">half the peak</text>
+        <text class="p9bS" x="692" y="314" text-anchor="end">wealth 0</text>
+        <text class="p9bA" x="818" y="190">drawdown</text>
+        <text class="p9bS" x="610" y="338">drawdown = 1 - wealth / running peak</text>
+        <text class="p9bS" x="610" y="354">lost half: the drawdown reached 0.5</text>
+
+        <text class="p9bN" x="610" y="476">Rows are canon means,</text>
+        <text class="p9bN" x="610" y="494">200 worlds per rung; the 24</text>
+        <text class="p9bN" x="610" y="512">growth includes floored paths.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the steel dot is the growth peak of this one stated world; the row under it shows what that peak costs the typical path in drawdown.</figcaption>
+    </figure>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Drawdown, and the share of paths that lost half<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A path that falls by half has to double to get back to where it was. A path that falls by three quarters has to quadruple. That arithmetic is why drawdown is measured from the running peak and not from the start: it is the hole the path is standing in, and the size of the climb out.</p>
+        <p>Read the ladder's drawdown columns with that in mind. At leverage 1 the mean maximum drawdown is 0.18 and no path lost half. At 2 it is 0.34 and 8 percent lost half. At 4 it is 0.58 and 72.5 percent lost half. At 6, the growth peak, it is 0.75 and 98.5 percent lost half. From 8 upward every one of the 200 paths lost half at some point. The rule is a real 1.0 on every rung; the experience of holding it is not.</p>
+        <p>This is why a leader reads the median and the drawdown and not the mean. The mean describes a portfolio of 200 independent desks, which nobody runs. The median describes the desk you are likely to be. The drawdown describes whether that desk is still allowed to be running by the end: a limit, an investor or a nerve gives out somewhere on the way down, and the generator has no model of which.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Kelly as the growth peak of this world<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Per day, a path at leverage L grows by about L times the daily mean, minus L squared times the daily variance over two. The first term is the edge, scaled. The second is the cost of volatility to a compounding path, and it grows with the square of the leverage. Their difference is a hump with its top where the two balance: leverage equals daily mean over daily variance.</p>
+        <p>In this world both are known. A real Sharpe of 1.0 at a daily volatility of 0.01 is a daily mean of 0.00063, and the daily variance is 0.0001. The ratio is about 6.3, the full Kelly fraction of this world. The ladder measures the peak at leverage 6, at 0.502 a year; by the same arithmetic the peak growth is the Sharpe ratio squared over two, about 0.5 a year, so formula and measurement agree.</p>
+        <p>Past the peak the squared term wins. Growth is 0.466 at 8 and 0.080 at 12; by the arithmetic it returns to zero near twice the Kelly fraction, about 12.6, and the ladder has it at -0.750 by 16. At 24 the rung's growth figure is a mean that includes paths floored at -10 a year when wealth hit zero, so it reads as below -4 and nothing finer.</p>
+        <p>Two cautions keep this honest. The 6.3 is the growth peak of a stated synthetic world whose mean and variance are set by hand; it is not a size for any real strategy, whose mean is never known. And a growth peak is not a recommendation even here: at leverage 6, 98.5 percent of paths lost half on the way.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Sizing on an overstated Sharpe<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The Kelly arithmetic needs the edge as an input, and sessions 3 and 4 showed what the reported edge usually is: the best of many. The best in-sample Sharpe of 100 rules with no alpha at all is 1.80 on average over 200 worlds (ladder A), and its out-of-sample figure is -0.06. Marlow Street's 1.8 sits exactly there.</p>
+        <p>Suppose the rule is real but its true Sharpe is 1.0, and the desk sizes for the 1.8 it was shown. Full Kelly for 1.8 in this world is 1.8 times 6.3, about 11.3 by the arithmetic, and the nearest canon rung is 12. On the same 200 worlds the median terminal wealth falls from 4.80 at the true peak to 1.45, growth from 0.502 a year to 0.080, and every path lost half. The mean at 12 is 71.48, the highest on the ladder, so a report that showed only the mean would make the overstated sizing look like the best decision on the table.</p>
+        <p>Selection inflates the edge from the top; sizing on the inflated edge then multiplies the damage. If the 1.8 were pure selection, the edge would be zero and any leverage would be sizing nothing. That rung is not in the canon; the homework runs it.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Marlow Street's head, constructed, put one line on the sizing memo: size on the out-of-sample estimate, deflated, and show the median and the half-loss share at that size and at the size the in-sample number would imply. The gap between those two columns, 4.80 against 1.45 on the ladder, was the cost of believing the backtest.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where serious people disagree<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>Is the growth peak the right target at all?</strong> One camp holds that over a long enough horizon the leverage that maximises growth ends ahead of any other with near certainty, so it is the natural reference point and everything else is a deliberate step back from it. The other camp answers that nobody has an infinite horizon, that a desk is judged on a finite path with limits on the way, and that the right size comes from how much drawdown can be survived, not from where growth peaks. Both are internally consistent. They disagree about the objective, and no measurement on this page settles an objective.</p>
+        <p><strong>Full or fractional?</strong> By the growth formula the hump is symmetric in leverage, so sizing well below the peak gives up little growth while cutting drawdown a great deal. The ladder shows the shape: leverage 4 keeps 0.436 of the peak's 0.502 a year and 72.5 percent of paths lost half; leverage 2 keeps 0.268 and 8 percent lost half. One view treats a fraction of Kelly as insurance against an overstated edge, which the previous card showed is the usual case. Another treats it as an admission that the edge estimate was never good enough to size on, and asks for a better estimate instead. Which fraction, if any, is not settled here.</p>
+        <p><strong>What this bench cannot show.</strong> The generator has normal returns, constant volatility, no fat tails, no regimes and no memory, and the rebalance is free. Real drawdowns at a given leverage depend on exactly the features left out, and are usually described as worse. That is a stated limit of the bench, not a measured figure.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · build-along</span>
+      <h2>Compound it by hand, reproduce the ladder, size on the wrong number</h2>
+      <span class="tag build">18 min hands on</span>
+    </div>
+    <p class="lede">Open this page's console. The engine is loaded as <span class="mono">QT</span>. You will write the compounding loop yourself, check it against the engine on one world, reproduce ladder E at the canon seeds, find the growth peak against the arithmetic, and then size the same 200 worlds for the 1.8 a best-of-100 search reports. Every step uses the canon seeds, so your numbers will match for the same seed. The same loop is ten lines in plain Python if you prefer it there; the homework asks for that port.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 310" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn pipeline of the build-along. Row one: makeWorld with trueSR 1 and a seed feeds pnl of the world's own signal, 755 observations, which feeds your equity loop, wealth times 1 plus L times y, then peak and drawdown, then the median, the middle of 200 worlds, ending in a hatched box labelled ladder E. A dashed steel loop returns to makeWorld, labelled repeat for seeds 90001 to 90200. Row two: a claimed 1.8, the best in-sample of 100, feeds Kelly by arithmetic, mean over variance, 11.3, which feeds the nearest canon rung, leverage 12, ending in a steel box: median 1.45, against 4.80 at 6. A dashed arrow from ladder E to the steel box is labelled same 200 worlds.">
+        <defs>
+          <filter id="p9cSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="97" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p9cHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#7A1F3D" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p9cAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+          <marker id="p9cArS" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#3B6E8F" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p9cH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .p9cL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .p9cS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .p9cB { font: 800 11px Inter, sans-serif; fill: #2A5068; }
+          .p9cW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p9cN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="p9cH" x="30" y="26">ONE LOOP BY HAND, 200 WORLDS AT THE CANON SEEDS, THEN THE SAME WORLDS SIZED FOR A CLAIMED 1.8</text>
+
+        <g filter="url(#p9cSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- row 1 -->
+          <rect x="34" y="60" width="130" height="44" rx="6" transform="rotate(-0.8 99 82)" fill="#FAF0F3"/>
+          <path d="M166 82 L184 82" marker-end="url(#p9cAr)"/>
+          <rect x="188" y="60" width="130" height="44" rx="6" transform="rotate(0.6 253 82)" fill="#FFFFFF"/>
+          <path d="M320 82 L338 82" marker-end="url(#p9cAr)"/>
+          <rect x="342" y="60" width="130" height="44" rx="6" transform="rotate(-0.5 407 82)" fill="#FFFFFF"/>
+          <path d="M474 82 L492 82" marker-end="url(#p9cAr)"/>
+          <rect x="496" y="60" width="130" height="44" rx="6" transform="rotate(0.7 561 82)" fill="#FFFFFF"/>
+          <path d="M628 82 L646 82" marker-end="url(#p9cAr)"/>
+          <rect x="650" y="60" width="130" height="44" rx="6" transform="rotate(-0.6 715 82)" fill="#FFFFFF"/>
+          <path d="M782 82 L800 82" marker-end="url(#p9cAr)"/>
+          <rect x="804" y="60" width="60" height="44" rx="6" transform="rotate(1 834 82)" fill="url(#p9cHc)"/>
+          <!-- loop back over the seeds -->
+          <path d="M715 108 L715 140 L99 140 L99 110" stroke="#3B6E8F" stroke-dasharray="6 5" marker-end="url(#p9cArS)"/>
+          <!-- same worlds, down to the steel box -->
+          <path d="M834 130 L834 186" stroke-dasharray="5 5" marker-end="url(#p9cAr)"/>
+          <!-- row 2 -->
+          <rect x="34" y="190" width="180" height="48" rx="6" transform="rotate(0.5 124 214)" fill="#FAF0F3"/>
+          <path d="M216 214 L240 214" marker-end="url(#p9cAr)"/>
+          <rect x="244" y="190" width="180" height="48" rx="6" transform="rotate(-0.6 334 214)" fill="#FFFFFF"/>
+          <path d="M426 214 L450 214" marker-end="url(#p9cAr)"/>
+          <rect x="454" y="190" width="180" height="48" rx="6" transform="rotate(0.5 544 214)" fill="#FFFFFF"/>
+          <path d="M636 214 L660 214" marker-end="url(#p9cAr)"/>
+          <rect x="664" y="190" width="180" height="48" rx="6" transform="rotate(-0.5 754 214)" fill="#3B6E8F" stroke="#2A5068"/>
+        </g>
+
+        <text class="p9cL" x="99" y="79" text-anchor="middle">makeWorld</text>
+        <text class="p9cS" x="99" y="95" text-anchor="middle">trueSR 1, seed s</text>
+        <text class="p9cL" x="253" y="79" text-anchor="middle">pnl(w, signal)</text>
+        <text class="p9cS" x="253" y="95" text-anchor="middle">755 observations</text>
+        <text class="p9cL" x="407" y="79" text-anchor="middle">your equity</text>
+        <text class="p9cS" x="407" y="95" text-anchor="middle">w *= 1 + L y[t]</text>
+        <text class="p9cL" x="561" y="79" text-anchor="middle">peak, drawdown</text>
+        <text class="p9cS" x="561" y="95" text-anchor="middle">dd = 1 - w / peak</text>
+        <text class="p9cL" x="715" y="79" text-anchor="middle">the median</text>
+        <text class="p9cS" x="715" y="95" text-anchor="middle">middle of 200</text>
+        <text class="p9cB" x="834" y="122" text-anchor="middle">ladder E</text>
+        <text class="p9cB" x="407" y="158" text-anchor="middle">repeat for seeds 90001 to 90200</text>
+        <text class="p9cS" x="826" y="172" text-anchor="end">same 200 worlds</text>
+
+        <text class="p9cL" x="124" y="210" text-anchor="middle">a claimed 1.8</text>
+        <text class="p9cS" x="124" y="227" text-anchor="middle">best in-sample of 100</text>
+        <text class="p9cL" x="334" y="210" text-anchor="middle">Kelly by arithmetic</text>
+        <text class="p9cS" x="334" y="227" text-anchor="middle">mean over variance: 11.3</text>
+        <text class="p9cL" x="544" y="210" text-anchor="middle">nearest canon rung</text>
+        <text class="p9cS" x="544" y="227" text-anchor="middle">leverage 12</text>
+        <text class="p9cW" x="754" y="210" text-anchor="middle">median 1.45</text>
+        <text class="p9cW" x="754" y="227" text-anchor="middle">against 4.80 at 6</text>
+
+        <text class="p9cN" x="30" y="266">Row one reproduces ladder E at the canon seeds. Row two leaves the real edge at 1.0 and changes only</text>
+        <text class="p9cN" x="30" y="284">the belief about it: sized for 1.8, the same 200 worlds end with a median of 1.45, and all of them lost half.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - nothing in row two touches the worlds; the only input that changed is the number the desk believed.</figcaption>
+    </figure>
+
+    <div class="steps">
+      <div class="step"><div>
+        <h4>Make the first canon world and take the planted rule</h4>
+        <p>Ladder E's first world is seed 90,001 with a true Sharpe of 1.0. The planted rule is the world's own hidden signal, traded with h of 1 and no cost, which is exactly what sizingRung does. Your numbers will match for the same seed.</p>
+        <div class="prompt-box good"><span class="label">console</span>var w = QT.makeWorld({ trueSR: 1, seed: 90001 });
+var y = QT.pnl(w, w.signal, { h: 1 });
+y.length</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Write the compounding loop yourself</h4>
+        <p>Multiply wealth by 1 plus leverage times each day's return, stop at zero, keep the running peak and the worst drawdown. Then compare with the engine on the same world at leverage 6. The two terminal values and the two drawdowns should be identical to the last digit, because they are the same arithmetic in the same order.</p>
+        <div class="prompt-box good"><span class="label">console</span>function myEquity(y, L) {
+  var v = 1, peak = 1, dd = 0;
+  for (var i = 0; i &lt; y.length; i++) {
+    v *= 1 + L * y[i];
+    if (v &lt;= 0) { v = 0; dd = 1; break; }
+    if (v &gt; peak) peak = v;
+    dd = Math.max(dd, 1 - v / peak);
+  }
+  return { terminal: v, maxDrawdown: dd };
+}
+[myEquity(y, 6), QT.equity(y, 6)]</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>One world at every leverage, and why it is not the ladder</h4>
+        <p>Run the one world at all eight leverages and print its realised Sharpe ratio beside them. One world is one draw: its realised Sharpe is not 1.0, and its row of terminals is not the canon. Read it for shape only, then move on to 200 worlds.</p>
+        <div class="prompt-box good"><span class="label">console</span>var L8 = [1, 2, 4, 6, 8, 12, 16, 24];
+[QT.annualise(QT.moments(y).sr, 1).toFixed(2), L8.map(function (L) { return myEquity(y, L).terminal.toFixed(2); })]</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Reproduce ladder E at the canon seeds</h4>
+        <p>sizingRung runs the same loop over seeds 90,001 to 90,200 and reports the mean and median terminal wealth, the mean maximum drawdown, the share that lost half and the growth per year. It prints the canon rows exactly: 1.61 and 1.57 at leverage 1, 14.57 and 4.80 at 6, 71.48 and 1.45 at 12. All eight rungs take well under a second.</p>
+        <div class="prompt-box good"><span class="label">console</span>L8.map(function (L) {
+  var r = QT.sizingRung(L, 200, 1, 90000);
+  return [L, r.meanTerminal.toFixed(2), r.medianTerminal.toFixed(2), r.meanMaxDrawdown.toFixed(2), r.shareHalved.toFixed(3), r.meanGrowthPerYear.toFixed(3)];
+})</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Find the peak, and check it against the arithmetic</h4>
+        <p>Compute the daily mean of a real 1.0 from the generator's constants, divide by the daily variance, and print the growth formula, L times the mean minus L squared times the variance over two, per year, beside the measured column. The Kelly fraction prints about 6.3 and the formula's peak about 0.5 a year, beside the measured 0.502 at leverage 6. Past the peak the formula and the ladder drift apart a little, because the formula is an approximation and the ladder is 200 worlds.</p>
+        <div class="prompt-box good"><span class="label">console</span>var mu = 0.01 / Math.sqrt(252), v = 0.0001;
+[(mu / v).toFixed(2), L8.map(function (L) {
+  return [L, ((L * mu - L * L * v / 2) * 252).toFixed(3), QT.sizingRung(L, 200, 1, 90000).meanGrowthPerYear.toFixed(3)];
+})]</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Size the same worlds for a claimed 1.8</h4>
+        <p>The real edge stays at 1.0. Only the belief changes: full Kelly for a Sharpe of 1.8 is 1.8 times 6.3, about 11.3, and the nearest canon rung is 12. Print the two rungs side by side. The median prints 4.80 at 6 and 1.45 at 12, the growth 0.502 and 0.080, and the share that lost half 0.985 and 1.000. Your numbers will match for the same seed.</p>
+        <div class="prompt-box good"><span class="label">console</span>var claimed = 1.8 * mu / v;
+[claimed.toFixed(1), [6, 12].map(function (L) {
+  var r = QT.sizingRung(L, 200, 1, 90000);
+  return [L, r.meanTerminal.toFixed(2), r.medianTerminal.toFixed(2), r.meanGrowthPerYear.toFixed(3), r.shareHalved.toFixed(3)];
+})]</div>
+      </div></div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> Never report a size without the median and the drawdown beside the mean, and never size on an edge you have not deflated. The mean flatters every leverage, and the in-sample Sharpe flatters every edge; together they recommend the worst row on the table.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">At leverage 12, over 200 worlds, the mean terminal wealth is 71.48 and the median is 1.45. Which should a desk plan on, and why?</p>
+      <div class="qopt">A · The mean, because it is the expected value and a desk should maximise expected value</div>
+      <div class="qopt">B · The median beside the drawdown, because a desk lives one path, the mean is carried by a few paths that compound furthest, and at 12 every path lost half on the way</div>
+      <div class="qopt">C · Neither, because leverage 12 has the same Sharpe ratio as leverage 1 and so the outcomes are equivalent</div>
+      <q class="qwhy">The mean describes 200 independent desks pooled, which nobody runs. The typical path at 12 ends at 1.45, below leverage 1's 1.57, after a drawdown that reached half on every one of the 200 paths. The Sharpe ratio is unchanged by leverage, which is exactly why it cannot tell these products apart.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">Growth per year peaks at leverage 6 (0.502) and is negative by 16 (-0.750). Why does it fall past the peak?</p>
+      <div class="qopt">A · Because the planted edge weakens at higher leverage</div>
+      <div class="qopt">B · Because the engine charges a cost on every rebalance</div>
+      <div class="qopt">C · Because growth is about L times the daily mean minus L squared times the daily variance over two; the edge term grows with L, the volatility term with its square, and past mean over variance, about 6.3 here, the square wins</div>
+      <q class="qwhy">The edge is 1.0 on every rung and sizingRung charges no cost. What changes is the volatility drag on a compounding path, which grows with the square of the leverage. The peak is where the two terms balance, the Kelly fraction of this stated world.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">A rule's real Sharpe is 1.0, but the desk sizes it at full Kelly for the 1.8 its best-of-100 backtest reported. On ladder E's 200 worlds, what happens?</p>
+      <div class="qopt">A · The size is about 11.3, the nearest canon rung is 12, and the median falls from 4.80 to 1.45 while growth falls from 0.502 to 0.080 and every path lost half</div>
+      <div class="qopt">B · Nothing much, because Kelly is robust to errors in the edge</div>
+      <div class="qopt">C · The desk does better, because the mean at 12 is the highest on the ladder</div>
+      <q class="qwhy">Full Kelly scales with the believed edge, so an inflated edge buys an inflated size. Here it lands near twice the true peak, where growth is close to zero. The mean at 12, 71.48, is the highest on the ladder, which is exactly why a mean-only report would endorse the mistake.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before session 10</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">About forty minutes, in the console or in Python.</p>
+    <div class="steps">
+      <div class="step"><div>
+        <h4>Port the loop to Python and match the ladder</h4>
+        <p>The engine's Python twin reproduces the same random stream. Write equity and the sizing rung in plain Python on top of it, run leverage 1, 6 and 12 at seed0 90,000 over 200 worlds, and confirm the means and medians match the canon rows to every printed digit. If the median is off by one rung of the sort, check which of the 200 terminals you took as the middle.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Size an edge that is not there</h4>
+        <p>If the 1.8 had been pure selection, the true edge would be zero. Run <span class="mono">QT.sizingRung(L, 200, 0, seed0)</span> at leverage 1, 6 and 12 with a seed0 of your own. Your numbers will differ from anyone else's. Write down the median and the half-loss share at each, and one sentence on what the Kelly arithmetic says the size should be when the daily mean is zero.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Try a fraction of the peak</h4>
+        <p>Leverage 3 is about half the Kelly fraction of this world and is not a canon rung. Run it over 200 worlds at a seed0 of your own; your numbers will differ. Place its growth, median and half-loss share between the canon rows at 2 and 4, and write which of the three columns you would show a leader first. Session 10's bench has the sizing ladder beside every other dial.</p>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Mean against median as leverage rises</span><span class="note">Ladder E, 200 worlds per rung: 1.61 / 1.57 at 1, 14.57 / 4.80 at 6, 71.48 / 1.45 at 12, 1.04 / 0.00 at 24.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Why the 200-world mean misleads</span><span class="note">Carried by the few paths that compound furthest, and unmeasurable at high leverage: it falls from 71.48 at 12 to 1.04 at 24.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Maximum drawdown and the half-loss share</span><span class="note">Mean maximum drawdown 0.18 at 1 and 0.75 at 6; share that lost half 0.000, 0.080, 0.725, 0.985, then 1.000 from 8.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The growth peak</span><span class="note">0.502 a year at leverage 6; 0.080 at 12, -0.750 at 16, below -4 at 24 (a mean including floored paths).</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Kelly as the growth peak of this world</span><span class="note">Daily mean 0.00063 over daily variance 0.0001, about 6.3. A property of a stated synthetic world, not a recommendation.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Sizing on an overstated Sharpe</span><span class="note">Full Kelly for 1.8 is about 11.3; at the canon rung 12 the median is 1.45 against 4.80 at the true peak.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">equity() and sizingRung() read and rebuilt</span><span class="note">Daily rebalance, floor at zero, running peak, growth as log wealth per year; reproduced at seed0 90,000.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Fractional sizing and drawdown limits</span><span class="note">Taught as a disagreement over the objective; leverage 3 is a homework run with no canon figure.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Fat tails, regimes, memory and rebalancing costs</span><span class="note">Not in the generator, so their effect on drawdown is a stated limit, not a measurement.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Advice on how much to hold of anything real</span><span class="note">Not given. The rule is the one that governs AI in markets: <a href="https://phoebefu6.github.io/learn-ai-finance-with-phoebe/courses/b9-markets-investing.html">assist, never advise</a>, in learn-ai-finance-with-phoebe, builder session 9.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Any market, price or instrument</span><span class="note">Out of scope by design. Synthetic data only, and nothing here is investment advice.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>The one sentence.</strong> The edge decides whether there is a product; the size decides what the product is.</div>
+      <div class="cheat-item"><strong>The pair.</strong> Never the mean without the median. At leverage 12: 71.48 and 1.45, 200 worlds.</div>
+      <div class="cheat-item"><strong>The hole.</strong> Drawdown is measured from the running peak. Losing half means doubling to get back.</div>
+      <div class="cheat-item"><strong>The share.</strong> Paths that lost half: 8 percent at 2, 72.5 at 4, 98.5 at 6, all of them from 8.</div>
+      <div class="cheat-item"><strong>The hump.</strong> Growth per day is about L times the mean minus L squared times the variance over two.</div>
+      <div class="cheat-item"><strong>The peak.</strong> Mean over variance: 0.00063 over 0.0001, about 6.3. Measured peak 0.502 a year at 6.</div>
+      <div class="cheat-item"><strong>The trap.</strong> Size on an in-sample 1.8 and you land near twice the true peak: median 1.45, not 4.80.</div>
+      <div class="cheat-item"><strong>The limit.</strong> Normal returns, constant volatility, free rebalancing. A growth peak of a stated world, never advice.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Practitioner session 9 of 10 · learn-quant-trading-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="p8-survivorship-and-lookahead-planted.html">← Practitioner session 8 · Survivorship and lookahead, planted and caught</a>
+        <a href="p10-the-backtest-bench.html">Practitioner session 10 · The backtest bench →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/qt-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof QT === "undefined") return;
+  var slider = document.getElementById("p9-size-lev");
+  var valEl = document.getElementById("p9-size-lev-val");
+  var out = document.getElementById("p9-size-out");
+  var verdict = document.getElementById("p9-size-verdict");
+  var self = document.getElementById("p9-size-self");
+  /* ladder E: canon rungs, real Sharpe 1.0, 200 worlds, seed0 90000 */
+  var LEVS = [1, 2, 4, 6, 8, 12, 16, 24];
+  var TRIALS = 200, SEED0 = 90000;
+  var MU = 0.01 / Math.sqrt(QT.DAYS), VAR = 0.0001;
+  var KELLY = MU / VAR;
+  var timer = null;
+
+  function growthText(r) {
+    /* a path that hit zero is counted at -10 a year, so the mean is a floor-contaminated figure */
+    if (r.shareRuined > 0) return "below " + Math.ceil(r.meanGrowthPerYear);
+    return r.meanGrowthPerYear.toFixed(3);
+  }
+
+  function render() {
+    var L = LEVS[Number(slider.value)];
+    valEl.textContent = L;
+    var r = QT.sizingRung(L, TRIALS, 1, SEED0);
+    var g = growthText(r);
+
+    var html = '<table class="sql-table"><thead><tr><th>Quantity</th><th>Value</th><th>What it is</th></tr></thead><tbody>';
+    html += "<tr><td>Leverage</td><td>" + L + "</td><td>" + (L / KELLY).toFixed(2) + " times the Kelly fraction of this world (" + KELLY.toFixed(1) + ")</td></tr>";
+    html += "<tr><td>Mean terminal wealth</td><td>" + r.meanTerminal.toFixed(2) + "</td><td>the average of 200 worlds; read it only beside the median</td></tr>";
+    html += '<tr><td>Median terminal wealth</td><td><b class="p9-key">' + r.medianTerminal.toFixed(2) + "</b></td><td>the middle world: what a typical path ends with</td></tr>";
+    html += "<tr><td>Mean maximum drawdown</td><td>" + r.meanMaxDrawdown.toFixed(2) + "</td><td>the worst fall from a running peak, averaged</td></tr>";
+    html += '<tr><td>Share of paths that lost half</td><td><b class="' + (r.shareHalved >= 0.5 ? "p9-bad" : "p9-ok") + '">' + r.shareHalved.toFixed(3) + "</b></td><td>a drawdown of 0.5 or more at some point</td></tr>";
+    html += "<tr><td>Growth per year</td><td>" + g + "</td><td>" + (r.shareRuined > 0 ? "a mean that includes paths floored at -10 a year when wealth hit zero" : "log of terminal wealth, per year, averaged") + "</td></tr>";
+    html += "<tr><td>Worlds averaged</td><td>" + TRIALS + "</td><td>canon: ladder E, seed0 " + SEED0.toLocaleString("en-US") + ", real Sharpe 1.0</td></tr>";
+    html += "</tbody></table>";
+    out.innerHTML = html;
+
+    var msg;
+    if (L <= 2) {
+      msg = "At leverage " + L + " the mean (" + r.meanTerminal.toFixed(2) + ") and the median (" + r.medianTerminal.toFixed(2) + ") nearly agree, and " + (r.shareHalved * 100).toFixed(1) + " percent of paths lost half. Growth is " + g + " a year, below the peak, and the typical path lives through a modest worst stretch.";
+    } else if (L < 6) {
+      msg = "At leverage " + L + " the mean (" + r.meanTerminal.toFixed(2) + ") has pulled away from the median (" + r.medianTerminal.toFixed(2) + "). The median is still rising, but " + (r.shareHalved * 100).toFixed(1) + " percent of paths lost half on the way.";
+    } else if (L === 6) {
+      msg = "Leverage 6 is the growth peak of this world, next to the Kelly fraction of " + KELLY.toFixed(1) + ": growth " + g + " a year and the highest median on the ladder, " + r.medianTerminal.toFixed(2) + ", against a mean of " + r.meanTerminal.toFixed(2) + ". It is a property of a stated synthetic world, not a recommendation: " + (r.shareHalved * 100).toFixed(1) + " percent of paths lost half.";
+    } else if (L <= 12) {
+      msg = "Past the peak. The mean keeps rising (" + r.meanTerminal.toFixed(2) + ") while the median falls (" + r.medianTerminal.toFixed(2) + "), growth is down to " + g + " a year, and " + (r.shareHalved * 100).toFixed(1) + " percent of paths lost half." + (L === 12 ? " This is about where full Kelly for an overstated 1.8 lands." : "");
+    } else {
+      msg = "Far past the peak. The median is " + r.medianTerminal.toFixed(2) + ": the typical world is close to wiped out. The mean (" + r.meanTerminal.toFixed(2) + ") has stopped meaning anything, because the paths that would carry it are too rare to appear in 200 draws. Growth reads " + g + " a year.";
+    }
+    msg += " The rule's edge is a real 1.0 on every rung; only the size changed.";
+    verdict.textContent = msg;
+  }
+
+  function schedule() {
+    valEl.textContent = LEVS[Number(slider.value)];
+    out.innerHTML = '<p class="sql-note">Running 200 worlds...</p>';
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(render, 0);
+  }
+
+  var t = QT.selfTest();
+  self.textContent = t.ok
+    ? "The generator's six properties pass in this browser, so the figures above are the figures any correct run gives. Synthetic data only: nothing here describes a real market, and nothing here is investment advice."
+    : "The generator's self test did not pass in this browser, so nothing above should be believed.";
+
+  slider.addEventListener("input", schedule);
+  render();
+})();
+</script>
+<style>
+  #p9-size .sql-code { border: 1px solid var(--hairline); border-radius: 8px; max-width: 24rem; }
+  #p9-size input[type="range"] { max-width: 20rem; padding: 0; }
+  #p9-size table.sql-table { margin: .6rem 0 .2rem; font-size: .85rem; }
+  #p9-size .p9-key { color: var(--indigo); }
+  #p9-size .p9-ok { color: var(--indigo); }
+  #p9-size .p9-bad { color: var(--amber); }
+</style>
+</body>
+</html>

@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Leader session 6 of 6. The transfer map for anyone arriving from a data team: what carries over, what must be learned, what must be unlearned, each drawn at the step of a research-to-live pipeline where it lands, and a 90-day ladder of free reading with the official sources marked. Synthetic data only, not investment advice.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="From churn model to trading desk: the transfer map - learn quant with phoebe">
+<meta property="og:description" content="Leader session 6 of 6. Shuffled folds read 0.65 on a world with nothing; the best of 100 rules reads 1.80 and earns nothing after. What a data team keeps, learns and drops. Measured, 100 and 200 worlds.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/courses/a6-from-churn-model-to-trading-desk.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="From churn model to trading desk: the transfer map - learn quant with phoebe">
+<meta name="twitter:description" content="Carries over, must learn, must unlearn, and ninety days of free reading with the official sources marked.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Leader session 6 · From churn model to trading desk: the transfer map - learn quant with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-quant-trading-with-phoebe</a> / Leader session 6 of 6</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Quant Trading with Phoebe · Leader session 6 of 6</div>
+    <h1>From churn model to trading desk: <span class="accent">the transfer map</span></h1>
+    <p class="sub">Five sessions took a backtest apart. This one turns the parts into a plan for a person. If you have shipped a churn, demand or credit model, you already own skills a research desk is short of, you are missing a handful of methods that are routine there, and you carry a few habits that report a finding on a world with nothing in it. Tonight sorts them into three columns, draws each one at the step of a research-to-live pipeline where it lands, and ends with a personal map and ninety days of free reading, with the official sources marked. Marlow Street, a constructed research desk, is hiring from data teams and needs the map too. Synthetic data only; nothing here is investment advice.</p>
+    <div class="chip-row">
+      <span class="chip level">🟠 Leader track</span>
+      <span class="chip audience">Anyone moving from a data team to a research desk</span>
+      <span class="chip audience">Anyone hiring data people onto a desk</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:3">0-12 · What carries over</span>
+      <span class="a2" style="flex:2">12-22 · What is new</span>
+      <span class="a3" style="flex:2">22-30 · What to unlearn</span>
+      <span class="a4" style="flex:3">30-45 · Your map and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Marlow Street, the week it hires from a data team</h2>
+    </div>
+    <p class="lede">Marlow Street is a constructed desk: four researchers, one head who came from a product data team herself, and the backtested Sharpe ratio of 1.8 that five sessions have now questioned from every side. The desk has budget for two hires, and the strongest candidates are an analyst, an engineer and a data scientist from conventional data teams. The head's question is not whether they are good. It is which of their habits will make the desk better on day one, which methods they will have to learn, and which of their reflexes will quietly produce a 1.8 on nothing. That is the transfer map, and every column of it has a mechanism that can be drawn.</p>
+
+    <div class="legend">
+      <span class="pill">Live = presented in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with tonight.</strong> A three-column transfer map, CARRIES OVER, MUST LEARN and MUST UNLEARN, with every item named concretely as a skill, a method, a tool class or a reading, and placed at the step of a research-to-live pipeline where it does its work. The measured cost of each habit to unlearn, printed by the generator at the canon seeds rather than argued. Your own filled map, in the analyst, engineer or scientist variant. And a 90-day self-study ladder of free sources, each marked official or not. Synthetic data only; nothing here is advice on what to buy, sell or trade.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Three columns, one pipeline<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A list of skills is easy to write and hard to use, because it does not say where a skill matters. So the map is drawn against the six steps every strategy passes through on its way from an idea to money: the data as it stood on each day, the features built from it, the split that separates fitting from scoring, the search that selects one rule from many, the costs charged on every change of position, and the size it goes live at.</p>
+        <ul>
+          <li><strong>Carries over.</strong> Skills a conventional analyst, engineer or scientist already has that are worth more here than where they were learned.</li>
+          <li><strong>Must learn.</strong> Methods that are routine on a research desk and rare on a data team: purged time-ordered validation, the deflated Sharpe ratio, costs as turnover times basis points, sizing by the median path, point-in-time data.</li>
+          <li><strong>Must unlearn.</strong> Habits that are good practice on a churn model and actively dangerous here, because on this kind of data each one reports a finding where there is none.</li>
+        </ul>
+        <p>Session 5 named the five contrasts that break the old playbook. This session is what a person does about them.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The words that keep coming back<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Transfer map.</strong> Three columns, carries over, must learn, must unlearn, filled for one person and one role.</li>
+          <li><strong>Point in time.</strong> Data exactly as it stood on the day it is used: the series that existed then, with the values known then. The opposite is the table as it looks today.</li>
+          <li><strong>As-of join.</strong> A join that attaches the latest value known at or before a timestamp, never after it. The data team's own tool against lookahead.</li>
+          <li><strong>Purge.</strong> Dropping training observations whose label span overlaps a test observation's span. Session 4 drew why.</li>
+          <li><strong>Embargo.</strong> Dropping a further stretch of training observations right after a test block. Taught as described in the literature; the generator cannot show its effect.</li>
+          <li><strong>Deflated Sharpe ratio.</strong> A test of a Sharpe ratio against the expected maximum of N trials rather than against zero (Bailey and Lopez de Prado 2014).</li>
+          <li><strong>Turnover.</strong> How much the position changes per day. A cost is charged on the change.</li>
+          <li><strong>Official source.</strong> The author's or the publisher's own copy, free to read. Anything else is marked not official and checked against the published version.</li>
+          <li><strong>Constructed.</strong> Marlow Street, its hires and every figure from the generator are invented so that the truth is known. No figure describes a real market.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers what carries over</span>
+      <h2>Five skills that are worth more here</h2>
+      <span class="tag concept">9 min live</span>
+    </div>
+    <p class="lede">The map first, then the left column. Read the figure a row at a time: each row is one step a strategy passes through, and the three cells beside it are what a data person brings to that step, what is new at it, and what to drop there. The left column is fuller than most people expect. Time-series data handling, feature engineering, validation discipline, experiment hygiene and the habit of reading a metric with its error bar all transfer, and several are scarcer on a desk than on a data team. The dashed steel loop is the reason the right column exists: the search reads the same history again.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 496" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn transfer map. A vertical pipeline of six steps runs down the left: 1 the data, as of each day; 2 features, from the past; 3 the split, in time order; 4 select, best of N; 5 costs, turnover times basis points; 6 going live, at a chosen size. A dashed steel loop runs from step 4 back up to step 1, the search reading the same history again. Three columns of cells sit beside the steps. Carries over: SQL and dataframes on time at step 1, feature engineering at step 2, validation discipline at step 3, experiment hygiene at step 4, little at step 5, evaluation metrics read as a spread of 0.70 at step 6. Must learn: point-in-time universes where survivors only read 1.51 on nothing at step 1, lookahead checks where a one-day shift reads 6.11 at step 2, purge and embargo where 0.65 leaked and 0.06 purged at step 3, the deflated Sharpe ratio where the best of 100 on nothing reads 1.80 at step 4, turnover times cost where a real 1.0 reads minus 0.23 at 20 basis points at step 5, sizing and drawdown where the median at leverage 12 is 1.45 at step 6. Must unlearn, each struck through: more features is fine at step 2, shuffle the folds at step 3, the best score wins at step 4, accuracy is the goal at step 5, a backtest is evidence at step 6, and nothing to unlearn at step 1.">
+        <defs>
+          <filter id="a6aSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="61" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="a6aHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#7A1F3D" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="a6aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+          <marker id="a6aArS" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#3B6E8F" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .a6aH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .a6aL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .a6aS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .a6aB { font: 800 11px Inter, sans-serif; fill: #2A5068; }
+          .a6aA { font: 700 11px Inter, sans-serif; fill: #7A1F3D; }
+          .a6aN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="a6aH" x="30" y="26">ONE RESEARCH-TO-LIVE PIPELINE, AND WHERE EACH SKILL LANDS</text>
+        <text class="a6aS" x="30" y="44">Each cell is a skill landing on one step; figures are means on the generator, 100 or 200 worlds each.</text>
+
+        <g filter="url(#a6aSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- doodle anchor: a folded map -->
+          <path d="M796 12 L814 8 L832 14 L850 10 L850 40 L832 44 L814 38 L796 42 Z" fill="#FFFFFF" stroke-width="1.6"/>
+          <path d="M814 8 L814 38 M832 14 L832 44" stroke-width="1.2"/>
+
+          <!-- the pipeline: six steps -->
+          <rect x="56" y="82" width="124" height="52" rx="6" transform="rotate(-0.8 118 108)" fill="#FAF0F3"/>
+          <rect x="56" y="144" width="124" height="52" rx="6" transform="rotate(0.7 118 170)" fill="#FAF0F3"/>
+          <rect x="56" y="206" width="124" height="52" rx="6" transform="rotate(-0.6 118 232)" fill="#FAF0F3"/>
+          <rect x="56" y="268" width="124" height="52" rx="6" transform="rotate(0.8 118 294)" fill="#FAF0F3"/>
+          <rect x="56" y="330" width="124" height="52" rx="6" transform="rotate(-0.7 118 356)" fill="#FAF0F3"/>
+          <rect x="56" y="392" width="124" height="52" rx="6" transform="rotate(0.6 118 418)" fill="#FAF0F3"/>
+          <path d="M118 135 L118 143" marker-end="url(#a6aAr)"/>
+          <path d="M118 197 L118 205" marker-end="url(#a6aAr)"/>
+          <path d="M118 259 L118 267" marker-end="url(#a6aAr)"/>
+          <path d="M118 321 L118 329" marker-end="url(#a6aAr)"/>
+          <path d="M118 383 L118 391" marker-end="url(#a6aAr)"/>
+          <!-- the search reads the same history again -->
+          <path d="M54 300 L36 300 L36 102 L52 102" stroke="#3B6E8F" stroke-dasharray="6 5" marker-end="url(#a6aArS)"/>
+
+          <!-- carries over -->
+          <rect x="196" y="82" width="216" height="52" rx="6" transform="rotate(0.6 304 108)" fill="#FFFFFF"/>
+          <rect x="196" y="144" width="216" height="52" rx="6" transform="rotate(-0.5 304 170)" fill="#FFFFFF"/>
+          <rect x="196" y="206" width="216" height="52" rx="6" transform="rotate(0.6 304 232)" fill="#FFFFFF"/>
+          <rect x="196" y="268" width="216" height="52" rx="6" transform="rotate(-0.6 304 294)" fill="#FFFFFF"/>
+          <rect x="196" y="392" width="216" height="52" rx="6" transform="rotate(0.5 304 418)" fill="#FFFFFF"/>
+
+          <!-- must learn -->
+          <rect x="420" y="82" width="216" height="52" rx="6" transform="rotate(-0.5 528 108)" fill="#EAF1F6"/>
+          <rect x="420" y="144" width="216" height="52" rx="6" transform="rotate(0.6 528 170)" fill="#EAF1F6"/>
+          <rect x="420" y="206" width="216" height="52" rx="6" transform="rotate(-0.6 528 232)" fill="#EAF1F6"/>
+          <rect x="420" y="268" width="216" height="52" rx="6" transform="rotate(0.5 528 294)" fill="#EAF1F6"/>
+          <rect x="420" y="330" width="216" height="52" rx="6" transform="rotate(-0.6 528 356)" fill="#EAF1F6"/>
+          <rect x="420" y="392" width="216" height="52" rx="6" transform="rotate(0.6 528 418)" fill="#EAF1F6"/>
+
+          <!-- must unlearn: the wrong-way column -->
+          <rect x="644" y="144" width="216" height="52" rx="6" transform="rotate(-0.6 752 170)" fill="#FEF2F2" stroke="#991B1B"/>
+          <rect x="644" y="206" width="216" height="52" rx="6" transform="rotate(0.5 752 232)" fill="#FEF2F2" stroke="#991B1B"/>
+          <rect x="644" y="268" width="216" height="52" rx="6" transform="rotate(-0.5 752 294)" fill="#FEF2F2" stroke="#991B1B"/>
+          <rect x="644" y="330" width="216" height="52" rx="6" transform="rotate(0.6 752 356)" fill="#FEF2F2" stroke="#991B1B"/>
+          <rect x="644" y="392" width="216" height="52" rx="6" transform="rotate(-0.6 752 418)" fill="#FEF2F2" stroke="#991B1B"/>
+          <path d="M656 162 L812 162" stroke="#991B1B" stroke-width="1.6" data-strike="1"/>
+          <path d="M656 224 L786 224" stroke="#991B1B" stroke-width="1.6" data-strike="1"/>
+          <path d="M656 286 L800 286" stroke="#991B1B" stroke-width="1.6" data-strike="1"/>
+          <path d="M656 348 L808 348" stroke="#991B1B" stroke-width="1.6" data-strike="1"/>
+          <path d="M656 410 L820 410" stroke="#991B1B" stroke-width="1.6" data-strike="1"/>
+        </g>
+
+        <text class="a6aH" x="56" y="70">THE STEP</text>
+        <text class="a6aH" x="196" y="70">CARRIES OVER</text>
+        <text class="a6aH" x="420" y="70">MUST LEARN</text>
+        <text class="a6aH" x="644" y="70">MUST UNLEARN</text>
+
+        <text class="a6aL" x="68" y="104">1 · the data</text>
+        <text class="a6aS" x="68" y="122">as of each day</text>
+        <text class="a6aL" x="68" y="166">2 · features</text>
+        <text class="a6aS" x="68" y="184">from the past</text>
+        <text class="a6aL" x="68" y="228">3 · the split</text>
+        <text class="a6aS" x="68" y="246">in time order</text>
+        <text class="a6aL" x="68" y="290">4 · select</text>
+        <text class="a6aS" x="68" y="308">best of N</text>
+        <text class="a6aL" x="68" y="352">5 · costs</text>
+        <text class="a6aS" x="68" y="370">turnover x bp</text>
+        <text class="a6aL" x="68" y="414">6 · going live</text>
+        <text class="a6aS" x="68" y="432">at a chosen size</text>
+
+        <text class="a6aL" x="208" y="104">SQL and dataframes on time</text>
+        <text class="a6aS" x="208" y="122">as-of joins, lags, time keys</text>
+        <text class="a6aL" x="208" y="166">Feature engineering</text>
+        <text class="a6aS" x="208" y="184">windows, lags, leak hunts</text>
+        <text class="a6aL" x="208" y="228">Validation discipline</text>
+        <text class="a6aS" x="208" y="246">one holdout nobody touched</text>
+        <text class="a6aL" x="208" y="290">Experiment hygiene</text>
+        <text class="a6aS" x="208" y="308">seeds, a trial log, FDR</text>
+        <text class="a6aS" x="208" y="360">little carries over here</text>
+        <text class="a6aL" x="208" y="414">Evaluation metrics</text>
+        <text class="a6aS" x="208" y="432">one estimate's spread: 0.70</text>
+
+        <text class="a6aL" x="432" y="104">Point-in-time universes</text>
+        <text class="a6aB" x="432" y="122">survivors only read 1.51</text>
+        <text class="a6aL" x="432" y="166">Lookahead checks</text>
+        <text class="a6aB" x="432" y="184">a one-day shift reads 6.11</text>
+        <text class="a6aL" x="432" y="228">Purge and embargo</text>
+        <text class="a6aB" x="432" y="246">0.65 leaked, 0.06 purged</text>
+        <text class="a6aL" x="432" y="290">Deflated Sharpe ratio</text>
+        <text class="a6aB" x="432" y="308">best of 100 on nothing: 1.80</text>
+        <text class="a6aL" x="432" y="352">Turnover times cost</text>
+        <text class="a6aB" x="432" y="370">a real 1.0 at 20 bp: -0.23</text>
+        <text class="a6aL" x="432" y="414">Sizing and drawdown</text>
+        <text class="a6aB" x="432" y="432">leverage 12: median 1.45</text>
+
+        <text class="a6aS" x="656" y="112">nothing to unlearn here</text>
+        <text class="a6aL" x="656" y="166">"More features is fine"</text>
+        <text class="a6aS" x="656" y="184">each variant is a trial</text>
+        <text class="a6aL" x="656" y="228">"Shuffle the folds"</text>
+        <text class="a6aS" x="656" y="246">0.65 on a world with nothing</text>
+        <text class="a6aL" x="656" y="290">"The best score wins"</text>
+        <text class="a6aS" x="656" y="308">1.80 in sample, -0.06 after</text>
+        <text class="a6aL" x="656" y="352">"Accuracy is the goal"</text>
+        <text class="a6aS" x="656" y="370">gross is not a result</text>
+        <text class="a6aL" x="656" y="414">"A backtest is evidence"</text>
+        <text class="a6aS" x="656" y="432">one path, used up when read</text>
+
+        <text class="a6aN" x="30" y="466">Read a row across: what you bring, what is new and what to drop, all at the same step of the pipeline.</text>
+        <text class="a6aN" x="30" y="484">The dashed steel loop is the search reading the same history again, the reason the right column bites.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the left column is fuller than people expect; the right column is short, and every item in it bites at a step the steel loop runs through.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Time-series data skills and feature engineering<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>If you have written a SQL query that attaches a customer's attributes as they stood on the date of an event, rather than as they stand today, you already own the most valuable data skill on a desk. The as-of join, a lag built only from rows before the timestamp, a window that closes yesterday: these stop lookahead at the source, and session 4 drew why they matter. Dataframe libraries with a time index do the same in memory. The skill is the discipline of the timestamp, not the tool.</p>
+        <p>Feature engineering carries over almost whole: lags, rolling windows, ratios, and above all the leak hunt. The general method lives in <a href="https://phoebefu6.github.io/learn-feature-engineering-with-phoebe/courses/b5-leakage.html">Leakage: the session</a>; the time-ordered classes were session 4. What changes is the price of one leak. A momentum rule whose signal is shifted by a single day, so that it includes the day it trades, reads a Sharpe ratio of 6.11 on a world with no alpha at all, against 0.02 when built honestly (200 worlds). A tabular leak usually costs a few points of accuracy; a time leak manufactures a strategy.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Marlow Street's first hire (constructed) came from a retail analytics team. In her first week she rebuilt the research table with as-of joins and asked a question nobody on the desk had asked: was every series in the table alive on the day it was used, or only alive today? It was the second. The generator's version of that mistake: keep only those of 50 zero-alpha series that did not end below -20 percent, about 9.5 of them dropped, and an equal-weight hold on the survivors reads 1.51, against -0.01 on all 50 as they stood (100 trials). She did not need finance to see it. She needed her old habit, pointed at a new table.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Validation discipline and evaluation metrics<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Cross-validation discipline carries over as an instinct: a holdout nobody touched, a metric chosen before the run, a model compared with a baseline rather than admired on its own. Rolling-origin evaluation of a forecast is taught properly in <a href="https://phoebefu6.github.io/learn-timeseries-forecasting-with-phoebe/courses/b8-backtesting-metrics.html">Backtesting and metrics</a> and transfers directly. What is new here is that the object evaluated is a strategy picked from many, and that overlapping observations need a purge, which is Part 2.</p>
+        <p>Evaluation metrics transfer as a habit of asking for the error bar. The Sharpe ratio is a metric like any other, and one estimate of it on two years of daily data has a spread of 0.71 by formula (the square root of 252 over 503) and 0.70 measured over 200 null worlds. A scientist who already reads an AUC with its confidence interval will read a single Sharpe of 1.0 as about one and a half spreads from nothing, which is the right reading, and only if it was the only trial.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Experiment hygiene, which is worth more here than anywhere<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Seeds, a log of every run, a reference implementation that must agree with the production one: these are the habits a data team most often has and a research desk most often lacks. Every number on these pages comes from a seeded generator whose browser engine and an independent Python reference agree to 3.3e-13 on all 635 canon numbers, and the generator checks six properties of itself each time a page loads. That is ordinary hygiene, and it is what makes every figure checkable by anyone.</p>
+        <p>Multiple-testing instincts come with it. Anyone who has applied a Bonferroni correction or controlled a false discovery rate across the metrics of <a href="https://phoebefu6.github.io/learn-experimentation-with-phoebe/">an A/B test</a> already knows the question that matters most: how many were tried. On a desk the count of trials is an input to the deflated Sharpe ratio, and a trial log is the only place that number lives. Comparing a candidate with <a href="https://phoebefu6.github.io/learn-model-risk-with-phoebe/courses/p5-benchmarks-and-challengers.html">a challenger</a> carries over too; here the challenger is a thousand random rules.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers what must be learned</span>
+      <h2>Five methods a data team does not yet carry</h2>
+      <span class="tag concept">10 min live</span>
+    </div>
+    <p class="lede">The middle column is short and specific. None of it is exotic mathematics; each item is a method that exists because of one mechanism in the previous five sessions. The figure draws two of them where they cut: the purge and the embargo on a time-ordered split, and the hurdle that rises with the number of trials. The strip underneath holds the other three with the number each one is worth on the generator.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn two-panel figure with a strip underneath. Left panel, a time-ordered split: a hatched training block, a narrow purge gap, a test block, a narrow embargo gap and a second training block along a time arrow. Small arcs over the training block show five-day label spans; the arcs that reach into the test block are dashed and dropped. A doodle of scissors sits over the purge gap. Below, shuffled folds with no purge read 0.65 out of sample on nothing and blocked purged folds read 0.06, 100 worlds each, and the embargo's effect cannot be shown on this world. Right panel, the hurdle rises with the trials: three hatched columns for the best in-sample Sharpe ratio of N rules on nothing, 1.04, 1.80 and 2.33 at N of 10, 100 and 1,000, each with a steel hurdle line at the expected maximum, 1.07, 1.80 and 2.31; the deflated test passes in 0 of 200 worlds at each N. Strip underneath: costs on every flip, about 0.41 units of turnover a day, a real 1.0 reads minus 0.23 at 20 basis points; size by the median, growth peaks at leverage 6, at 12 the mean is 71.48 and the median 1.45; point-in-time data, survivors only read 1.51 on nothing and a one-day shift reads 6.11.">
+        <defs>
+          <filter id="a6bSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="67" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="a6bHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#7A1F3D" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="a6bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .a6bH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .a6bL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .a6bS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .a6bV { font: 800 18px Inter, sans-serif; fill: #4A1024; }
+          .a6bB { font: 800 11px Inter, sans-serif; fill: #2A5068; }
+          .a6bA { font: 700 11px Inter, sans-serif; fill: #7A1F3D; }
+          .a6bN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="a6bH" x="30" y="26">WHAT IS NEW, DRAWN WHERE IT CUTS</text>
+        <text class="a6bH" x="30" y="62">A TIME-ORDERED SPLIT, PURGED AND EMBARGOED</text>
+        <text class="a6bH" x="470" y="62">THE HURDLE RISES WITH THE TRIALS</text>
+
+        <g filter="url(#a6bSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- doodle anchor: scissors over the purge gap -->
+          <circle cx="244" cy="96" r="5" stroke-width="1.6"/>
+          <circle cx="262" cy="96" r="5" stroke-width="1.6"/>
+          <path d="M247 92 L262 74 M259 92 L244 74" stroke-width="1.6"/>
+
+          <!-- the split along time -->
+          <rect x="40" y="150" width="200" height="40" rx="4" transform="rotate(-0.4 140 170)" fill="url(#a6bHc)"/>
+          <rect x="242" y="150" width="18" height="40" rx="3" fill="#FFFFFF" stroke-dasharray="4 3"/>
+          <rect x="262" y="150" width="90" height="40" rx="4" transform="rotate(0.5 307 170)" fill="#EAF1F6"/>
+          <rect x="354" y="150" width="18" height="40" rx="3" fill="#FFFFFF" stroke-dasharray="4 3"/>
+          <rect x="374" y="150" width="50" height="40" rx="4" transform="rotate(-0.5 399 170)" fill="url(#a6bHc)"/>
+          <path d="M40 198 L426 198" marker-end="url(#a6bAr)"/>
+          <!-- five-day label spans: kept in ink, dropped dashed -->
+          <path d="M190 146 C196 132 206 132 212 146" stroke-width="1.6"/>
+          <path d="M208 146 C214 132 224 132 230 146" stroke-width="1.6"/>
+          <path d="M226 146 C236 130 254 130 266 146" stroke="#7A1F3D" stroke-width="1.6" stroke-dasharray="3 3"/>
+          <path d="M236 146 C248 130 268 130 280 146" stroke="#7A1F3D" stroke-width="1.6" stroke-dasharray="3 3"/>
+
+          <!-- the divider -->
+          <path d="M448 50 L448 320" stroke="#DCC9CF" stroke-width="1.5"/>
+
+          <!-- the hurdle panel -->
+          <path d="M480 250 L850 250" stroke-width="2.5"/>
+          <rect x="520" y="198" width="40" height="52" fill="url(#a6bHc)" transform="rotate(-0.6 540 224)"/>
+          <rect x="640" y="160" width="40" height="90" fill="url(#a6bHc)" transform="rotate(0.5 660 205)"/>
+          <rect x="760" y="134" width="40" height="116" fill="url(#a6bHc)" transform="rotate(-0.4 780 192)"/>
+          <path d="M510 196 L570 196" stroke="#3B6E8F" stroke-width="3"/>
+          <path d="M630 160 L690 160" stroke="#3B6E8F" stroke-width="3"/>
+          <path d="M750 134 L810 134" stroke="#3B6E8F" stroke-width="3"/>
+
+          <!-- the strip of three -->
+          <rect x="30" y="356" width="268" height="74" rx="6" transform="rotate(-0.6 164 393)" fill="#FFFFFF"/>
+          <rect x="306" y="356" width="268" height="74" rx="6" transform="rotate(0.5 440 393)" fill="#FFFFFF"/>
+          <rect x="582" y="356" width="268" height="74" rx="6" transform="rotate(-0.5 716 393)" fill="#FFFFFF"/>
+        </g>
+
+        <text class="a6bA" x="40" y="118">label spans that reach the test block are dropped</text>
+        <text class="a6bL" x="140" y="216" text-anchor="middle">train</text>
+        <text class="a6bL" x="307" y="216" text-anchor="middle">test</text>
+        <text class="a6bL" x="399" y="216" text-anchor="middle">train</text>
+        <text class="a6bA" x="251" y="234" text-anchor="middle">purge</text>
+        <text class="a6bA" x="363" y="234" text-anchor="middle">embargo</text>
+
+        <text class="a6bV" x="40" y="266">0.65</text>
+        <text class="a6bS" x="92" y="262">shuffled folds, five-day holds, no purge</text>
+        <text class="a6bV" x="40" y="294">0.06</text>
+        <text class="a6bS" x="92" y="290">blocked folds, purged</text>
+        <text class="a6bS" x="40" y="318">out of sample on a world with nothing, 100 worlds each</text>
+        <text class="a6bS" x="40" y="336">the embargo changes nothing measurable on this world</text>
+
+        <text class="a6bA" x="540" y="168" text-anchor="middle">best 1.04</text>
+        <text class="a6bB" x="540" y="184" text-anchor="middle">hurdle 1.07</text>
+        <text class="a6bA" x="660" y="130" text-anchor="middle">best 1.80</text>
+        <text class="a6bB" x="660" y="146" text-anchor="middle">hurdle 1.80</text>
+        <text class="a6bA" x="780" y="104" text-anchor="middle">best 2.33</text>
+        <text class="a6bB" x="780" y="120" text-anchor="middle">hurdle 2.31</text>
+        <text class="a6bL" x="540" y="270" text-anchor="middle">N = 10</text>
+        <text class="a6bL" x="660" y="270" text-anchor="middle">N = 100</text>
+        <text class="a6bL" x="780" y="270" text-anchor="middle">N = 1,000</text>
+        <text class="a6bS" x="470" y="296">on nothing, the best lands on its own hurdle:</text>
+        <text class="a6bS" x="470" y="314">deflated test, 0 of 200 worlds pass at each N</text>
+
+        <text class="a6bL" x="44" y="380">Costs on every flip</text>
+        <text class="a6bS" x="44" y="400">about 0.41 units of turnover a day</text>
+        <text class="a6bB" x="44" y="418">a real 1.0 reads -0.23 at 20 bp</text>
+        <text class="a6bL" x="320" y="380">Size by the median</text>
+        <text class="a6bS" x="320" y="400">growth peaks at leverage 6</text>
+        <text class="a6bB" x="320" y="418">at 12: mean 71.48, median 1.45</text>
+        <text class="a6bL" x="596" y="380">Point-in-time data</text>
+        <text class="a6bS" x="596" y="400">survivors only: 1.51 on nothing</text>
+        <text class="a6bB" x="596" y="418">a one-day shift: 6.11 on nothing</text>
+
+        <text class="a6bN" x="30" y="452">Means on the generator: splits and survivorship over 100 worlds, the rest over 200. No figure is a market.</text>
+        <text class="a6bN" x="30" y="470">Each panel is one method a data team does not yet carry, drawn at the step of the pipeline it changes.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the purge cuts the spans that cross into the test block; the hurdle climbs with N as fast as the best of N does.</figcaption>
+    </figure>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Time-ordered validation and point-in-time data<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>Purge and embargo.</strong> A walk-forward split keeps the test period after the training period. When each observation's label covers several days, a training observation near the boundary can share days with a test observation, so the purge drops every training observation whose label span overlaps a test span, and the embargo drops a further stretch right after each test block to absorb serial correlation. That is how Lopez de Prado describes them in chapter 7 of Advances in Financial Machine Learning (Wiley 2018); the description here is reported from the book's chapter outlines, and the book itself is described, not quoted.</p>
+        <p>On the generator, with 100 rules, nothing real and five-day holds, shuffled folds with no purge read 0.65 out of sample; blocked folds with a purge read 0.06 (100 worlds each). With one-day holds the shuffled split leaks nothing visible, 0.10 against -0.05 for walk-forward. Purging a shuffled split leaves only 141 of about 600 training observations; purging a blocked split costs four. The embargo changes nothing measurable on this world, because the purge already handles the overlap; it is taught as the literature describes it and the bench cannot show its effect.</p>
+        <p><strong>Point-in-time data.</strong> Survivorship and lookahead are both the data as it looks today standing in for the data as it stood. Survivors only read 1.51 on 50 zero-alpha series where the point-in-time universe reads -0.01 (100 trials); a signal shifted one day reads 6.11 where the honest one reads 0.02 (200 worlds). The catch for lookahead is a correlation an honest position cannot have: 0.358 with the return of the day it trades, against -0.001 when built honestly.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Multiple testing and the deflated Sharpe ratio<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A data team corrects for multiple comparisons with a Bonferroni factor or a false discovery rate. The desk's version tests the best Sharpe ratio against the expected maximum of N trials with nothing in them, rather than against zero. Bailey and Lopez de Prado (2014) built the deflated Sharpe ratio to correct "for two leading sources of performance inflation: Selection bias under multiple testing and non-Normally distributed returns". On the generator the best of N rules on nothing reads 1.04, 1.80 and 2.33 for N of 10, 100 and 1,000, the hurdle from their equation 1 is 1.07, 1.80 and 2.31, and the deflated test passes in 0 of 200 worlds at every N above 1.</p>
+        <p>The price is power. A real Sharpe of 1.5 hidden among 100 random rules on three years is almost never confirmed: it passes the deflated test in 0 of 200 worlds in ladder B, 1.5 percent of 200 in ladder B2 and 3 of 100 in ladder B3. Every rule that did pass, on every rung of ladder B, was the real one. The only cure is independent history: at 24 years the same 1.5 passes in 94 of 100. Harvey, Liu and Zhu (2016) reach the same place from another road, arguing after counting 316 factors in 313 papers that "A new factor needs to clear a much higher hurdle, with a t-statistic greater than 3.0".</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Costs, turnover, sizing and drawdown<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>Costs are turnover times basis points.</strong> A cost is charged on every change of position. On the generator the position flips on about 20 percent of days, so turnover is about 0.41 units a day and each 5 basis points costs about 0.32 of annualised Sharpe. A real 1.0 reads 1.05 out of sample with no cost, is gone by 15 basis points and reads -0.23 at 20 (200 worlds). A data team rarely meets a metric that a per-action charge can turn negative; a desk meets one every day.</p>
+        <p><strong>Size by the median path.</strong> The same real 1.0 compounded over three years: the median ends at 1.57 at leverage 1, 4.80 at 6 and 1.45 at 12, while the mean climbs from 1.61 to 14.57 to 71.48, and 98.5 percent of paths have lost half at some point by leverage 6 (200 paths each). Growth peaks at 6, the full-Kelly fraction for this world. A credit team will recognise the move from expected loss to the loss the institution must survive.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Marlow Street's second hire (constructed), a data scientist, ran the desk's 1.8 through a deflated test in her first week. The researcher's log showed about a hundred rules tried on two years. On the generator the hurdle for the best of 100 on two years is 1.80, so the 1.8 was the hurdle, not a margin over it. She did not call the rule worthless. She wrote that the backtest could not tell a real edge from the search, and asked what independent history the desk could wait for.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The 90-day ladder, source by source<span class="mini">5 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Free sources only. <strong>Official</strong> means the author's or the publisher's own copy; <strong>not official</strong> means a free copy from somewhere else, to be checked against the published version. One rung a month, each ending in something you write.</p>
+        <p><strong>Days 1 to 30, the ruler and the maximum.</strong></p>
+        <ul>
+          <li>Sharpe, W. F. (1994). "The Sharpe Ratio." The Journal of Portfolio Management. Official: the author's own copy, <a href="https://web.stanford.edu/~wfsharpe/art/sr/sr.htm">web.stanford.edu/~wfsharpe/art/sr/sr.htm</a>.</li>
+          <li>Bailey, Borwein, Lopez de Prado and Zhu (2014). "Pseudo-Mathematics and Financial Charlatanism." Notices of the American Mathematical Society 61(5), 458-471. Official: the publisher's copy, <a href="https://www.ams.org/notices/201405/rnoti-p458.pdf">ams.org/notices/201405/rnoti-p458.pdf</a>.</li>
+          <li>Practitioner sessions <a href="p1-the-honest-null.html">1</a>, <a href="p2-a-strategy-as-a-function.html">2</a> and <a href="p3-the-max-of-n.html">3</a>: the honest null, a strategy as a function, the max of N. Official.</li>
+          <li>The Fisher-Tippett-Gnedenko theorem and the Gumbel distribution, on Wikipedia, for why the maximum of N grows like the square root of 2 ln N. Not official: an encyclopedia summary.</li>
+          <li>Write: the count of trials behind the last result you shipped, and the ruler for your data length.</li>
+        </ul>
+        <p><strong>Days 31 to 60, the haircut and the split.</strong></p>
+        <ul>
+          <li>Bailey and Lopez de Prado (2014). "The Deflated Sharpe Ratio." The Journal of Portfolio Management 40(5). Official: the authors' posted text, SSRN abstract 2460551.</li>
+          <li>Harvey, Liu and Zhu (2016). "... and the Cross-Section of Expected Returns." The Review of Financial Studies 29(1), 5-68. Official: the author's copy, <a href="https://people.duke.edu/~charvey/Research/Published_Papers/P118_and_the_cross.pdf">people.duke.edu</a>.</li>
+          <li>Practitioner sessions <a href="p4-the-deflated-sharpe-haircut.html">4</a>, <a href="p5-time-ordered-splits.html">5</a> and <a href="p6-planting-a-true-signal.html">6</a>, with <a href="https://phoebefu6.github.io/learn-timeseries-forecasting-with-phoebe/courses/b8-backtesting-metrics.html">Backtesting and metrics</a> and <a href="https://phoebefu6.github.io/learn-feature-engineering-with-phoebe/courses/b5-leakage.html">Leakage: the session</a>. Official.</li>
+          <li>Write: one of your own validation results rerun with a time-ordered, purged split and the trial count beside it.</li>
+        </ul>
+        <p><strong>Days 61 to 90, costs, size and decay.</strong></p>
+        <ul>
+          <li>McLean and Pontiff (2016). "Does Academic Research Destroy Stock Return Predictability?" The Journal of Finance 71(1), 5-32. Not official: free copies circulate as mirrors and working drafts, and the drafts carry different figures, so check that yours says 97 predictors, 26 and 58 percent.</li>
+          <li>Practitioner sessions <a href="p7-costs-against-a-small-edge.html">7</a>, <a href="p8-survivorship-and-lookahead-planted.html">8</a>, <a href="p9-sizing-and-drawdown.html">9</a> and <a href="p10-the-backtest-bench.html">10</a>, with <a href="https://phoebefu6.github.io/learn-model-risk-with-phoebe/courses/p3-the-leak-hunt.html">The leak hunt</a>, <a href="https://phoebefu6.github.io/learn-model-risk-with-phoebe/courses/p5-benchmarks-and-challengers.html">Benchmarks and challengers</a> and <a href="https://phoebefu6.github.io/learn-ai-finance-with-phoebe/courses/b9-markets-investing.html">Markets and investing with AI</a>. Official.</li>
+          <li>Write: your finished transfer map and one review of a pitch with session 5's five questions.</li>
+        </ul>
+        <p>Outside the ladder: Lopez de Prado, M. (2018), Advances in Financial Machine Learning, Wiley, ISBN 978-1-119-48208-6, is not free. Its chapters on cross-validation in finance, backtesting and the deflated Sharpe ratio are reported from catalogue listings; every method it describes is implemented here from first principles.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · covers what must be unlearned</span>
+      <h2>Five habits that report a finding on nothing</h2>
+      <span class="tag concept">8 min live</span>
+    </div>
+    <p class="lede">The right column is the shortest and the most expensive. Every habit in it is good practice on a churn model, which is exactly why it survives the move. Each one is drawn below with what it reports on the generator, where the truth is known, and what replaces it. The box under the figure runs any of the five at the canon seeds, so the number is printed in front of you rather than quoted.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 432" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn wrong-way panel of five rows. Left, each habit struck through on a pale red card with what it reports; right, a pale steel card with what replaces it. One, shuffle the folds: five-day holds with no purge read 0.65 on nothing; replaced by time-ordered folds with overlaps purged, which read 0.06. Two, more features is fine: a real 1.5 alone reads 1.48 out of sample and among 100 rules 0.72; replaced by counting every variant as a trial. Three, the best validation score wins: the best of 100 on nothing reads 1.80 in sample and minus 0.06 after; replaced by deflating against the best of N, which passes in 0 of 200 such worlds. Four, accuracy is the goal: a real 1.0 reads 1.05 gross and minus 0.23 at 20 basis points; replaced by net of costs at a size the median survives, where at leverage 12 the mean is 71.48 and the median 1.45. Five, a backtest is evidence: survivors only read 1.51 on nothing and a one-day shift reads 6.11; replaced by treating a backtest as a hypothesis to test forward, where a real 1.5 among 100 passes in 3 of 100 trials on 3 years. A doodle of an eraser sits by the title.">
+        <defs>
+          <filter id="a6cSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="71" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="a6cHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3B6E8F" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="a6cAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .a6cH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .a6cL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .a6cS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .a6cB { font: 800 11px Inter, sans-serif; fill: #2A5068; }
+          .a6cN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="a6cH" x="30" y="26">FIVE HABITS TO UNLEARN, EACH WITH WHAT IT READS ON THE GENERATOR</text>
+        <text class="a6cH" x="30" y="52">THE HABIT</text>
+        <text class="a6cH" x="480" y="52">WHAT REPLACES IT</text>
+
+        <g filter="url(#a6cSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- doodle anchor: an eraser -->
+          <path d="M792 30 L820 12 L842 24 L814 42 Z" fill="#FFFFFF" stroke-width="1.6"/>
+          <path d="M806 21 L828 33" stroke-width="1.2"/>
+
+          <rect x="30" y="64" width="390" height="56" rx="6" transform="rotate(-0.5 225 92)" fill="#FEF2F2" stroke="#991B1B"/>
+          <rect x="30" y="130" width="390" height="56" rx="6" transform="rotate(0.5 225 158)" fill="#FEF2F2" stroke="#991B1B"/>
+          <rect x="30" y="196" width="390" height="56" rx="6" transform="rotate(-0.4 225 224)" fill="#FEF2F2" stroke="#991B1B"/>
+          <rect x="30" y="262" width="390" height="56" rx="6" transform="rotate(0.5 225 290)" fill="#FEF2F2" stroke="#991B1B"/>
+          <rect x="30" y="328" width="390" height="56" rx="6" transform="rotate(-0.5 225 356)" fill="#FEF2F2" stroke="#991B1B"/>
+
+          <rect x="480" y="64" width="370" height="56" rx="6" transform="rotate(0.5 665 92)" fill="#EAF1F6"/>
+          <rect x="480" y="130" width="370" height="56" rx="6" transform="rotate(-0.5 665 158)" fill="#EAF1F6"/>
+          <rect x="480" y="196" width="370" height="56" rx="6" transform="rotate(0.4 665 224)" fill="#EAF1F6"/>
+          <rect x="480" y="262" width="370" height="56" rx="6" transform="rotate(-0.5 665 290)" fill="#EAF1F6"/>
+          <rect x="480" y="328" width="370" height="56" rx="6" transform="rotate(0.5 665 356)" fill="#EAF1F6"/>
+
+          <path d="M426 92 L474 92" marker-end="url(#a6cAr)"/>
+          <path d="M426 158 L474 158" marker-end="url(#a6cAr)"/>
+          <path d="M426 224 L474 224" marker-end="url(#a6cAr)"/>
+          <path d="M426 290 L474 290" marker-end="url(#a6cAr)"/>
+          <path d="M426 356 L474 356" marker-end="url(#a6cAr)"/>
+
+          <path d="M44 82 L176 82" stroke="#991B1B" stroke-width="1.6" data-strike="1"/>
+          <path d="M44 148 L200 148" stroke="#991B1B" stroke-width="1.6" data-strike="1"/>
+          <path d="M44 214 L264 214" stroke="#991B1B" stroke-width="1.6" data-strike="1"/>
+          <path d="M44 280 L196 280" stroke="#991B1B" stroke-width="1.6" data-strike="1"/>
+          <path d="M44 346 L210 346" stroke="#991B1B" stroke-width="1.6" data-strike="1"/>
+        </g>
+
+        <text class="a6cL" x="46" y="86">"Shuffle the folds"</text>
+        <text class="a6cS" x="46" y="106">five-day holds, no purge: 0.65 on nothing, 100 worlds</text>
+        <text class="a6cL" x="46" y="152">"More features is fine"</text>
+        <text class="a6cS" x="46" y="172">a real 1.5 alone reads 1.48; among 100 rules, 0.72</text>
+        <text class="a6cL" x="46" y="218">"The best validation score wins"</text>
+        <text class="a6cS" x="46" y="238">best of 100 on nothing: 1.80 in sample, -0.06 after</text>
+        <text class="a6cL" x="46" y="284">"Accuracy is the goal"</text>
+        <text class="a6cS" x="46" y="304">a real 1.0 reads 1.05 gross and -0.23 at 20 basis points</text>
+        <text class="a6cL" x="46" y="350">"A backtest is evidence"</text>
+        <text class="a6cS" x="46" y="370">survivors only: 1.51 on nothing; a one-day shift: 6.11</text>
+
+        <text class="a6cL" x="496" y="86">Time-ordered folds, overlaps purged</text>
+        <text class="a6cB" x="496" y="106">blocked and purged: 0.06, 100 worlds</text>
+        <text class="a6cL" x="496" y="152">Count every variant as a trial</text>
+        <text class="a6cB" x="496" y="172">and write N beside the headline</text>
+        <text class="a6cL" x="496" y="218">Deflate against the best of N</text>
+        <text class="a6cB" x="496" y="238">the deflated test passes in 0 of 200 such worlds</text>
+        <text class="a6cL" x="496" y="284">Net of costs, at a size the median survives</text>
+        <text class="a6cB" x="496" y="304">at leverage 12 the mean is 71.48, the median 1.45</text>
+        <text class="a6cL" x="496" y="350">A backtest is a hypothesis to test forward</text>
+        <text class="a6cB" x="496" y="370">a real 1.5 among 100: 3 of 100 pass on 3 years</text>
+
+        <text class="a6cN" x="30" y="406">Left: what each habit reports on the generator, where the truth is known. Right: what replaces it.</text>
+        <text class="a6cN" x="30" y="424">Worlds per figure: 100 for splits, survivorship and the 3-year test, 200 for the rest. No figure is a market.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - every red card is a habit that passes review on a churn model; on a backtest each one prints a number with nothing behind it.</figcaption>
+    </figure>
+
+    <div class="wk" id="a6-unlearn">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">The generator behind every session, running in this page. Pick a habit; the box runs it and its replacement at the canon seeds and prints both, with the trial count. The cost habit runs on load. The other habits average 100 or 200 worlds of 100 rules and take about a second, so they wait for the Run button.</span>
+      </div>
+      <div class="wk-body">
+        <label class="sql-label" for="a6-unlearn-habit">The habit to test</label>
+        <select class="sql-code" id="a6-unlearn-habit">
+          <option value="cost" selected>"Accuracy is the goal": read the gross figure</option>
+          <option value="shuffle">"Shuffle the folds"</option>
+          <option value="best">"The best validation score wins"</option>
+          <option value="features">"More features is fine"</option>
+          <option value="evidence">"A backtest is evidence": the table as it is today</option>
+        </select>
+        <div style="margin:.6rem 0 .2rem"><button class="btn primary" id="a6-unlearn-run" type="button">Run</button></div>
+        <div id="a6-unlearn-out"></div>
+        <p class="sql-note" id="a6-unlearn-verdict">...</p>
+      </div>
+      <div class="wk-foot" id="a6-unlearn-self">...</div>
+    </div>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>"Shuffle the folds" and "more features is fine"<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>Shuffle the folds.</strong> Random k-fold is the default in every tabular toolkit, and on independent rows it is correct. On returns whose labels span five days, a shuffled fold puts the days either side of a test observation into training, and the rule is scored on days it was fitted on. With 100 rules and nothing real it reads 0.65 out of sample; blocked and purged folds read 0.06 (100 worlds each). The replacement is not exotic: time-ordered folds with the overlap purged, which session 4 drew and practitioner session 5 builds.</p>
+        <p><strong>More features is fine.</strong> On a churn model a regularised learner shrugs off a few hundred extra columns. On a desk every feature variant, window length and parameter setting is one more trial in the search, and the search is what the deflated test charges for. A real 1.5 tried alone reads 1.48 out of sample; the same real 1.5 among 100 random rules is the one kept in only 40.5 percent of worlds, and whatever was kept reads 0.72 (200 worlds). The extra candidates did not add information, they added competitors. Replace the habit with a trial log: every variant counted, N written beside the headline.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>"The best validation score wins" and "accuracy is the goal"<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>The best validation score wins.</strong> A model-selection loop that keeps the top validation score is a best-of-N search, and on a series with no structure the top score is the expected maximum of noise. The best of 100 rules reads 1.80 in sample and -0.06 afterwards (200 worlds); a naive test calls it a discovery in 99.5 percent of worlds and the deflated test in none. Keep the loop, change the bar: test the winner against the best of N, and expect to say "not proven" far more often.</p>
+        <p><strong>Accuracy is the goal.</strong> A churn model is judged on how often it is right. A strategy is judged on what is left after paying for every change of mind, at a size the typical path survives. A real 1.0 reads 1.05 gross and -0.23 at 20 basis points per flip (200 worlds), and at leverage 12 the mean ends at 71.48 while the median ends at 1.45 (200 paths). The replacement objective is net of costs, sized by the median and the drawdown, never the gross mean.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>"A backtest is evidence"<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A data team treats a good holdout score as evidence because the holdout can be redrawn: next month brings new customers. A backtest's holdout is one stretch of one history, and it is consumed by being read; the next rule tried on it is in sample again. Its inputs can be quietly wrong in ways a table never shows: survivors only read 1.51 on nothing (100 trials), and a one-day shift reads 6.11 (200 worlds). And the target does not hold still the way a customer does. McLean and Pontiff, in The Journal of Finance 71(1), 2016, measure returns across 97 published predictors "26% lower out-of-sample and 58% lower post-publication".</p>
+        <p>The replacement is to treat a backtest as a hypothesis and to name what would confirm it: independent history. A real 1.5 among 100 passes the deflated test in 3 of 100 trials on three years, 6 on six, 45 on twelve and 94 on twenty-four (ladder B3). That ladder is the honest answer to "how long until we know".</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Marlow Street's third candidate (constructed), an engineer, presented his take-home exercise: a backtest with a clean pipeline, seeded runs and a beautiful report. The head asked one question: "What would you need to see to believe this?" He answered "a good out-of-sample score", which was the habit. The answer she hired him for came a minute later: "Data I have not looked at yet, and a count of everything I tried before this."</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where serious people disagree<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>Zero or worse?</strong> Bailey, Borwein, Lopez de Prado and Zhu (2014) hold that "in the absence of memory, there is no reason to expect overfitting to induce negative performance", and that with memory a compensation effect makes the overfit rule more likely to be selected and then to underperform. The generator has no memory, so overfit rules earn zero here, not less than zero. Say "earn nothing, or worse if the series has memory", never "lose money".</p>
+        <p><strong>Which hurdle?</strong> Harvey, Liu and Zhu (2016) argue for a t-statistic above 3.0 and add that there are good reasons to expect even 3.0 is too low. Bailey and Lopez de Prado (2014) deflate against the expected maximum of N and call the two approaches complementary. A transfer map does not have to pick one; it has to carry both and say which was used.</p>
+        <p><strong>How much decay?</strong> McLean and Pontiff's published figures are 26 and 58 percent, in The Journal of Finance, 2016. Earlier drafts of the same study are reported to have given other figures; the estimate moved as the sample grew. Quote the published numbers with the journal and the year, and treat any decay assumption in a pitch as a choice to be stated.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 4 ============ -->
+  <section class="section" id="part-4">
+    <div class="section-kicker">
+      <span class="klabel">Part 4 · build-along</span>
+      <h2>Your own transfer map, and ninety days of reading</h2>
+      <span class="tag build">15 min hands on</span>
+    </div>
+    <p class="lede">No code. You fill the three columns for yourself, in the variant that matches the job you hold now, with evidence from your own work in every cell. Then you turn the middle column into a ladder of free reading you can actually finish. The figure is the card to copy: three role variants on top, the 90-day ladder underneath.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 472" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn build-along card. Top row, three role cards. If you are an analyst: brings SQL on time and metrics, learns costs and turnover first, unlearns accuracy is the goal. If you are an engineer: brings pipelines, seeds and as-of joins, learns purge and embargo first, unlearns a backtest is evidence. If you are a scientist: brings validation and multiple testing, learns the deflated Sharpe first, unlearns the best score wins. Each card ends with a line for your own evidence. Bottom, a three-step staircase with a rising steel line, the 90-day ladder. Days 1 to 30, the ruler and the max: Sharpe 1994 official, Notices of the AMS 2014 official, practitioner sessions 1 to 3 official, Gumbel on Wikipedia not official; do: write N for your last result. Days 31 to 60, haircut and split: deflated Sharpe 2014 official, Harvey Liu Zhu 2016 official, practitioner sessions 4 to 6 official, forecast b8 and leakage b5 official; do: rerun one result, purged. Days 61 to 90, costs, size and decay: McLean and Pontiff 2016 not official, free copies are mirrors or drafts, practitioner sessions 7 to 10 official, model-risk p3 and p5 official; do: one-page map and one pitch review.">
+        <defs>
+          <filter id="a6dSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="79" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="a6dHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#7A1F3D" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="a6dAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#3B6E8F" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .a6dH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .a6dL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .a6dS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .a6dB { font: 800 11px Inter, sans-serif; fill: #2A5068; }
+          .a6dA { font: 700 11px Inter, sans-serif; fill: #7A1F3D; }
+          .a6dN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="a6dH" x="30" y="26">YOUR TRANSFER MAP, THEN NINETY DAYS OF FREE READING</text>
+
+        <g filter="url(#a6dSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- doodle anchor: a pencil -->
+          <path d="M792 30 L836 12 L842 22 L798 40 Z" fill="#FFFFFF" stroke-width="1.6"/>
+          <path d="M792 30 L786 40 L798 40" stroke-width="1.6"/>
+
+          <!-- three role cards -->
+          <rect x="30" y="44" width="268" height="126" rx="8" transform="rotate(-0.8 164 107)" fill="#FFFFFF"/>
+          <rect x="306" y="44" width="268" height="126" rx="8" transform="rotate(0.6 440 107)" fill="#FFFFFF"/>
+          <rect x="582" y="44" width="268" height="126" rx="8" transform="rotate(-0.5 716 107)" fill="#FFFFFF"/>
+          <path d="M44 156 L280 156 M320 156 L556 156 M596 156 L832 156" stroke="#DCC9CF" stroke-width="1.2" stroke-dasharray="4 4"/>
+
+          <!-- the 90-day staircase -->
+          <rect x="30" y="268" width="268" height="152" rx="6" transform="rotate(-0.5 164 344)" fill="#FAF0F3"/>
+          <rect x="306" y="240" width="268" height="180" rx="6" transform="rotate(0.4 440 330)" fill="#FAF0F3"/>
+          <rect x="582" y="212" width="268" height="208" rx="6" transform="rotate(-0.4 716 316)" fill="#FAF0F3"/>
+          <path d="M40 238 L836 182" stroke="#3B6E8F" stroke-width="3" marker-end="url(#a6dAr)"/>
+        </g>
+
+        <text class="a6dL" x="44" y="68">If you are an analyst</text>
+        <text class="a6dB" x="44" y="92">brings: SQL on time, metrics</text>
+        <text class="a6dA" x="44" y="112">learns first: costs and turnover</text>
+        <text class="a6dS" x="44" y="132">unlearns: "accuracy is the goal"</text>
+        <text class="a6dS" x="44" y="150">your evidence: one line of your own</text>
+
+        <text class="a6dL" x="320" y="68">If you are an engineer</text>
+        <text class="a6dB" x="320" y="92">brings: pipelines, seeds, as-of joins</text>
+        <text class="a6dA" x="320" y="112">learns first: purge and embargo</text>
+        <text class="a6dS" x="320" y="132">unlearns: "a backtest is evidence"</text>
+        <text class="a6dS" x="320" y="150">your evidence: one line of your own</text>
+
+        <text class="a6dL" x="596" y="68">If you are a scientist</text>
+        <text class="a6dB" x="596" y="92">brings: validation, multiple testing</text>
+        <text class="a6dA" x="596" y="112">learns first: the deflated Sharpe</text>
+        <text class="a6dS" x="596" y="132">unlearns: "the best score wins"</text>
+        <text class="a6dS" x="596" y="150">your evidence: one line of your own</text>
+
+        <text class="a6dB" x="40" y="206">90 days, one rung a month</text>
+
+        <text class="a6dL" x="44" y="290">Days 1-30 · the ruler, the max</text>
+        <text class="a6dS" x="44" y="312">Sharpe 1994, Stanford copy · official</text>
+        <text class="a6dS" x="44" y="330">Notices of the AMS 2014 · official</text>
+        <text class="a6dS" x="44" y="348">Practitioner sessions 1-3 · official</text>
+        <text class="a6dS" x="44" y="366">Gumbel, Wikipedia · not official</text>
+        <text class="a6dB" x="44" y="404">do: write N for your last result</text>
+
+        <text class="a6dL" x="320" y="262">Days 31-60 · haircut, split</text>
+        <text class="a6dS" x="320" y="284">Deflated Sharpe 2014, SSRN · official</text>
+        <text class="a6dS" x="320" y="302">Harvey, Liu, Zhu 2016, Duke · official</text>
+        <text class="a6dS" x="320" y="320">Practitioner sessions 4-6 · official</text>
+        <text class="a6dS" x="320" y="338">Forecast b8, leakage b5 · official</text>
+        <text class="a6dB" x="320" y="404">do: rerun one result, purged</text>
+
+        <text class="a6dL" x="596" y="234">Days 61-90 · costs, size, decay</text>
+        <text class="a6dS" x="596" y="256">McLean, Pontiff 2016 · not official</text>
+        <text class="a6dS" x="596" y="274">free copies are mirrors or drafts</text>
+        <text class="a6dS" x="596" y="292">Practitioner sessions 7-10 · official</text>
+        <text class="a6dS" x="596" y="310">Model-risk p3 and p5 · official</text>
+        <text class="a6dB" x="596" y="404">do: one-page map, one pitch review</text>
+
+        <text class="a6dN" x="30" y="444">Official = the author's or publisher's own free copy. The 2018 book is not free and sits outside the ladder.</text>
+        <text class="a6dN" x="30" y="462">Fill the top card for your role, then climb one rung a month; each rung ends with something you write.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - three ways in, one ladder up; every rung is free and every source says whether it is the official copy.</figcaption>
+    </figure>
+
+    <div class="steps">
+      <div class="step"><div>
+        <h4>Pick your variant and copy the blank map</h4>
+        <p>Draw three columns, CARRIES OVER, MUST LEARN and MUST UNLEARN, against the six steps of the pipeline in Part 1. Then pick the role you hold now. An analyst usually brings time-aware SQL and metric reporting; an engineer brings pipelines, seeds and point-in-time joins; a scientist brings validation and multiple-testing instincts. The variant decides which cells you will fill first, not which ones you may skip.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Fill CARRIES OVER with evidence, not adjectives</h4>
+        <p>For each skill you claim, write the last time you used it and on what: "built as-of joins for a monthly churn snapshot", "kept a seed and a run log for a pricing experiment". A skill with no example goes in the middle column instead. Aim for four or five cells, each tied to the step where it lands.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Fill MUST LEARN in the order your role needs it</h4>
+        <p>Five methods: purged time-ordered validation, the deflated Sharpe ratio, costs as turnover times basis points, sizing by the median path, and point-in-time data. Number them. An analyst usually starts with costs, because a gross figure is the thing an analyst is most often asked to report; an engineer with the purge; a scientist with the deflated test. Beside each, write the practitioner session that builds it.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Fill MUST UNLEARN with a habit you used last month</h4>
+        <p>Of the five, shuffle the folds, more features is fine, the best validation score wins, accuracy is the goal and a backtest is evidence, pick the two you actually practise. Run each in the box above and write down the number it printed beside the habit. A habit with its price written next to it is much easier to drop.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Turn the middle column into a 90-day ladder</h4>
+        <p>Copy the three rungs from the figure, keep the official markers, and put a date on each "do" line. Swap the order of the readings if your role needs it, but keep one written output per rung. If a source is marked not official, note what to check it against: for McLean and Pontiff, 97 predictors, 26 and 58 percent.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Show the map to someone who will disagree</h4>
+        <p>A colleague on a research desk, in model risk, or the person who would review your first pitch. Ask them to move one item between columns. The item they move is the one your map was most wrong about, and it goes to the top of the first rung.</p>
+      </div></div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> Arrive with your old skills and your old questions, and leave your old defaults at the door. Every habit in the right column was a good habit somewhere else, and each one prints a number on a world with nothing in it. Write the price beside the habit, count every trial, and read one rung a month from sources whose copy you can trust.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">A scientist joining Marlow Street validates a rule with shuffled five-fold cross-validation on five-day returns and reports a positive out-of-sample Sharpe ratio. Which column of the transfer map does that habit belong in?</p>
+      <div class="qopt">A · Carries over: k-fold cross-validation is the same method everywhere</div>
+      <div class="qopt">B · Must unlearn: on overlapping observations, shuffled folds with no purge read 0.65 on a world with nothing, against 0.06 for blocked purged folds (100 worlds each)</div>
+      <div class="qopt">C · Must learn: the result stands, and only an embargo needs adding</div>
+      <q class="qwhy">Validation discipline carries over; shuffling time order does not. The shuffled split scores the rule on days it was fitted on, and the leak appears only when labels overlap. The embargo adds nothing measurable on this world; the purge is what removes the leak.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">Which habit from a data team is worth more on a research desk than where it was learned?</p>
+      <div class="qopt">A · Keeping the model with the best validation score</div>
+      <div class="qopt">B · Reporting the gross figure and leaving costs to someone else</div>
+      <div class="qopt">C · Experiment hygiene: seeds, a log of every trial and a reference run that must agree, because the trial count is an input to the deflated test</div>
+      <q class="qwhy">The best validation score is a best-of-N search: 1.80 in sample and -0.06 after on nothing. A gross figure hides costs that turn a real 1.0 into -0.23 at 20 basis points. A trial log is the only place N lives, and without N no headline can be read.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">An engineer drafts a 90-day reading plan. Which plan matches the ladder?</p>
+      <div class="qopt">A · Free sources marked official or not: Sharpe 1994 from the author's copy, the 2014 Notices paper from the publisher, Harvey, Liu and Zhu from the author's copy, and McLean and Pontiff marked not official and checked against the published figures</div>
+      <div class="qopt">B · Buy the 2018 book first and work only from quoted passages of it</div>
+      <div class="qopt">C · Start from whichever online posts report the highest backtested Sharpe ratios</div>
+      <q class="qwhy">The ladder is free and says which copy is official. The 2018 book is not free and sits outside it. A list of the highest backtested figures is a list of the best of N, which is the habit the ladder exists to unlearn.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">After the leader track</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">Twenty minutes now, then one rung a month.</p>
+    <div class="steps">
+      <div class="step"><div>
+        <h4>Finish the map and date the first rung</h4>
+        <p>Complete every cell you can support with an example, put a date on the first rung's "do" line, and keep the map where you will see it. Re-read it at day 30 and move anything that changed column.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Price one habit on your own work</h4>
+        <p>Take one result your team reported in the last quarter and ask the right column's five questions of it. Write which habit was in play and what the generator says that habit is worth on nothing. If none was, write that down too; it is a finding.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Review one pitch at day 90</h4>
+        <p>Use session 5's five questions on a real or constructed strategy pitch, with your transfer map beside it. The review is a judgement on a research claim, never a view on any market.</p>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Carries over</span><span class="note">Time-series SQL and dataframes, feature engineering, validation discipline, experiment hygiene with multiple-testing instincts, evaluation metrics read with their spread (0.71 by formula, 0.70 measured).</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Must learn: purge and embargo</span><span class="note">Shuffled folds with five-day holds read 0.65 on nothing, blocked purged folds 0.06 (100 worlds each). The embargo's effect cannot be shown on this world.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Must learn: the deflated Sharpe ratio</span><span class="note">Best of 10, 100, 1,000 on nothing: 1.04, 1.80, 2.33 against hurdles 1.07, 1.80, 2.31; 0 of 200 pass deflated. A real 1.5 among 100 almost never passes on three years.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Must learn: costs and sizing</span><span class="note">A real 1.0 reads -0.23 at 20 basis points (200 worlds). Median 1.45 against mean 71.48 at leverage 12 (200 paths).</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Must learn: point-in-time data</span><span class="note">Survivors only read 1.51 against -0.01 (100 trials); a one-day shift reads 6.11 against 0.02 (200 worlds).</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Must unlearn: five habits</span><span class="note">Shuffle the folds, more features is fine, the best validation score wins, accuracy is the goal, a backtest is evidence; each priced in the box at the canon seeds.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Your transfer map and the 90-day ladder</span><span class="note">Analyst, engineer and scientist variants; free sources only, each marked official or not.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Advances in Financial Machine Learning</span><span class="note">Lopez de Prado (2018), Wiley. Chapter structure reported from catalogue listings; described, not quoted, and outside the free ladder.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Rolling-origin evaluation and model validation</span><span class="note">Live in learn-timeseries-forecasting-with-phoebe builder session 8 and learn-model-risk-with-phoebe; linked from Parts 1 and 2.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Any market, price, instrument or trade</span><span class="note">Out of scope by design. Synthetic data only; nothing here is investment advice, and no figure describes a real market.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>The one line.</strong> Keep your skills and your questions; drop your defaults.</div>
+      <div class="cheat-item"><strong>Carries over.</strong> As-of joins, feature engineering and leak hunts, validation discipline, seeds and trial logs, metrics read with their spread.</div>
+      <div class="cheat-item"><strong>Must learn.</strong> Purge and embargo, the deflated Sharpe ratio, turnover times cost, sizing by the median, point-in-time data.</div>
+      <div class="cheat-item"><strong>Shuffle the folds.</strong> 0.65 on nothing with five-day holds; blocked and purged, 0.06. 100 worlds.</div>
+      <div class="cheat-item"><strong>The best score wins.</strong> Best of 100 on nothing: 1.80 in sample, -0.06 after. Deflated: 0 of 200 pass.</div>
+      <div class="cheat-item"><strong>Accuracy is the goal.</strong> A real 1.0: 1.05 gross, -0.23 at 20 bp. At leverage 12, median 1.45, mean 71.48.</div>
+      <div class="cheat-item"><strong>A backtest is evidence.</strong> One path, used up when read. A real 1.5 among 100 passes in 3 of 100 on 3 years, 94 on 24.</div>
+      <div class="cheat-item"><strong>The ladder.</strong> Ninety days, free sources, official copies marked; one written output per rung.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Leader session 6 of 6 · learn-quant-trading-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="a5-why-the-playbook-breaks-here.html">← Leader session 5 · Why the data-science playbook breaks here</a>
+        <a href="../index.html">Course home →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/qt-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof QT === "undefined") return;
+  var sel = document.getElementById("a6-unlearn-habit");
+  var btn = document.getElementById("a6-unlearn-run");
+  var out = document.getElementById("a6-unlearn-out");
+  var verdict = document.getElementById("a6-unlearn-verdict");
+  var self = document.getElementById("a6-unlearn-self");
+  /* habits that average 100 or 200 worlds of 100 rules wait for the Run button */
+  var HEAVY = { shuffle: true, best: true, features: true };
+
+  function f2(x) { return x.toFixed(2); }
+  function pct(x) { return (x * 100).toFixed(1).replace(/\.0$/, "") + " percent"; }
+  function row(q, v, w, cls) {
+    return "<tr><td>" + q + "</td><td><b" + (cls ? ' class="' + cls + '"' : "") + ">" + v + "</b></td><td>" + w + "</td></tr>";
+  }
+  function table(rows) {
+    var html = '<table class="sql-table"><thead><tr><th>Quantity</th><th>Value</th><th>What it is</th></tr></thead><tbody>';
+    for (var i = 0; i < rows.length; i++) html += row(rows[i][0], rows[i][1], rows[i][2], rows[i][3]);
+    return html + "</tbody></table>";
+  }
+
+  function render() {
+    var h = sel.value, rows = [], line = "";
+    if (h === "cost") {
+      /* canon seeds: ladder C uses seed0 = 70000 + cost in bp, 200 worlds */
+      var g = QT.ladderRung({ N: 1, trueSR: 1, method: "walkforward", costBp: 0 }, 200, 70000);
+      var n = QT.ladderRung({ N: 1, trueSR: 1, method: "walkforward", costBp: 20 }, 200, 70020);
+      rows = [
+        ["The habit: the gross figure", f2(g.oosSR), "a real 1.0 out of sample, no cost charged", "a6-unlearn-hot"],
+        ["The replacement: net of 20 bp per flip", f2(n.oosSR), "the same rule, paying on every change of position", "a6-unlearn-hot"],
+        ["In sample, net of 20 bp", f2(n.isSR), "the training years, same cost"],
+        ["Worlds averaged", "200 each", "the canon trial count, at the canon seeds"]
+      ];
+      line = "Read gross, a real 1.0 looks like " + f2(g.oosSR) + ". Charged 20 basis points on every flip it reads " + f2(n.oosSR) + ". Nothing about the edge changed; the objective did.";
+    } else if (h === "shuffle") {
+      /* canon seeds: ladder D, rows 5 and 7, seed0 = 80000 + row index * 1000, 100 worlds */
+      var s = QT.ladderRung({ N: 100, trueSR: 0, method: "shuffled", h: 5, purge: false, k: 5 }, 100, 84000);
+      var p = QT.ladderRung({ N: 100, trueSR: 0, method: "blocked", h: 5, purge: true, k: 5 }, 100, 86000);
+      rows = [
+        ["The habit: shuffled folds, no purge", f2(s.oosSR), "best of 100 rules on nothing, out of sample, five-day holds", "a6-unlearn-hot"],
+        ["The replacement: blocked folds, purged", f2(p.oosSR), "the same search, time order kept, overlap dropped", "a6-unlearn-hot"],
+        ["Training observations per fold", s.trainSize + " against " + p.trainSize, "the purge on a blocked split costs a handful"],
+        ["Worlds averaged", "100 each", "the canon trial count, at the canon seeds"]
+      ];
+      line = "With nothing to find, shuffled folds report " + f2(s.oosSR) + " out of sample because the rule is scored on days it was fitted on. Blocked and purged folds report " + f2(p.oosSR) + ".";
+    } else if (h === "best") {
+      /* canon seeds: ladder A uses seed0 = 10000 * N, 200 worlds */
+      var r = QT.ladderRung({ N: 100, trueSR: 0, method: "walkforward" }, 200, 1000000);
+      rows = [
+        ["The habit: keep the best validation score", f2(r.isSR), "best of 100 rules on nothing, in sample", "a6-unlearn-hot"],
+        ["The same rule, afterwards", f2(r.oosSR), "the 252 days it never saw"],
+        ["A naive test calls it a discovery", pct(r.naiveDiscovery), "tested against zero"],
+        ["The replacement: deflated test passes", Math.round(r.deflatedDiscovery * 200) + " of 200", "tested against the expected best of 100", "a6-unlearn-hot"],
+        ["Worlds averaged", "200", "the canon trial count, at the canon seeds"]
+      ];
+      line = "The best of 100 on nothing reads " + f2(r.isSR) + " and earns " + f2(r.oosSR) + " afterwards. Against zero it looks like a discovery in " + pct(r.naiveDiscovery) + " of worlds; against the best of N, in " + Math.round(r.deflatedDiscovery * 200) + ".";
+    } else if (h === "features") {
+      /* canon seeds: ladder B2 uses seed0 = 60000 + N, 200 worlds */
+      var a = QT.ladderRung({ N: 1, trueSR: 1.5, method: "walkforward" }, 200, 60001);
+      var b = QT.ladderRung({ N: 100, trueSR: 1.5, method: "walkforward" }, 200, 60100);
+      rows = [
+        ["The replacement: a real 1.5, tried alone", f2(a.oosSR), "out of sample, no competitors", "a6-unlearn-hot"],
+        ["The habit: the same 1.5 among 100 variants", f2(b.oosSR), "out of sample, whatever was kept", "a6-unlearn-hot"],
+        ["The real one was the one kept", pct(b.pickedPlant), "of worlds, among 100"],
+        ["Deflated test passes, among 100", pct(b.deflatedDiscovery), "every pass was the real one"],
+        ["Worlds averaged", "200 each", "the canon trial count, at the canon seeds"]
+      ];
+      line = "Alone, a real 1.5 reads " + f2(a.oosSR) + " out of sample. Among 100 variants it is kept in " + pct(b.pickedPlant) + " of worlds and whatever was kept reads " + f2(b.oosSR) + ". The extra variants added competitors, not information.";
+    } else {
+      /* canon seeds: ladder F seed0 = 100000, 100 trials; ladder G seed0 = 110000, 200 worlds */
+      var f = QT.survivorshipRung({ M: 50, floor: -0.2, days: 504 }, 100, 100000);
+      var g0 = QT.lookaheadRung(0, 200, 110000);
+      var g1 = QT.lookaheadRung(-1, 200, 110000);
+      rows = [
+        ["The habit: survivors only", f2(f.survivorsSR), "equal-weight hold on series still alive today, no alpha", "a6-unlearn-hot"],
+        ["The replacement: all 50, point in time", f2(f.pointInTimeSR), "the same rule on the universe as it stood"],
+        ["Series dropped by the survivor rule", f.meanDropped.toFixed(1) + " of 50", "those that ended below -20 percent"],
+        ["The habit: signal shifted one day", f2(g1.meanSR), "a momentum rule that sees the day it trades", "a6-unlearn-hot"],
+        ["The replacement: built from days up to t", f2(g0.meanSR), "the same rule, honest"],
+        ["Trials", "100 and 200", "survivorship and lookahead, at the canon seeds"]
+      ];
+      line = "On series with no alpha, the table as it looks today reads " + f2(f.survivorsSR) + " and a one-day shift reads " + f2(g1.meanSR) + ". Point in time and honest, they read " + f2(f.pointInTimeSR) + " and " + f2(g0.meanSR) + ".";
+    }
+    out.innerHTML = table(rows);
+    verdict.textContent = line;
+  }
+
+  function start() {
+    out.innerHTML = '<p class="sql-note">Running the canon worlds...</p>';
+    verdict.textContent = "Running.";
+    setTimeout(render, 0);
+  }
+
+  function changed() {
+    if (HEAVY[sel.value]) {
+      out.innerHTML = '<p class="sql-note">Press Run: this habit averages 100 or 200 worlds of 100 rules and takes about a second.</p>';
+      verdict.textContent = "Waiting for Run.";
+    } else {
+      start();
+    }
+  }
+
+  var t = QT.selfTest();
+  self.textContent = t.ok
+    ? "The generator's six properties pass in this browser, so the figures above are the figures any correct run gives. Synthetic data only: nothing here describes a real market, and nothing here is investment advice."
+    : "The generator's self test did not pass in this browser, so nothing above should be believed.";
+
+  sel.addEventListener("change", changed);
+  btn.addEventListener("click", start);
+  start();
+})();
+</script>
+<style>
+  #a6-unlearn .sql-code { border: 1px solid var(--hairline); border-radius: 8px; max-width: 32rem; }
+  #a6-unlearn table.sql-table { margin: .6rem 0 .2rem; font-size: .85rem; }
+  #a6-unlearn .a6-unlearn-hot { color: var(--amber); }
+</style>
+</body>
+</html>

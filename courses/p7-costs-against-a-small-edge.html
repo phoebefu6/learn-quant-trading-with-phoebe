@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Practitioner session 7 of 10. Read the one line where the engine charges a cost, derive turnover from the signal's persistence, and watch a real Sharpe ratio of 1.0 fall to zero by about 15 basis points per unit of position change. Synthetic data only, not investment advice.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="Costs against a small edge - learn quant with phoebe">
+<meta property="og:description" content="Practitioner session 7 of 10. A real Sharpe of 1.0 reads 0.69 at 5 basis points and -0.30 at 20, averaged over 200 worlds, at 0.41 units of turnover a day. Measured.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/courses/p7-costs-against-a-small-edge.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Costs against a small edge - learn quant with phoebe">
+<meta name="twitter:description" content="A gross Sharpe ratio is half a sentence. The other half is turnover times the cost of a trade. Charge it, then read what is left.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Practitioner session 7 · Costs against a small edge - learn quant with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-quant-trading-with-phoebe</a> / Practitioner session 7 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Quant Trading with Phoebe · Practitioner session 7 of 10</div>
+    <h1>Costs against a <span class="accent">small edge</span></h1>
+    <p class="sub">Session 6 planted a real signal and asked whether the corrections keep it. Tonight assumes they did, and asks the next question a desk has to answer before it funds anything: what is left after the rule pays to trade? The engine charges a cost on every change of position, and a signal that persists for about five days still changes position often enough for that cost to matter. Tonight reads the one line that charges it, derives turnover from the signal's persistence, and walks a real Sharpe ratio of 1.0 up a cost ladder until there is nothing left. The data is synthetic throughout, and nothing here is investment advice.</p>
+    <div class="chip-row">
+      <span class="chip level">🔴 Advanced</span>
+      <span class="chip audience">Anyone who will build or check a backtest</span>
+      <span class="chip audience">Comfortable with a browser console</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:3">3-15 · Where a cost is charged</span>
+      <span class="a3" style="flex:3">15-27 · The cost ladder</span>
+      <span class="a4" style="flex:4">27-45 · Build-along and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Marlow Street's gross number</h2>
+    </div>
+    <p class="lede">Marlow Street is a constructed research desk, four people and a head who has been handed a backtest with a Sharpe ratio of 1.8 and asked whether to fund it. Sessions 3 to 6 asked what that number was the best of, whether its held-out days were really unseen, and whether a real edge would survive the correction. Tonight asks a plainer question that none of those answered: was the 1.8 computed before or after the rule paid to trade? The backtest's own footnote said "gross". That one word is the subject of tonight.</p>
+
+    <div class="legend">
+      <span class="pill">Live = presented in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with tonight.</strong> An exact reading of where the engine charges a cost: on each change of position, so a flip from long to short pays twice and a hold pays nothing. The turnover of a signal derived from its persistence alone: with phi of 0.8 the sign changes on 20.5 percent of days, which is about 0.41 units of position change a day. The arithmetic that turns that into a Sharpe ratio: about 0.32 per 5 basis points. One measured ladder, a real Sharpe of 1.0 with no competition over 200 worlds per rung, that reads 0.69 at 5 basis points, 0.37 at 10 and -0.30 at 20. And the habit of never reading a gross figure without the turnover beside it.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why a gross Sharpe ratio is half a sentence<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A data scientist who ships a model rarely pays per prediction in a way that changes whether the model is worth shipping. A strategy pays every time it changes its mind. The fee, the spread and the slippage are charged on the trade, not on the prediction, so the same signal can be worth funding at one cost per trade and worth nothing at another. A gross figure tells you how often the rule was right. Only the net figure tells you whether being right paid.</p>
+        <p>Selection, the subject of sessions 3 and 4, shrinks a false edge from the top: the number you saw was the best of many and the truth was lower. Costs shrink a real edge from below: the number you saw was true, and then a tax came out of every trade. Both arrive at the same place, a figure that looked fundable and is not, from opposite directions.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Marlow Street's head, constructed like the rest of the desk, asked the researcher two questions about the 1.8: how often does the position change, and what does a change cost? The researcher had neither number. The backtest had been written to measure whether the signal was right, and it had never been asked to pay for acting on it.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The words that keep coming back<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Basis point.</strong> One hundredth of a percent: 0.0001. A cost of 5 basis points is 0.0005 of the position's value per unit traded.</li>
+          <li><strong>Unit of position change.</strong> The absolute change in the position from one day to the next. Opening from flat to +1 is one unit; a flip from +1 to -1 is two.</li>
+          <li><strong>Turnover.</strong> Units of position change per day, averaged over the history. Here about 0.41.</li>
+          <li><strong>Gross and net.</strong> The strategy's observations before and after the cost is subtracted. Every figure on a desk should say which one it is.</li>
+          <li><strong>Spread.</strong> The gap between the price at which you can buy and the price at which you can sell at the same moment. Crossing it is a cost of trading.</li>
+          <li><strong>Slippage.</strong> The difference between the price when the decision was made and the price actually obtained. Also a cost of trading.</li>
+          <li><strong>Per-trade cost.</strong> Here, spread, slippage and fees collapse into one number, <span class="mono">costBp</span>, charged per unit of position change. Nothing finer is modelled.</li>
+          <li><strong>Capacity.</strong> How much can be traded before the cost per trade itself rises. Named tonight, not modelled.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where tonight sits among the ten sessions<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Sessions 1 and 2 built the null and the strategy; 3 and 4 measured selection and corrected for it; 5 cleaned the splits; 6 planted a real signal and showed what the correction costs in power. Tonight takes that real signal alone, with no competitors, so that nothing but cost moves the number. Session 8 plants two faults in the data itself, survivorship and lookahead, and session 9 sizes the position until the mean and the median part ways. Session 10's bench has a cost slider beside the selection dials, so the two taxes can be charged at once.</p>
+        <p>The rule against advice here is the same rule that governs AI in markets generally: <a href="https://phoebefu6.github.io/learn-ai-finance-with-phoebe/courses/b9-markets-investing.html">assist, never advise</a>. No cost figure on this page describes any real venue or instrument.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers where a cost is charged and turnover</span>
+      <h2>A cost on every change, and how often the position changes</h2>
+      <span class="tag concept">12 min live</span>
+    </div>
+    <p class="lede">The engine charges cost in exactly one place, and it is not where most people first guess. It does not charge for holding a position, and it does not charge per day. It charges for the distance the position moves. So the total cost of a rule is the cost per unit times the number of units it moves, and the number of units is a property of the signal: how persistent it is decides how often its sign changes.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 364" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn strip of 16 daily positions, constructed: days 1 to 4 long at plus 1, days 5 to 7 short at minus 1, days 8 to 12 long, days 13 to 16 short. Under the strip, steel cost ticks mark every change: one tick at day 1 for opening from flat, one unit; a double tick at each of the three flips, days 5, 8 and 13, each two units because the absolute change from plus 1 to minus 1 is 2. The days held in between carry no tick and are labelled held, 0 charged. A tally beside the strip counts 7 units in 16 days. Below, a box quotes the engine's line: y of t equals pos times fwd minus cost times the absolute value of pos minus prev, with cost equal to costBp over 10000 and prev starting at 0. Beside it, two bars from ladder C in-sample over 200 worlds: gross 1.01, and net at 5 basis points 0.69, with the missing 0.32 hatched and labelled the ticks. A note says the sign flips on 20.5 percent of days on the canon worlds, arccos of 0.8 over pi, so turnover is about 0.41 units a day.">
+        <defs>
+          <filter id="p7aSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="71" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p7aHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#7A1F3D" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p7aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p7aH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .p7aL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .p7aS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .p7aB { font: 800 11px Inter, sans-serif; fill: #2A5068; }
+          .p7aV { font: 800 16px Inter, sans-serif; fill: #4A1024; }
+          .p7aA { font: 700 11px Inter, sans-serif; fill: #7A1F3D; }
+          .p7aN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="p7aH" x="30" y="26">WHERE THE COST IS CHARGED: ON EACH CHANGE OF POSITION, NEVER ON THE HOLD</text>
+
+        <g filter="url(#p7aSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- the position strip: 16 days, cell k at x = 61 + 46(k-1), width 44 -->
+          <rect x="61" y="64" width="44" height="40" rx="4" transform="rotate(-0.8 83 84)" fill="#FAF0F3"/>
+          <rect x="107" y="64" width="44" height="40" rx="4" transform="rotate(0.6 129 84)" fill="#FAF0F3"/>
+          <rect x="153" y="64" width="44" height="40" rx="4" transform="rotate(-0.5 175 84)" fill="#FAF0F3"/>
+          <rect x="199" y="64" width="44" height="40" rx="4" transform="rotate(0.7 221 84)" fill="#FAF0F3"/>
+          <rect x="245" y="64" width="44" height="40" rx="4" transform="rotate(-0.6 267 84)" fill="#EAF1F6"/>
+          <rect x="291" y="64" width="44" height="40" rx="4" transform="rotate(0.5 313 84)" fill="#EAF1F6"/>
+          <rect x="337" y="64" width="44" height="40" rx="4" transform="rotate(-0.7 359 84)" fill="#EAF1F6"/>
+          <rect x="383" y="64" width="44" height="40" rx="4" transform="rotate(0.8 405 84)" fill="#FAF0F3"/>
+          <rect x="429" y="64" width="44" height="40" rx="4" transform="rotate(-0.5 451 84)" fill="#FAF0F3"/>
+          <rect x="475" y="64" width="44" height="40" rx="4" transform="rotate(0.6 497 84)" fill="#FAF0F3"/>
+          <rect x="521" y="64" width="44" height="40" rx="4" transform="rotate(-0.8 543 84)" fill="#FAF0F3"/>
+          <rect x="567" y="64" width="44" height="40" rx="4" transform="rotate(0.5 589 84)" fill="#FAF0F3"/>
+          <rect x="613" y="64" width="44" height="40" rx="4" transform="rotate(-0.6 635 84)" fill="#EAF1F6"/>
+          <rect x="659" y="64" width="44" height="40" rx="4" transform="rotate(0.7 681 84)" fill="#EAF1F6"/>
+          <rect x="705" y="64" width="44" height="40" rx="4" transform="rotate(-0.5 727 84)" fill="#EAF1F6"/>
+          <rect x="751" y="64" width="44" height="40" rx="4" transform="rotate(0.6 773 84)" fill="#EAF1F6"/>
+          <!-- cost ticks: single at the opening, double at each flip -->
+          <path d="M60 112 L60 134" stroke="#3B6E8F" stroke-width="2.6"/>
+          <path d="M240 112 L240 134 M248 112 L248 134" stroke="#3B6E8F" stroke-width="2.6"/>
+          <path d="M378 112 L378 134 M386 112 L386 134" stroke="#3B6E8F" stroke-width="2.6"/>
+          <path d="M608 112 L608 134 M616 112 L616 134" stroke="#3B6E8F" stroke-width="2.6"/>
+          <!-- tally doodle: 7 units -->
+          <path d="M692 170 L692 188 M699 170 L699 188 M706 170 L706 188 M713 170 L713 188 M688 186 L717 172" stroke="#3B6E8F" stroke-width="1.8"/>
+          <path d="M726 170 L726 188 M733 170 L733 188" stroke="#3B6E8F" stroke-width="1.8"/>
+          <!-- the code box -->
+          <rect x="40" y="198" width="440" height="102" rx="6" transform="rotate(-0.5 260 249)" fill="#FFFFFF"/>
+          <!-- gross and net bars, in-sample Sharpe, 250 px per 1.0 -->
+          <rect x="600" y="224" width="252" height="26" rx="3" transform="rotate(0.4 726 237)" fill="#FAF0F3"/>
+          <rect x="600" y="262" width="172" height="26" rx="3" transform="rotate(-0.4 686 275)" fill="#FFFFFF"/>
+          <rect x="775" y="262" width="77" height="26" rx="3" fill="url(#p7aHc)" stroke="#7A1F3D" stroke-width="1.2"/>
+        </g>
+
+        <text class="p7aS" x="83" y="54" text-anchor="middle">day 1</text>
+        <text class="p7aS" x="428" y="54" text-anchor="middle">a constructed strip of positions</text>
+        <text class="p7aS" x="773" y="54" text-anchor="middle">day 16</text>
+
+        <text class="p7aL" x="83" y="89" text-anchor="middle">+1</text>
+        <text class="p7aL" x="129" y="89" text-anchor="middle">+1</text>
+        <text class="p7aL" x="175" y="89" text-anchor="middle">+1</text>
+        <text class="p7aL" x="221" y="89" text-anchor="middle">+1</text>
+        <text class="p7aL" x="267" y="89" text-anchor="middle">-1</text>
+        <text class="p7aL" x="313" y="89" text-anchor="middle">-1</text>
+        <text class="p7aL" x="359" y="89" text-anchor="middle">-1</text>
+        <text class="p7aL" x="405" y="89" text-anchor="middle">+1</text>
+        <text class="p7aL" x="451" y="89" text-anchor="middle">+1</text>
+        <text class="p7aL" x="497" y="89" text-anchor="middle">+1</text>
+        <text class="p7aL" x="543" y="89" text-anchor="middle">+1</text>
+        <text class="p7aL" x="589" y="89" text-anchor="middle">+1</text>
+        <text class="p7aL" x="635" y="89" text-anchor="middle">-1</text>
+        <text class="p7aL" x="681" y="89" text-anchor="middle">-1</text>
+        <text class="p7aL" x="727" y="89" text-anchor="middle">-1</text>
+        <text class="p7aL" x="773" y="89" text-anchor="middle">-1</text>
+
+        <text class="p7aB" x="52" y="152">open: 1 unit</text>
+        <text class="p7aS" x="52" y="168">|+1 - 0| = 1</text>
+        <text class="p7aB" x="244" y="152" text-anchor="middle">flip: 2 units</text>
+        <text class="p7aS" x="244" y="168" text-anchor="middle">|-1 - (+1)| = 2</text>
+        <text class="p7aB" x="382" y="152" text-anchor="middle">flip: 2 units</text>
+        <text class="p7aS" x="382" y="168" text-anchor="middle">|+1 - (-1)| = 2</text>
+        <text class="p7aS" x="497" y="152" text-anchor="middle">held: 0 charged</text>
+        <text class="p7aB" x="612" y="152" text-anchor="middle">flip: 2 units</text>
+        <text class="p7aS" x="612" y="168" text-anchor="middle">|-1 - (+1)| = 2</text>
+        <text class="p7aA" x="690" y="140">3 flips, 1 opening:</text>
+        <text class="p7aA" x="690" y="158">7 units in 16 days</text>
+
+        <text class="p7aL" x="56" y="222">the engine's pnl(), observation t</text>
+        <text class="p7aB" x="56" y="246">y[t] = pos * fwd - cost * Math.abs(pos - prev)</text>
+        <text class="p7aS" x="56" y="268">cost = costBp / 10000; prev starts at 0, so day one pays to open</text>
+        <text class="p7aS" x="56" y="288">a hold leaves pos - prev at 0; a flip moves it by 2</text>
+
+        <text class="p7aL" x="600" y="214">ladder C, in-sample, 200 worlds</text>
+        <text class="p7aL" x="590" y="242" text-anchor="end">gross</text>
+        <text class="p7aL" x="590" y="280" text-anchor="end">net, 5 bp</text>
+        <text class="p7aV" x="842" y="243" text-anchor="end">1.01</text>
+        <text class="p7aV" x="764" y="281" text-anchor="end">0.69</text>
+        <text class="p7aA" x="813" y="306" text-anchor="middle">-0.32: the ticks</text>
+
+        <text class="p7aN" x="30" y="332">The strip is constructed. On the canon worlds the sign flips on 20.5 percent of days: arccos(0.8)/pi = 0.205.</text>
+        <text class="p7aN" x="30" y="350">Each flip is 2 units, so turnover is about 0.41 units a day, and every unit pays the cost once.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the steel ticks are the whole cost model: one per unit of change, two on a flip, none on a hold. The hatched slice of the net bar is those ticks summed over 200 worlds.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The one line that charges a cost<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><span class="mono">QT.pnl(world, signal, opts)</span> walks the observations in time order. At observation t it takes the position from the sign of the signal, <span class="mono">pos = signal[t] &gt;= 0 ? 1 : -1</span>, adds up the next h returns into <span class="mono">fwd</span>, and writes one number:</p>
+        <p><span class="mono">y[t] = pos * fwd - cost * Math.abs(pos - prev)</span>, with <span class="mono">cost = costBp / 10000</span>, and then <span class="mono">prev = pos</span>.</p>
+        <ul>
+          <li><strong>A hold.</strong> pos equals prev, the absolute difference is 0, and the observation is charged nothing, however long the position is held.</li>
+          <li><strong>An opening.</strong> prev starts at 0, so the very first observation pays one unit, |+1 - 0| or |-1 - 0|. Once per history, then never again.</li>
+          <li><strong>A flip.</strong> From +1 to -1 the absolute difference is |-1 - (+1)| = 2. Closing the long and opening the short are two units, and the line charges both on the day of the flip.</li>
+        </ul>
+        <p>That is the entire cost model. It does not know what the trade was for, how large it was, or how busy the day was. It knows the distance the position moved, and it charges a fixed amount per unit of that distance.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Turnover from persistence: 0.205 flips, 0.41 units<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The rule trades the sign of an AR(1) signal with phi of 0.8. Today's value and yesterday's are two standard normals with correlation 0.8, and the probability that two such normals have different signs is arccos(phi) divided by pi. With phi of 0.8, arccos(0.8) is 0.6435 radians, and over pi that is <strong>0.205</strong>. The position flips on about 20.5 percent of days, so it lasts about five days on average: 1 / 0.205 is just under 5.</p>
+        <p>Each flip is two units, so turnover is 2 times 0.205, about <strong>0.41 units of position change a day</strong>. The opening adds one unit across the whole history, which over 755 observations is too small to see.</p>
+        <p>Notice what turnover does not depend on: the strength of the edge. The dial that sets the true Sharpe ratio sets the weight the returns put on the signal, not how often the signal changes sign. A rule with a real 3.0 and a rule with a real 0.5 trading signals of the same persistence pay the same cost. The edge is the numerator; the cost comes out of it at a rate fixed by phi.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Marlow Street's researcher, constructed, had described the 1.8 rule as "a slow signal" because its positions lasted a few days. The head asked for the turnover in units a day. A position that lasts five days on average is a flip every five days, two units each, and that is 0.4 units a day of paid trading. "Slow" had been a description of the chart, not of the bill.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Each 5 basis points costs about 0.32<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Put the two numbers together and the cost can be read in the same units as the edge.</p>
+        <ul>
+          <li><strong>Per day.</strong> 0.41 units a day times 0.0005 per unit (5 basis points) is 0.000205 of return taken out of the average observation.</li>
+          <li><strong>In Sharpe terms, per day.</strong> The rule's daily observations have a standard deviation of about 0.01, because the world's daily volatility is one percent. 0.000205 over 0.01 is 0.0205 of a daily Sharpe ratio.</li>
+          <li><strong>Annualised.</strong> Times the square root of 252, about 15.87: 0.0205 times 15.87 is 0.325. About a third of a Sharpe point per 5 basis points.</li>
+        </ul>
+        <p>The ladder agrees. A real 1.0 reads 1.01 in-sample with no cost and 0.69 at 5 basis points, averaged over 200 worlds: a drop of 0.32. The arithmetic is linear in the cost, so 10 basis points takes about 0.65 and 20 takes about 1.3, and a real edge of 1.0 crosses zero at about 15 basis points. The cost comes almost entirely out of the mean; the standard deviation barely moves, because the charge is tiny next to a one percent daily return.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Why the break-even is a ratio of two numbers<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Rearrange the arithmetic and the break-even cost is the edge divided by the cost of one basis point in Sharpe terms. At 0.41 units a day, one basis point costs 0.41 times 0.0001 over 0.01 times 15.87, about 0.065 of annualised Sharpe. A real 1.0 divided by 0.065 is about 15 basis points.</p>
+        <p>Two levers move it, and only two. A larger edge pushes break-even up in proportion. Lower turnover pushes it up in inverse proportion: halve the flips and the same edge survives twice the cost. Nothing else in the backtest helps. A longer history narrows the error bars on the net figure but does not change where it crosses zero, and no amount of selection makes a rule cheaper to trade.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the cost ladder against a real 1.0</span>
+      <h2>Walk a real edge up the cost ladder</h2>
+      <span class="tag concept">12 min live</span>
+    </div>
+    <p class="lede">Take the planted strategy alone: one rule, trading the world's hidden signal, with a true Sharpe ratio of 1.0 and no competitors, so there is no selection to correct and the only thing that moves the number is the cost. Walk-forward, 503 days in-sample and 252 out, 200 worlds per rung, at costs of 0, 1, 2, 5, 10 and 20 basis points per unit of position change. Every edge here is real by construction. The ladder shows how much of it a desk would keep.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 424" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn line chart of ladder C, a real Sharpe of 1.0 alone, 200 worlds per rung. The horizontal axis is cost in basis points per unit of position change, 0 to 20. The vertical axis is annualised Sharpe, minus 0.5 to 1.0. A steel line for in-sample runs through 1.01 at 0, 0.95 at 1, 0.88 at 2, 0.69 at 5, 0.37 at 10 and minus 0.30 at 20. A dashed burgundy line for out of sample runs through 1.05, 0.98, 0.93, 0.74, 0.43 and minus 0.23. A dashed zero line is crossed between 10 and 20 basis points, marked with a circle near 15 and labelled zero between 10 and 20 bp, about 15 by the arithmetic. A table on the right lists the six rungs. Below it a dial labelled the turnover lever points to 0.41 units a day at phi 0.8, slower on the left, faster on the right, with the note fewer flips, a flatter line. A note says every 5 basis points costs about 0.32.">
+        <defs>
+          <filter id="p7bSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="73" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p7bHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3B6E8F" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p7bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p7bH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .p7bL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .p7bS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .p7bB { font: 800 11px Inter, sans-serif; fill: #2A5068; }
+          .p7bA { font: 700 11px Inter, sans-serif; fill: #7A1F3D; }
+          .p7bN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="p7bH" x="30" y="26">A REAL SHARPE OF 1.0 AGAINST THE COST PER TRADE: LADDER C, 200 WORLDS PER RUNG</text>
+        <text class="p7bS" x="80" y="56">annualised Sharpe</text>
+
+        <g filter="url(#p7bSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- axes: x = 90 + 22c, y = 70 + (1.2 - v) * 141.2 -->
+          <path d="M80 66 L80 310 L548 310" stroke-width="2.4"/>
+          <path d="M90 310 L90 316 M200 310 L200 316 M310 310 L310 316 M420 310 L420 316 M530 310 L530 316"/>
+          <path d="M74 98 L80 98 M74 169 L80 169 M74 239 L80 239"/>
+          <!-- zero line -->
+          <path d="M80 239 L548 239" stroke="#6B5159" stroke-width="1.4" stroke-dasharray="6 5"/>
+          <!-- out of sample, dashed burgundy -->
+          <path d="M90 91 L112 101 L134 108 L200 135 L310 179 L530 272" stroke="#7A1F3D" stroke-width="2.2" stroke-dasharray="7 5"/>
+          <!-- in-sample, steel: the thing the figure is about -->
+          <path d="M90 97 L112 105 L134 115 L200 142 L310 187 L530 282" stroke="#3B6E8F" stroke-width="2.8"/>
+          <circle cx="90" cy="97" r="3.5" fill="#3B6E8F" stroke="#3B6E8F"/>
+          <circle cx="112" cy="105" r="3.5" fill="#3B6E8F" stroke="#3B6E8F"/>
+          <circle cx="134" cy="115" r="3.5" fill="#3B6E8F" stroke="#3B6E8F"/>
+          <circle cx="200" cy="142" r="3.5" fill="#3B6E8F" stroke="#3B6E8F"/>
+          <circle cx="310" cy="187" r="3.5" fill="#3B6E8F" stroke="#3B6E8F"/>
+          <circle cx="530" cy="282" r="3.5" fill="#3B6E8F" stroke="#3B6E8F"/>
+          <!-- the zero crossing, near 15 bp -->
+          <circle cx="431" cy="239" r="8" stroke="#7A1F3D" stroke-width="2.2"/>
+          <!-- legend strokes -->
+          <path d="M372 82 L404 82" stroke="#3B6E8F" stroke-width="2.8"/>
+          <path d="M372 102 L404 102" stroke="#7A1F3D" stroke-width="2.2" stroke-dasharray="7 5"/>
+          <!-- the ladder table -->
+          <rect x="592" y="60" width="266" height="168" rx="6" transform="rotate(0.6 725 144)" fill="#FFFFFF"/>
+          <path d="M604 108 L846 108" stroke-width="1.2"/>
+          <!-- the turnover dial -->
+          <circle cx="725" cy="300" r="32" fill="#EAF1F6" stroke="#3B6E8F"/>
+          <path d="M697 300 L703 300 M753 300 L747 300 M725 272 L725 278" stroke="#3B6E8F" stroke-width="1.8"/>
+          <path d="M725 300 L745 278" stroke="#3B6E8F" stroke-width="3"/>
+          <circle cx="725" cy="300" r="3" fill="#3B6E8F" stroke="#3B6E8F"/>
+        </g>
+
+        <text class="p7bS" x="72" y="102" text-anchor="end">1.0</text>
+        <text class="p7bS" x="72" y="173" text-anchor="end">0.5</text>
+        <text class="p7bS" x="72" y="243" text-anchor="end">0</text>
+        <text class="p7bS" x="72" y="314" text-anchor="end">-0.5</text>
+        <text class="p7bS" x="90" y="330" text-anchor="middle">0</text>
+        <text class="p7bS" x="200" y="330" text-anchor="middle">5</text>
+        <text class="p7bS" x="310" y="330" text-anchor="middle">10</text>
+        <text class="p7bS" x="420" y="330" text-anchor="middle">15</text>
+        <text class="p7bS" x="530" y="330" text-anchor="middle">20</text>
+        <text class="p7bS" x="310" y="348" text-anchor="middle">cost, basis points per unit of position change</text>
+
+        <text class="p7bL" x="412" y="86">in-sample (503 days)</text>
+        <text class="p7bL" x="412" y="106">out of sample (252 days)</text>
+        <text class="p7bA" x="424" y="262" text-anchor="end">zero between 10 and 20 bp,</text>
+        <text class="p7bA" x="424" y="278" text-anchor="end">about 15 by the arithmetic</text>
+
+        <text class="p7bL" x="606" y="82">ladder C, 200 worlds</text>
+        <text class="p7bS" x="626" y="102" text-anchor="middle">bp</text>
+        <text class="p7bS" x="712" y="102" text-anchor="middle">in-sample</text>
+        <text class="p7bS" x="804" y="102" text-anchor="middle">out of sample</text>
+        <text class="p7bL" x="626" y="126" text-anchor="middle">0</text>
+        <text class="p7bL" x="712" y="126" text-anchor="middle">1.01</text>
+        <text class="p7bL" x="804" y="126" text-anchor="middle">1.05</text>
+        <text class="p7bL" x="626" y="144" text-anchor="middle">1</text>
+        <text class="p7bL" x="712" y="144" text-anchor="middle">0.95</text>
+        <text class="p7bL" x="804" y="144" text-anchor="middle">0.98</text>
+        <text class="p7bL" x="626" y="162" text-anchor="middle">2</text>
+        <text class="p7bL" x="712" y="162" text-anchor="middle">0.88</text>
+        <text class="p7bL" x="804" y="162" text-anchor="middle">0.93</text>
+        <text class="p7bL" x="626" y="180" text-anchor="middle">5</text>
+        <text class="p7bL" x="712" y="180" text-anchor="middle">0.69</text>
+        <text class="p7bL" x="804" y="180" text-anchor="middle">0.74</text>
+        <text class="p7bL" x="626" y="198" text-anchor="middle">10</text>
+        <text class="p7bL" x="712" y="198" text-anchor="middle">0.37</text>
+        <text class="p7bL" x="804" y="198" text-anchor="middle">0.43</text>
+        <text class="p7bA" x="626" y="216" text-anchor="middle">20</text>
+        <text class="p7bA" x="712" y="216" text-anchor="middle">-0.30</text>
+        <text class="p7bA" x="804" y="216" text-anchor="middle">-0.23</text>
+
+        <text class="p7bB" x="725" y="256" text-anchor="middle">the turnover lever</text>
+        <text class="p7bS" x="688" y="304" text-anchor="end">slower</text>
+        <text class="p7bS" x="762" y="304">faster</text>
+        <text class="p7bL" x="725" y="352" text-anchor="middle">0.41 units a day at phi 0.8</text>
+        <text class="p7bS" x="725" y="368" text-anchor="middle">fewer flips, a flatter line</text>
+
+        <text class="p7bN" x="30" y="394">Every 5 basis points costs about 0.32: 0.41 units x 0.0005, over a daily sd of 0.01, times sqrt(252).</text>
+        <text class="p7bN" x="30" y="412">The line is straight because the cost is linear in turnover. The edge does not move with it; only the bill does.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - a real edge of 1.0 is a straight line falling about 0.065 per basis point; the dial sets that slope, and nothing else in the backtest does.</figcaption>
+    </figure>
+
+    <div class="wk" id="p7-cost">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">The cost ladder, running in this page. One rule with a real Sharpe ratio of 1.0 and no competitors, walk-forward 503 / 252, averaged over 200 worlds. Drag the cost; each setting takes a fraction of a second.</span>
+      </div>
+      <div class="wk-body">
+        <label class="sql-label" for="p7-cost-bp">Cost per unit of position change: <b id="p7-cost-bp-val">0</b> basis points</label>
+        <input class="sql-code" id="p7-cost-bp" type="range" min="0" max="20" step="1" value="0">
+        <div id="p7-cost-out"></div>
+        <p class="sql-note" id="p7-cost-verdict">...</p>
+      </div>
+      <div class="wk-foot" id="p7-cost-self">...</div>
+    </div>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Reading the ladder<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Every rung is the same 1.0 rule with no competitors, 200 worlds, seeds 70,000 plus the cost plus 1 onward. Read it from the top.</p>
+        <ul>
+          <li><strong>0 basis points.</strong> 1.01 in-sample, 1.05 out of sample. The engine measures the planted 1.0 correctly when nothing is charged.</li>
+          <li><strong>1 and 2.</strong> 0.95 and 0.98; 0.88 and 0.93. Each basis point takes about 0.065, as the arithmetic says.</li>
+          <li><strong>5.</strong> 0.69 and 0.74. A third of the edge is gone, at a cost most people would call small.</li>
+          <li><strong>10.</strong> 0.37 and 0.43. Most of it is gone.</li>
+          <li><strong>20.</strong> <strong>-0.30</strong> and <strong>-0.23</strong>. The rule is right more often than not, on every one of these worlds, and it loses money after paying to act on it.</li>
+        </ul>
+        <p>Two things are missing that sessions 3 and 4 trained you to look for. There is no gap between in-sample and out of sample beyond trial noise, because there is only one rule and so no selection to correct. And the out-of-sample column is not lower than the in-sample one; it is a little higher on every rung, which is the same 200 worlds' test days happening to be kinder than their training days, not a property of costs. The only thing moving these numbers is the bill.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Marlow Street's head, constructed, took the ladder to the funding meeting with one sentence on it: even if the 1.8 were real, which sessions 3 and 4 gave reason to doubt, a rule that flips every five days loses a third of a Sharpe point for every 5 basis points it pays to trade, and the backtest had charged none. The researcher was asked to rerun it net, at a cost per trade the desk could defend, before anyone discussed the number again.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Spread, slippage and capacity, as far as this bench goes<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>Spread and slippage are two kinds of per-trade cost, and here they are one number.</strong> Crossing the spread costs the gap between the buying and selling price; slippage costs the move between the decision and the fill; fees cost what they cost. In this engine all three are folded into <span class="mono">costBp</span>, charged per unit of position change, the same on every day and for every size. That is enough to teach the arithmetic of turnover against an edge, which is the point of tonight.</p>
+        <p><strong>What is not covered.</strong> Execution, order books and market microstructure: how an order is worked, how the spread and slippage arise, how they vary through the day and with conditions. None of it is modelled, and none of it is taught here. A per-trade number with a slider is as fine as this bench goes.</p>
+        <p><strong>Capacity is named, not modelled.</strong> In practice the cost of a trade rises with its size, so an edge that survives at one size can vanish at a larger one. This engine charges the same basis points whatever the size, so it cannot say at what size any edge disappears, and no figure for capacity appears on this page. Treat any net Sharpe ratio, here or anywhere, as true only at the size its cost assumption was made for.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where serious people disagree<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>Trade less, or trade cheaply?</strong> One camp optimises the signal for lower turnover: smooth it, slow it, hold positions longer, so the same cost per trade is paid less often. The case is the arithmetic above, where halving the flips doubles the cost an edge can survive. The other camp keeps the faster signal and works on paying less per trade, on the grounds that a slower signal trades less but also says less: smoothing throws away the recent information that made it right. Which effect wins depends on the signal, and is open. On this bench the dial that sets the edge does not depend on phi, so slowing the signal halves the bill and keeps the whole edge; that is a property of the generator, and it cannot tell you what slowing a real signal would cost in edge. The homework tries it and should be read with that limit attached.</p>
+        <p><strong>Costs measured in a backtest are themselves estimates.</strong> The cost per trade fed into a backtest is a number someone chose, usually from past conditions and past sizes. One view treats it as a parameter to report with an error bar, and asks for the net figure at several costs, as the ladder does. Another warns that a cost chosen after seeing which cost makes the strategy work is one more selection on the same history, the problem sessions 3 and 4 measured, wearing different clothes. Both agree a gross figure should not be read alone. How to set the cost honestly is not settled here.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · build-along</span>
+      <h2>Charge a cost by hand, count the flips, run the ladder</h2>
+      <span class="tag build">18 min hands on</span>
+    </div>
+    <p class="lede">Open this page's console. The engine is loaded as <span class="mono">QT</span>. The steps do what Marlow Street's researcher should have done before presenting a gross number: take one world with a real 1.0, compute the rule's Sharpe ratio gross and net, find the cost on the exact days it was charged, count the units, and then run the ladder at the canon seeds. The first four steps use one world of your choosing, so your numbers will differ from anyone else's and from the canon means; the fifth uses the canon seeds and will match exactly.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 272" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn pipeline of the build-along. makeWorld with trueSR 1 and a seed feeds the planted rule, x equals w.signal. The rule forks into two pnl boxes, costBp 0 and costBp 5, which both feed moments and annualise, giving gross and net for one world only. A second row starts from the planted rule: count position changes, the sum of the absolute position change over T, then compare with 0.41, a single draw, then ladderRung at costBp 0, 5 and 20, ending in a steel box labelled canon rows, 1.01, 0.69, minus 0.30. A small console doodle sits at the top right. A note says one world gives one gross figure, one net figure and one turnover, and that the canon rows come only from 200 worlds.">
+        <defs>
+          <filter id="p7cSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="79" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p7cHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#7A1F3D" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p7cAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p7cH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .p7cL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .p7cS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .p7cW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p7cN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="p7cH" x="30" y="26">ONE WORLD BY HAND, THEN 200 WORLDS AT THE CANON SEEDS</text>
+
+        <g filter="url(#p7cSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- console doodle -->
+          <rect x="806" y="12" width="44" height="28" rx="4" transform="rotate(1 828 26)" fill="#FFFFFF"/>
+          <path d="M814 21 L820 26 L814 31 M824 32 L834 32" stroke-width="1.8"/>
+          <!-- row 1 -->
+          <rect x="34" y="64" width="140" height="44" rx="6" transform="rotate(-0.8 104 86)" fill="#FAF0F3"/>
+          <path d="M176 86 L196 86" marker-end="url(#p7cAr)"/>
+          <rect x="200" y="64" width="140" height="44" rx="6" transform="rotate(0.6 270 86)" fill="#FFFFFF"/>
+          <path d="M342 80 L362 66" marker-end="url(#p7cAr)"/>
+          <path d="M342 92 L362 106" marker-end="url(#p7cAr)"/>
+          <rect x="366" y="46" width="150" height="34" rx="6" transform="rotate(-0.5 441 63)" fill="#FFFFFF"/>
+          <rect x="366" y="92" width="150" height="34" rx="6" transform="rotate(0.5 441 109)" fill="#FFFFFF"/>
+          <path d="M518 66 L538 80" marker-end="url(#p7cAr)"/>
+          <path d="M518 106 L538 94" marker-end="url(#p7cAr)"/>
+          <rect x="542" y="64" width="150" height="44" rx="6" transform="rotate(-0.6 617 86)" fill="#FFFFFF"/>
+          <path d="M694 86 L714 86" marker-end="url(#p7cAr)"/>
+          <rect x="718" y="64" width="140" height="44" rx="6" transform="rotate(0.8 788 86)" fill="#FAF0F3"/>
+          <!-- down to row 2 -->
+          <path d="M270 110 L270 156" marker-end="url(#p7cAr)"/>
+          <!-- row 2 -->
+          <rect x="34" y="160" width="306" height="44" rx="6" transform="rotate(0.4 187 182)" fill="#FFFFFF"/>
+          <path d="M342 182 L362 182" marker-end="url(#p7cAr)"/>
+          <rect x="366" y="160" width="150" height="44" rx="6" transform="rotate(-0.7 441 182)" fill="#EAF1F6"/>
+          <path d="M518 182 L538 182" marker-end="url(#p7cAr)"/>
+          <rect x="542" y="160" width="150" height="44" rx="6" transform="rotate(0.6 617 182)" fill="url(#p7cHc)"/>
+          <path d="M694 182 L714 182" marker-end="url(#p7cAr)"/>
+          <rect x="718" y="160" width="150" height="44" rx="6" transform="rotate(-0.6 793 182)" fill="#3B6E8F" stroke="#2A5068"/>
+        </g>
+
+        <text class="p7cL" x="104" y="83" text-anchor="middle">makeWorld</text>
+        <text class="p7cS" x="104" y="99" text-anchor="middle">trueSR 1, a seed</text>
+        <text class="p7cL" x="270" y="83" text-anchor="middle">the planted rule</text>
+        <text class="p7cS" x="270" y="99" text-anchor="middle">x = w.signal</text>
+        <text class="p7cL" x="441" y="68" text-anchor="middle">pnl, costBp 0</text>
+        <text class="p7cL" x="441" y="114" text-anchor="middle">pnl, costBp 5</text>
+        <text class="p7cL" x="617" y="83" text-anchor="middle">moments, annualise</text>
+        <text class="p7cS" x="617" y="99" text-anchor="middle">times sqrt(252)</text>
+        <text class="p7cL" x="788" y="83" text-anchor="middle">gross and net</text>
+        <text class="p7cS" x="788" y="99" text-anchor="middle">one world only</text>
+
+        <text class="p7cL" x="187" y="179" text-anchor="middle">count position changes</text>
+        <text class="p7cS" x="187" y="195" text-anchor="middle">sum of |pos - prev|, over T</text>
+        <text class="p7cL" x="441" y="179" text-anchor="middle">compare with 0.41</text>
+        <text class="p7cS" x="441" y="195" text-anchor="middle">a single draw</text>
+        <text class="p7cL" x="617" y="179" text-anchor="middle">ladderRung</text>
+        <text class="p7cS" x="617" y="195" text-anchor="middle">costBp 0, 5, 20</text>
+        <text class="p7cW" x="793" y="179" text-anchor="middle">canon rows</text>
+        <text class="p7cW" x="793" y="195" text-anchor="middle">1.01, 0.69, -0.30</text>
+
+        <text class="p7cN" x="30" y="236">One world gives one gross figure, one net figure and one turnover, and all three will differ from the canon.</text>
+        <text class="p7cN" x="30" y="254">The canon rows come only from 200 worlds at the canon seeds, and those match to the last digit.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the top row is one world and teaches the mechanism; only the steel box at the end of the bottom row is a number to quote.</figcaption>
+    </figure>
+
+    <div class="steps">
+      <div class="step"><div>
+        <h4>Make one world with a real 1.0 and take the planted rule</h4>
+        <p>Pick any seed you like. The planted rule is the world's own hidden signal, the one rule with real alpha. One world is one draw, so your numbers will differ.</p>
+        <div class="prompt-box good"><span class="label">console</span>var w = QT.makeWorld({ trueSR: 1, seed: 7 });
+var x = w.signal;
+w.trueSR, w.phi, x.length</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Compute its Sharpe ratio gross and net</h4>
+        <p>The same rule on the same world, once with no cost and once at 5 basis points per unit of position change, over all 755 observations. Expect the net figure to sit roughly a third of a point below the gross one, though on a single world your numbers will differ from the ladder's.</p>
+        <div class="prompt-box good"><span class="label">console</span>var g = QT.pnl(w, x, { h: 1, costBp: 0 });
+var n = QT.pnl(w, x, { h: 1, costBp: 5 });
+[QT.annualise(QT.moments(g).sr, 1).toFixed(2), QT.annualise(QT.moments(n).sr, 1).toFixed(2)]</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Find the cost on the days it was charged</h4>
+        <p>Subtract the two series observation by observation and express the difference in basis points. These are not statistics; they are the mechanism, and they are the same on every world: the first entry is 5.0, the opening; a hold prints 0.0; a flip prints 10.0, two units at 5 basis points.</p>
+        <div class="prompt-box good"><span class="label">console</span>g.slice(0, 20).map(function (v, i) { return ((v - n[i]) * 10000).toFixed(1); })</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Count the units and compare with 0.41</h4>
+        <p>Turn the signal into positions, add up the absolute changes from one observation to the next, and divide by the number of steps. Then print the arithmetic beside it. On one world your turnover will differ from 0.41; across many worlds it settles there.</p>
+        <div class="prompt-box good"><span class="label">console</span>var pos = x.slice(0, 755).map(function (s) { return s &gt;= 0 ? 1 : -1; });
+var units = 0;
+for (var i = 1; i &lt; pos.length; i++) units += Math.abs(pos[i] - pos[i - 1]);
+[(units / (pos.length - 1)).toFixed(3), (2 * Math.acos(0.8) / Math.PI).toFixed(3)]</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Run the ladder at the canon seeds</h4>
+        <p>ladderRung with N of 1 and a true Sharpe of 1.0 runs the planted rule alone. Ladder C's first seed is 70,000 plus the cost, so each rung uses its own 200 worlds. It prints 1.01 and 1.05 at 0, 0.69 and 0.74 at 5, and -0.30 and -0.23 at 20. Your numbers will match for the same seed. All three rungs together take well under a second.</p>
+        <div class="prompt-box good"><span class="label">console</span>[0, 5, 20].map(function (c) {
+  var r = QT.ladderRung({ N: 1, trueSR: 1, method: "walkforward", costBp: c }, 200, 70000 + c);
+  return [c, r.isSR.toFixed(2), r.oosSR.toFixed(2)];
+})</div>
+      </div></div>
+      <div class="step"><div>
+        <h4>Self-study: costs inside a selection</h4>
+        <p>Every rung above has one rule and no competitors. Put the same real 1.0 among 100 random rules, as session 6 did, and charge a cost. No canon rung exists for this combination, so there are no figures to match and none are quoted here; use 50 worlds at a seed0 of your own, and your numbers will differ. Before you run it, write down what you expect: every rule has the same phi and so roughly the same turnover, so does the cost shift every rule down together, or does it change which rule wins and how often the planted one passes the deflated test? Then read <span class="mono">pickedPlant</span>, <span class="mono">deflatedDiscovery</span> and <span class="mono">oosSR</span> at 0 and at 5. The generator has no memory, so any random rule that wins earns about zero out of sample before costs, not less than zero; after costs it pays the bill on top.</p>
+        <div class="prompt-box good"><span class="label">console</span>[0, 5].map(function (c) {
+  var r = QT.ladderRung({ N: 100, trueSR: 1, method: "walkforward", costBp: c }, 50, 424200);
+  return [c, r.pickedPlant.toFixed(2), r.deflatedDiscovery.toFixed(2), r.isSR.toFixed(2), r.oosSR.toFixed(2)];
+})</div>
+      </div></div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> Never read a Sharpe ratio without asking two things: gross or net, and at what turnover? Then do the arithmetic in your head: turnover times the cost per unit, over the daily volatility, times the square root of 252. If that number is a large share of the edge, the edge is a cost assumption.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">Starting flat, a rule's positions over five days are +1, +1, -1, -1, +1. How many units of position change does the engine charge?</p>
+      <div class="qopt">A · 3: one for the opening and one for each change of sign</div>
+      <div class="qopt">B · 5: one unit to open from flat, then two for each of the two flips</div>
+      <div class="qopt">C · 2: only the two flips; the opening is free</div>
+      <q class="qwhy">The engine charges cost times |pos - prev| on every observation, and prev starts at 0. Opening is |+1 - 0| = 1; each flip is |-1 - (+1)| or |+1 - (-1)|, which is 2; holds are 0. One plus two plus two is five.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">Why does a real Sharpe ratio of 1.0 lose about 0.32 for every 5 basis points of cost on this world?</p>
+      <div class="qopt">A · Because the cost raises the volatility of the strategy's returns</div>
+      <div class="qopt">B · Because the cost is charged on every day the position is held</div>
+      <div class="qopt">C · Because turnover is about 0.41 units a day, so 5 basis points takes 0.41 x 0.0005 a day, which over a daily standard deviation of 0.01 and times the square root of 252 is about a third of a Sharpe point</div>
+      <q class="qwhy">The cost comes out of the mean on the days the position changes, and the signal's persistence fixes how often that is: arccos(0.8)/pi = 0.205 flips a day, two units each. The ladder confirms it: 1.01 gross, 0.69 at 5 basis points, averaged over 200 worlds. A hold is never charged, and the cost is far too small to move the standard deviation.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">A colleague proposes slowing the signal so that it flips half as often. What is the honest reading?</p>
+      <div class="qopt">A · It halves the cost per year at the same cost per trade, so the same edge survives twice the cost; whether a slower signal keeps its edge is an open question that this generator cannot answer, because its edge does not depend on how fast the signal moves</div>
+      <div class="qopt">B · It is always better, because lower turnover always raises the net Sharpe ratio</div>
+      <div class="qopt">C · It makes no difference, because the cost per trade has not changed</div>
+      <q class="qwhy">The arithmetic is certain: the cost per year scales with turnover. The trade-off is not: a slower signal trades less but may also say less, and on this bench the dial that sets the edge ignores phi, so the bench shows only the cheaper half of the bargain. That is a limit stated, not a verdict.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before session 8</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">About forty minutes, in the console or in Python.</p>
+    <div class="steps">
+      <div class="step"><div>
+        <h4>Find the break-even yourself</h4>
+        <p>The arithmetic puts a real 1.0 at zero near 15 basis points, and the ladder brackets it between 10 and 20. Run the planted rule alone at 12, 13, 14, 15, 16, 17 and 18 basis points over 200 worlds at a seed0 of your own. Your numbers will differ from any canon figure; find the first cost at which the out-of-sample mean turns negative, and check it against the edge divided by about 0.065 per basis point.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Turn the turnover lever</h4>
+        <p><span class="mono">ladderRung</span> passes <span class="mono">phi</span> through to the world. Before running anything, compute 2 times arccos(0.95) over pi and predict what 5 basis points should cost a real 1.0 at that turnover. Then run the planted rule alone with <span class="mono">phi: 0.95</span> at 0 and 5 basis points over 200 worlds at a seed0 of your own. Your numbers will differ; compare the drop with your prediction, and write one sentence on why this bench cannot tell you whether a real signal, slowed, would keep its edge.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Write the net line for one backtest you have seen</h4>
+        <p>Take any backtest you have been shown, or one of your own. Write down its turnover in units a day, the cost per unit it assumed, and the net figure beside the gross one. If any of the three is missing, write the question you would ask to get it. Session 8 plants two faults in the data itself, and session 10's brief has a line for exactly this.</p>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Where the engine charges a cost</span><span class="note">y[t] = pos * fwd - cost * |pos - prev|, cost = costBp / 10000; a hold pays 0, an opening 1 unit, a flip 2.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Turnover from persistence</span><span class="note">arccos(0.8)/pi = 0.205 sign changes a day, two units each: about 0.41 units of position change a day.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The cost in Sharpe terms</span><span class="note">0.41 x 0.0005 over 0.01, times the square root of 252: about 0.32 per 5 basis points.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The cost ladder against a real 1.0</span><span class="note">200 worlds per rung, in-sample / out of sample: 1.01 / 1.05 at 0, 0.69 / 0.74 at 5, 0.37 / 0.43 at 10, -0.30 / -0.23 at 20.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The break-even</span><span class="note">A real 1.0 is gone by about 15 basis points and negative at 20; the edge over the cost of one basis point.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Spread and slippage</span><span class="note">Named as kinds of per-trade cost and taught only as one number per unit of position change.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Capacity</span><span class="note">Named, not modelled: the bench charges the same cost at every size, so no capacity figure is given.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Costs inside a selection</span><span class="note">A self-study run with no canon rung and no quoted figures. Session 10's bench charges both taxes at once.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Execution, order books and market microstructure; model validation</span><span class="note">Execution and microstructure are not covered. Validating one model against a challenger lives in <a href="https://phoebefu6.github.io/learn-model-risk-with-phoebe/courses/p5-benchmarks-and-challengers.html">learn-model-risk-with-phoebe, practitioner session 5</a>.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Any market, price or instrument</span><span class="note">Out of scope by design. Synthetic data only, and nothing here is investment advice.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>The one sentence.</strong> A gross Sharpe ratio is half a sentence; the other half is turnover times the cost of a unit of trading.</div>
+      <div class="cheat-item"><strong>The line.</strong> y[t] = pos * fwd - cost * |pos - prev|. Holds pay nothing; a flip pays twice.</div>
+      <div class="cheat-item"><strong>The turnover.</strong> Sign changes on arccos(phi)/pi of days: 0.205 at phi 0.8, so about 0.41 units a day.</div>
+      <div class="cheat-item"><strong>The arithmetic.</strong> Turnover x cost, over the daily sd, times sqrt(252). At 5 basis points: about 0.32.</div>
+      <div class="cheat-item"><strong>The ladder.</strong> A real 1.0 alone, 200 worlds: 1.01 gross, 0.69 at 5, 0.37 at 10, -0.30 at 20.</div>
+      <div class="cheat-item"><strong>The break-even.</strong> Edge over the cost of one basis point in Sharpe terms. A real 1.0 is gone by about 15.</div>
+      <div class="cheat-item"><strong>The two levers.</strong> A bigger edge or fewer flips. Selection and a longer history do not make a rule cheaper to trade.</div>
+      <div class="cheat-item"><strong>The limit.</strong> One cost number per trade, the same at every size. No execution, no microstructure, no capacity figure.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Practitioner session 7 of 10 · learn-quant-trading-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="p6-planting-a-true-signal.html">← Practitioner session 6 · Planting a true signal</a>
+        <a href="p8-survivorship-and-lookahead-planted.html">Practitioner session 8 · Survivorship and lookahead, planted and caught →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/qt-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof QT === "undefined") return;
+  var slider = document.getElementById("p7-cost-bp");
+  var valEl = document.getElementById("p7-cost-bp-val");
+  var out = document.getElementById("p7-cost-out");
+  var verdict = document.getElementById("p7-cost-verdict");
+  var self = document.getElementById("p7-cost-self");
+  var TRIALS = 200;
+  /* ladder C: canon rungs at these costs, first seed 70000 + cost */
+  var CANON = [0, 1, 2, 5, 10, 20];
+  /* turnover of sign(AR(1)) at phi 0.8: two units per flip, arccos(phi)/pi flips a day */
+  var TURNOVER = 2 * Math.acos(0.8) / Math.PI;
+  var SIGMA = 0.01;
+  var timer = null;
+
+  function render() {
+    var c = Number(slider.value);
+    var canon = CANON.indexOf(c) >= 0;
+    var seed0 = canon ? 70000 + c : 12345;
+    var r = QT.ladderRung({ N: 1, trueSR: 1, method: "walkforward", costBp: c }, TRIALS, seed0);
+    var perBp = TURNOVER * 0.0001 / SIGMA * Math.sqrt(QT.DAYS);
+    var perYear = perBp * c;
+    var breakEven = 1 / perBp;
+
+    var html = '<table class="sql-table"><thead><tr><th>Quantity</th><th>Value</th><th>What it is</th></tr></thead><tbody>';
+    html += "<tr><td>Cost per unit of position change</td><td>" + c + " bp</td><td>" + (c / 10000).toFixed(4) + " per unit; a flip is two units</td></tr>";
+    html += "<tr><td>In-sample Sharpe ratio, net (503 days)</td><td><b>" + r.isSR.toFixed(2) + "</b></td><td>the real 1.0 after paying to trade</td></tr>";
+    html += '<tr><td>Out-of-sample Sharpe ratio, net (252 days)</td><td><b class="' + (r.oosSR < 0 ? "p7-bad" : "p7-ok") + '">' + r.oosSR.toFixed(2) + "</b></td><td>the same rule on days it never saw</td></tr>";
+    html += "<tr><td>Cost per year in Sharpe terms (arithmetic)</td><td>" + perYear.toFixed(2) + "</td><td>" + TURNOVER.toFixed(2) + " units a day x " + c + " bp, over a daily sd of 0.01, times sqrt(252)</td></tr>";
+    html += "<tr><td>Worlds averaged</td><td>" + TRIALS + "</td><td>" + (canon ? "canon: ladder C, seed0 " + (70000 + c).toLocaleString("en-US") : "not a canon rung, seed 12,345") + "</td></tr>";
+    html += "</tbody></table>";
+    out.innerHTML = html;
+
+    var msg;
+    if (c === 0) {
+      msg = "No cost: the planted rule reads " + r.isSR.toFixed(2) + " in-sample and " + r.oosSR.toFixed(2) + " out of sample, the real 1.0 measured correctly. Drag the cost and watch a fixed edge pay a bill that grows by about " + perBp.toFixed(3) + " of Sharpe per basis point.";
+    } else if (r.oosSR >= 0.6) {
+      msg = "At " + c + " basis points the real 1.0 keeps most of its edge: " + r.oosSR.toFixed(2) + " out of sample. The arithmetic says the cost takes about " + perYear.toFixed(2) + " a year at " + TURNOVER.toFixed(2) + " units of turnover a day.";
+    } else if (r.oosSR >= 0) {
+      msg = "At " + c + " basis points most of a real edge is gone: " + r.oosSR.toFixed(2) + " out of sample. The rule is still right more often than not; it is paying about " + perYear.toFixed(2) + " a year to act on it, and the arithmetic puts break-even near " + breakEven.toFixed(0) + " basis points.";
+    } else {
+      msg = "At " + c + " basis points the cost is larger than the edge: " + r.oosSR.toFixed(2) + " out of sample. A rule that is genuinely right more often than not loses after paying to trade, because about " + perYear.toFixed(2) + " a year comes out of a 1.0.";
+    }
+    msg += canon ? " This is a canon rung: 200 worlds at ladder C's seed." : " This cost is not a canon rung, so the figures use seed 12,345 and are not quoted anywhere on the page.";
+    verdict.textContent = msg;
+  }
+
+  function schedule() {
+    valEl.textContent = slider.value;
+    out.innerHTML = '<p class="sql-note">Running 200 worlds...</p>';
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(render, 120);
+  }
+
+  var t = QT.selfTest();
+  self.textContent = t.ok
+    ? "The generator's six properties pass in this browser, so the figures above are the figures any correct run gives. Synthetic data only: nothing here describes a real market, and nothing here is investment advice."
+    : "The generator's self test did not pass in this browser, so nothing above should be believed.";
+
+  slider.addEventListener("input", schedule);
+  render();
+})();
+</script>
+<style>
+  #p7-cost .sql-code { border: 1px solid var(--hairline); border-radius: 8px; max-width: 24rem; }
+  #p7-cost input[type="range"] { max-width: 20rem; padding: 0; }
+  #p7-cost table.sql-table { margin: .6rem 0 .2rem; font-size: .85rem; }
+  #p7-cost .p7-ok { color: var(--indigo); }
+  #p7-cost .p7-bad { color: var(--amber); }
+</style>
+</body>
+</html>

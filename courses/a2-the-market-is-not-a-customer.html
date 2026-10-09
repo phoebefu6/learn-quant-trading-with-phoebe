@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Leader session 2 of 6. A churn model's customers never read the model; a trading signal's counterparties do. Published return predictors earned 26 percent less out of sample and 58 percent less after publication, and one Sharpe estimate on two years has a ruler of 0.71. Synthetic data only. Not investment advice.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="The market is not a customer - learn quant with phoebe">
+<meta property="og:description" content="Leader session 2 of 6. The adversary reads you, trading changes the series, and a real Sharpe ratio of 1.0 sits about 1.4 rulers from zero on two years. Measured on 200 worlds.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/courses/a2-the-market-is-not-a-customer.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The market is not a customer - learn quant with phoebe">
+<meta name="twitter:description" content="Why a signal decays once it is found, and why two years cannot tell a real 1.0 from noise. What a leader asks of a decay claim.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Leader session 2 · The market is not a customer - learn quant with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-quant-trading-with-phoebe</a> / Leader session 2 of 6</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Quant Trading with Phoebe · Leader session 2 of 6</div>
+    <h1>The market is <span class="accent">not a customer</span></h1>
+    <p class="sub">A data team's models are scored against people who never see them. A churn model does not make a customer leave sooner because it flagged her. A trading signal is scored against counterparties who are looking for the same signal, and once enough of them find it and trade it, the edge it measured shrinks. Tonight is two facts a leader needs before funding any strategy: the market reads you back, and on two years of data the noise in one Sharpe estimate is almost as large as the edge anyone hopes to find. Marlow Street, the constructed desk from session 1, is still deciding. Synthetic data only, and nothing here is investment advice.</p>
+    <div class="chip-row">
+      <span class="chip level">🟠 Leader track</span>
+      <span class="chip audience">Anyone asked to fund a backtest</span>
+      <span class="chip audience">Data leaders moving into markets work</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:3">3-18 · The adversary reads you</span>
+      <span class="a3" style="flex:3">18-28 · The ruler</span>
+      <span class="a4" style="flex:4">28-45 · Build-along and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Marlow Street, a week after the 1.8 landed</h2>
+    </div>
+    <p class="lede">Marlow Street is a constructed four-person research desk, invented so that every number about it can be checked. Last session its head learned to ask how many rules were tried before the 1.8 was presented. This week the researcher has an answer and a new argument: the signal comes from a published paper, so it must be real. The head's instinct, trained on customer models, says a published result is a safer result. In markets it can be the opposite, and the reason is the subject of Part 1.</p>
+
+    <div class="legend">
+      <span class="pill">Live = presented in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with tonight.</strong> Three words that separate a market from a customer base: adversarial, reflexive, non-stationary. The published measurement of what happens to a return predictor after it is found and printed: 26 percent lower out of sample, 58 percent lower after publication, across 97 variables. A ruler for a Sharpe ratio, 0.71 on two years of daily data, and a measured reason why a real 1.0 cannot be confirmed on that much history. And five questions to put to anyone who says a signal will keep working. Synthetic data only; nothing here is advice on what to buy, sell or trade.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why "published" sounds safe and is not<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>In product analytics, a published result is a reusable one. If a paper shows that onboarding emails reduce churn, your customers do not read the paper and change their behaviour to defeat it. The finding transfers because the people it describes are not playing against you.</p>
+        <p>A return predictor describes the behaviour of other traders, and other traders read papers. Publication is the moment a private edge becomes a public one, and a public edge is one that many desks can trade at once. The leader's instinct "it was peer reviewed, so it holds" is right about the statistics and wrong about the world: peer review can confirm the effect was there in the sample, and cannot stop the sample's participants from learning about it.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The words that keep coming back<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Adversarial.</strong> The thing being predicted contains people trying to predict it, and they profit when your prediction is wrong or crowded.</li>
+          <li><strong>Reflexive.</strong> Acting on a prediction changes the data it was built from. Trading a signal moves the returns the signal was measured on.</li>
+          <li><strong>Non-stationary.</strong> The process generating the data changes over time, so the past is a sample from a different distribution than the future.</li>
+          <li><strong>Decay.</strong> The shrinking of a measured edge after it was found. McLean and Pontiff (2016) put published numbers on it.</li>
+          <li><strong>Out of sample, in their sense.</strong> The years after the original study's sample ended and before the paper came out. Not the same as a held-out test set.</li>
+          <li><strong>The ruler.</strong> The standard deviation of one annualised Sharpe estimate when nothing is there: about 0.71 on 503 daily observations.</li>
+          <li><strong>Constructed.</strong> Marlow Street and every figure from the generator are invented so the truth is known. No figure describes a real market.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers adversarial, reflexive, decaying</span>
+      <h2>The adversary reads the paper too</h2>
+      <span class="tag concept">15 min live</span>
+    </div>
+    <p class="lede">McLean and Pontiff took 97 variables that published academic work had shown to predict returns and followed each one through three windows: the years the original study used, the years after its sample ended but before the paper came out, and the years after publication. If a predictor were a law of nature, the bar would stay the same height in all three. The figure draws what they measured instead, in the published version of the paper, The Journal of Finance 71(1), 2016.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 440" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn timeline of 97 published return predictors in three windows. A hatched bar for the in-sample years at full height. A pale bar for the years after the sample and before publication, 26 percent lower, with a bracket labelled statistical bias. A steel bar for the years after publication, 58 percent lower, with a bracket over the 32 percent between them labelled publication-informed trading. Tick marks on the time axis mark where the sample ends and where the paper is published. A small doodle of a printed paper, labelled others read it and trade on it, sends an arrow down into the post-publication bar, labelled reflexivity. Notes say the figures are the published ones, earlier drafts reported others, and the generator behind every session is stationary so it cannot show this decay.">
+        <defs>
+          <filter id="a2aSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="41" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="a2aHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#7A1F3D" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="a2aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .a2aH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .a2aL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .a2aS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .a2aB { font: 800 11px Inter, sans-serif; fill: #2A5068; }
+          .a2aV { font: 800 16px Inter, sans-serif; fill: #4A1024; }
+          .a2aA { font: 700 11px Inter, sans-serif; fill: #7A1F3D; }
+          .a2aN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="a2aH" x="30" y="26">WHAT HAPPENED TO 97 PUBLISHED RETURN PREDICTORS, WINDOW BY WINDOW</text>
+        <text class="a2aS" x="30" y="46">bar height: average return relative to the original sample, published figures (McLean and Pontiff 2016)</text>
+
+        <g filter="url(#a2aSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- bars: full, 26 percent lower, 58 percent lower (heights 180, 133, 76) -->
+          <rect x="130" y="110" width="80" height="180" fill="url(#a2aHc)" transform="rotate(-0.8 170 200)"/>
+          <rect x="390" y="157" width="80" height="133" fill="#FAF0F3" transform="rotate(0.6 430 223)"/>
+          <rect x="660" y="214" width="80" height="76" fill="#3B6E8F" stroke="#3B6E8F" transform="rotate(-0.5 700 252)"/>
+          <!-- the time axis and the two events on it -->
+          <path d="M40 290 L840 290" stroke-width="2.5"/>
+          <path d="M300 282 L300 300"/>
+          <path d="M560 282 L560 300"/>
+          <!-- carried tops and brackets -->
+          <path d="M214 110 L490 110" stroke="#6B5159" stroke-width="1.4" stroke-dasharray="5 5"/>
+          <path d="M484 110 L490 110 L490 157 L484 157" stroke="#7A1F3D" stroke-width="1.8"/>
+          <path d="M474 157 L640 157" stroke="#6B5159" stroke-width="1.4" stroke-dasharray="5 5"/>
+          <path d="M634 157 L640 157 L640 214 L656 214" stroke="#7A1F3D" stroke-width="1.8"/>
+          <!-- the doodle anchor: a printed paper, and the loop back into the series -->
+          <rect x="790" y="60" width="36" height="46" rx="2" fill="#FFFFFF" transform="rotate(1.2 808 83)"/>
+          <path d="M797 72 L819 72 M797 82 L819 82 M797 92 L812 92" stroke-width="1.4"/>
+          <path d="M812 112 C848 170 822 250 746 262" stroke-dasharray="6 5" marker-end="url(#a2aAr)"/>
+        </g>
+
+        <text class="a2aL" x="170" y="100" text-anchor="middle">the return as found</text>
+        <text class="a2aV" x="430" y="147" text-anchor="middle">26% lower</text>
+        <text class="a2aV" x="700" y="204" text-anchor="middle">58% lower</text>
+
+        <text class="a2aA" x="502" y="128">statistical bias</text>
+        <text class="a2aS" x="502" y="144">a search finds noise too</text>
+
+        <text class="a2aA" x="630" y="180" text-anchor="end">32 percent</text>
+        <text class="a2aS" x="630" y="196" text-anchor="end">publication-informed</text>
+        <text class="a2aS" x="630" y="212" text-anchor="end">trading (58 minus 26)</text>
+
+        <text class="a2aB" x="780" y="76" text-anchor="end">others read it</text>
+        <text class="a2aS" x="780" y="92" text-anchor="end">and trade on it</text>
+        <text class="a2aA" x="780" y="108" text-anchor="end">reflexivity</text>
+
+        <text class="a2aA" x="300" y="316" text-anchor="middle">sample ends</text>
+        <text class="a2aA" x="560" y="316" text-anchor="middle">published</text>
+
+        <text class="a2aL" x="170" y="340" text-anchor="middle">in-sample</text>
+        <text class="a2aL" x="430" y="340" text-anchor="middle">out of sample, before publication</text>
+        <text class="a2aL" x="700" y="340" text-anchor="middle">after publication</text>
+        <text class="a2aS" x="170" y="356" text-anchor="middle">the years it was found in</text>
+        <text class="a2aS" x="430" y="356" text-anchor="middle">after the sample, before the paper</text>
+        <text class="a2aS" x="700" y="356" text-anchor="middle">the paper is out</text>
+
+        <text class="a2aN" x="30" y="384">Published: returns 26 percent lower out of sample and 58 percent lower after publication, across 97 variables.</text>
+        <text class="a2aN" x="30" y="402">Earlier drafts of the same study reported other figures, so the estimate moved as the sample grew.</text>
+        <text class="a2aN" x="30" y="420">The generator here is stationary on purpose: this decay comes from the study, not from the bench.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the first drop is what any search leaves behind; the second is what happens when the people on the other side of the trade read the same paper.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The adversary reads you<span class="mini">5 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A churn model's customers never read the model. They do not know it exists, they do not change their behaviour because it scored them, and nobody earns money by making it wrong. That is why a data team can validate a churn model once and trust it for a year: the population it describes is indifferent to it.</p>
+        <p>A trading signal's counterparties are not indifferent. Every trade has someone on the other side, and that someone is also searching for patterns, often with the same papers, the same data and the same methods. When a pattern is found by many, they all trade it, and the price moves before any one of them can collect. The edge does not vanish because the original analysis was wrong. It shrinks because the analysis was right and other people did it too.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Marlow Street (constructed) has a researcher who built the 1.8 strategy from a predictor described in a well cited paper. Her argument to the head was that publication proves the effect. The head's new question is the right one: if it is in a paper, how many other desks read the same paper, and in which of the three windows of the figure are we about to start trading? The answer is the third window, the one with the shortest bar.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Reflexivity: trading changes the series<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>In most modelling the data and the decision are separate. The model reads the data; the decision happens downstream and does not rewrite the history the model learned from. In markets the decision is a trade, and the trade is part of the next day's data. Act on a signal at scale and you change the returns the signal was measured on. That loop is what the dashed arrow in the figure draws.</p>
+        <p>McLean and Pontiff measured the loop's size from the outside. Across 97 variables, "Portfolio returns are 26% lower out-of-sample and 58% lower post-publication". They attribute the difference to traders learning from the papers: "We estimate a 32% (58%-26%) lower return from publication-informed trading". The study was read at source, in the published version in The Journal of Finance, 2016.</p>
+        <p>Notice what the first drop is. The 26 percent fall between the sample and the pre-publication years happened before anyone could trade on the paper. It is what remains when a search across many variables is scored on the data it searched, which is session 1's best-of-N lesson seen in published research. Session 3 measures that part on the generator.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Non-stationarity, and why the bench cannot show it<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A stationary process has the same statistical behaviour at every point in time. Markets are not one: participants, rules, costs and crowding all change, so the edge measured in one decade is a sample from a different process than the one you will trade in the next.</p>
+        <p>The generator behind every session is stationary on purpose. Its planted signal has the same strength on day 1 and day 756, nobody reads it, and nothing trades against it. That is what lets the bench say what the truth is, and it is also why the bench cannot reproduce decay. Every decay figure tonight comes from the published study, not from the generator, and a page that claimed otherwise would be inventing evidence.</p>
+        <p>The generator also has no memory in its returns, so an overfit rule earns zero out of sample here, not less than zero. On a series with memory, Bailey, Borwein, Lopez de Prado and Zhu describe a compensation effect that can make it worse. The bench is the no-memory case and says so.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where serious people disagree<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>How much decay?</strong> The published paper's headline is 26 percent out of sample and 58 percent after publication. Earlier drafts of the same study reported other figures (82 characteristics, and 25 and 56 percent in a later draft); those draft figures are reported from abstract summaries, not read at source. The honest statement is that the estimate moved as the sample grew, and the published numbers are the ones to cite, with the journal and the year.</p>
+        <p><strong>Why the decay?</strong> The paper splits the decline into two parts. The first, out of sample but before publication, is the part a statistician would call bias from searching. The second, the extra 32 percent, the authors attribute to publication-informed trading, arguing that "investors learn about mispricing from academic publications". The 32 is a difference between two estimates, not a separately measured quantity, so how cleanly the split holds is a fair question to put to it. These pages teach both parts and do not settle which dominates in any market today; no figure here could.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers signal-to-noise near zero</span>
+      <h2>A ruler of 0.71, and a real 1.0 that cannot be seen</h2>
+      <span class="tag concept">10 min live</span>
+    </div>
+    <p class="lede">Decay is the market's reason a signal stops working. Noise is the statistics' reason you cannot tell whether it was working in the first place. Sharpe's 1994 paper gives the link in one line: "The t-statistic will equal the Sharpe Ratio times the square root of T". On two years of daily data T is small, so one estimate of a Sharpe ratio carries a standard deviation of about 0.71 annualised on 503 daily observations by formula (0.70 measured over 200 worlds). Hold a real 1.0 against that ruler and it is about 1.4 rulers from zero.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 440" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn pair of overlapping bell curves on a Sharpe ratio axis from about minus 1.8 to 2.8. The ink bell is centred on 0, labelled nothing there, width 0.71. The burgundy bell is centred on 1.0, labelled a real 1.0, width 0.71. The region under both curves is hatched and labelled the overlap, worlds where a real 1.0 and nothing look alike. A steel dashed vertical line at 1.17 is labelled the one-sided 95 percent line. A ruler below the axis runs from 0 to 1.0 with a tick at 0.71, labelled 1.0 is about 1.4 rulers from zero. Notes give the measured null tail counts on 200 worlds: above 0.9 in 17, above 1.0 in 15, above 1.17 in 12.">
+        <defs>
+          <filter id="a2bSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="53" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="a2bHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#7A1F3D" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="a2bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .a2bH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .a2bL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .a2bS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .a2bB { font: 800 11px Inter, sans-serif; fill: #2A5068; }
+          .a2bA { font: 700 11px Inter, sans-serif; fill: #7A1F3D; }
+          .a2bN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="a2bH" x="30" y="26">ONE SHARPE ESTIMATE ON TWO YEARS OF DAILY DATA: NOTHING, AND A REAL 1.0</text>
+        <text class="a2bS" x="30" y="46">normal shape drawn from the measured width: one estimate on 503 daily observations has a standard deviation of 0.71</text>
+
+        <g filter="url(#a2bSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- the overlap, hatched -->
+          <path d="M220.0 290 L220.0 283.4 L228.0 282.2 L236.0 280.7 L244.0 279.1 L252.0 277.2 L260.0 275.1 L268.0 272.7 L276.0 270.0 L284.0 267.0 L292.0 263.7 L300.0 260.1 L308.0 256.1 L316.0 251.9 L324.0 247.3 L332.0 242.3 L340.0 237.1 L348.0 231.6 L356.0 225.8 L364.0 219.8 L372.0 213.6 L380.0 207.3 L388.0 200.9 L396.0 194.5 L404.0 188.2 L412.0 181.9 L420.0 175.9 L428.0 175.9 L436.0 181.9 L444.0 188.2 L452.0 194.5 L460.0 200.9 L468.0 207.3 L476.0 213.6 L484.0 219.8 L492.0 225.8 L500.0 231.6 L508.0 237.1 L516.0 242.3 L524.0 247.3 L532.0 251.9 L540.0 256.1 L548.0 260.1 L556.0 263.7 L564.0 267.0 L572.0 270.0 L580.0 272.7 L588.0 275.1 L596.0 277.2 L604.0 279.1 L612.0 280.7 L620.0 282.2 L628.0 283.4 L628.0 290 Z" fill="url(#a2bHc)" stroke="none"/>
+          <!-- null bell, centred 0 -->
+          <path d="M60.0 283.4 L71.4 281.6 L82.7 279.3 L94.1 276.7 L105.4 273.5 L116.8 269.7 L128.2 265.3 L139.5 260.3 L150.9 254.6 L162.2 248.3 L173.6 241.3 L185.0 233.7 L196.3 225.6 L207.7 217.0 L219.0 208.1 L230.4 199.0 L241.8 190.0 L253.1 181.1 L264.5 172.6 L275.8 164.7 L287.2 157.6 L298.6 151.5 L309.9 146.6 L321.3 143.0 L332.6 140.7 L344.0 140.0 L355.4 140.7 L366.7 143.0 L378.1 146.6 L389.4 151.5 L400.8 157.6 L412.2 164.7 L423.5 172.6 L434.9 181.1 L446.2 190.0 L457.6 199.0 L469.0 208.1 L480.3 217.0 L491.7 225.6 L503.0 233.7 L514.4 241.3 L525.8 248.3 L537.1 254.6 L548.5 260.3 L559.8 265.3 L571.2 269.7 L582.6 273.5 L593.9 276.7 L605.3 279.3 L616.6 281.6 L628.0 283.4"/>
+          <!-- real bell, centred 1.0 -->
+          <path d="M220.0 283.4 L231.4 281.6 L242.7 279.3 L254.1 276.7 L265.4 273.5 L276.8 269.7 L288.2 265.3 L299.5 260.3 L310.9 254.6 L322.2 248.3 L333.6 241.3 L345.0 233.7 L356.3 225.6 L367.7 217.0 L379.0 208.1 L390.4 199.0 L401.8 190.0 L413.1 181.1 L424.5 172.6 L435.8 164.7 L447.2 157.6 L458.6 151.5 L469.9 146.6 L481.3 143.0 L492.6 140.7 L504.0 140.0 L515.4 140.7 L526.7 143.0 L538.1 146.6 L549.4 151.5 L560.8 157.6 L572.2 164.7 L583.5 172.6 L594.9 181.1 L606.2 190.0 L617.6 199.0 L629.0 208.1 L640.3 217.0 L651.7 225.6 L663.0 233.7 L674.4 241.3 L685.8 248.3 L697.1 254.6 L708.5 260.3 L719.8 265.3 L731.2 269.7 L742.6 273.5 L753.9 276.7 L765.3 279.3 L776.6 281.6 L788.0 283.4" stroke="#7A1F3D" stroke-width="2.5"/>
+          <!-- axis and ticks at -1, 0, 1, 2 -->
+          <path d="M40 290 L840 290" stroke-width="2.5"/>
+          <path d="M184 290 L184 297 M344 290 L344 297 M504 290 L504 297 M664 290 L664 297"/>
+          <!-- the one-sided 95 percent line at 1.17 -->
+          <path d="M531 152 L531 320" stroke="#3B6E8F" stroke-dasharray="6 5"/>
+          <!-- leader from the overlap label -->
+          <path d="M120 222 C200 244 290 262 360 270" stroke-width="1.4" marker-end="url(#a2bAr)"/>
+          <!-- the doodle anchor: a ruler from 0 to 1.0 with a tick at 0.71 -->
+          <rect x="344" y="356" width="160" height="14" rx="2" fill="#FFFFFF" transform="rotate(-0.4 424 363)"/>
+          <path d="M360 356 L360 362 M376 356 L376 362 M392 356 L392 362 M408 356 L408 362 M424 356 L424 364 M440 356 L440 362 M472 356 L472 362 M488 356 L488 362" stroke-width="1.2"/>
+          <path d="M457.6 352 L457.6 370" stroke-width="2.2"/>
+        </g>
+
+        <text class="a2bL" x="336" y="112" text-anchor="end">nothing there</text>
+        <text class="a2bS" x="336" y="128" text-anchor="end">centred 0, width 0.71</text>
+        <text class="a2bA" x="545" y="112">a real 1.0</text>
+        <text class="a2bS" x="545" y="128">centred 1.0, width 0.71</text>
+
+        <text class="a2bA" x="40" y="176">hatched: the overlap</text>
+        <text class="a2bS" x="40" y="192">worlds where a real 1.0</text>
+        <text class="a2bS" x="40" y="208">and nothing look alike</text>
+
+        <text class="a2bS" x="184" y="312" text-anchor="middle">-1</text>
+        <text class="a2bS" x="344" y="312" text-anchor="middle">0</text>
+        <text class="a2bS" x="504" y="312" text-anchor="middle">1.0</text>
+        <text class="a2bS" x="664" y="312" text-anchor="middle">2</text>
+        <text class="a2bB" x="540" y="336">1.17, the one-sided 95 percent line</text>
+
+        <text class="a2bS" x="334" y="368" text-anchor="end">one ruler</text>
+        <text class="a2bB" x="458" y="348" text-anchor="middle">0.71</text>
+        <text class="a2bA" x="520" y="368">1.0 is about 1.4 rulers from zero</text>
+
+        <text class="a2bN" x="30" y="402">Ladder A, N = 1, 200 null worlds on 503 days: in-sample above 0.9 in 17, above 1.0 in 15, above 1.17 in 12.</text>
+        <text class="a2bN" x="30" y="420">The bells overlap heavily. Two years of one history cannot sort a real 1.0 from nothing.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - a real 1.0 and pure noise draw from bells that share most of their ground; on two years, the desk sees one draw from one of them and does not know which.</figcaption>
+    </figure>
+
+    <div class="wk" id="a2-ruler">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">The generator behind every session, running in this page. One rule, no selection, no cost, scored on 200 worlds of three years: 503 days to measure, 252 days after. Choose what is really there.</span>
+      </div>
+      <div class="wk-body">
+        <label class="sql-label" for="a2-truth">What is really there</label>
+        <select class="sql-code" id="a2-truth">
+          <option value="0" selected>Nothing: a random walk, zero alpha</option>
+          <option value="1">A real Sharpe ratio of 1.0, alone</option>
+        </select>
+        <div id="a2-ruler-out"></div>
+        <p class="sql-note" id="a2-ruler-verdict">...</p>
+      </div>
+      <div class="wk-foot" id="a2-ruler-self">...</div>
+    </div>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Sharpe's own ruler<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Sharpe's 1994 paper says two things a leader should carry. First, the ratio "is not independent of the time period over which it is measured", which is why a daily figure is annualised by the square root of 252 before anyone compares it. Second, "The t-statistic will equal the Sharpe Ratio times the square root of T", with T the number of observations. Turn that around and the noise in one estimate falls only with the square root of the history you have.</p>
+        <p>On 503 daily observations, roughly two years, one annualised estimate on a series with nothing in it has a standard deviation of 0.71. That is the ruler. A real Sharpe ratio of 1.0, a strong edge by most standards, is 1.0 divided by 0.71, about 1.4 rulers from zero. A one-sided 95 percent test needs about 1.17 on the same history before it calls anything a finding, so a real 1.0 sits below the line its own estimate has to clear.</p>
+        <p>The generator counts the other side. On the same 200 null worlds of ladder A, with one rule and nothing there, the in-sample estimate came out above 1.0 in 15 and above 1.17 in 12. A desk that sees a single 1.0 on two years is looking at a number that pure noise passed in 15 of those 200 worlds, and that a real 1.0 is centred on. Two years cannot tell them apart.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Marlow Street (constructed) has a second proposal on the desk: one rule, tried once, no selection at all, with a two-year Sharpe ratio of 1.0. The head, freshly wary of searches, is inclined to fund it because N is honestly 1. The ruler says the decision is still a coin the desk cannot see: on 200 null worlds, 15 produced a figure above it. Funding it may be right, but it is a bet on a prior, not a conclusion from the data, and the head now says so in the memo.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Two hundred worlds against one<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Set the box to "nothing" and it prints the canon: a mean in-sample Sharpe ratio of -0.01 over 200 worlds, and an out-of-sample mean of -0.07. Set it to "a real 1.0" and the means recover the truth: 1.01 in-sample and 1.05 afterwards, with no cost charged. Averaged over 200 worlds, the generator always finds what is there.</p>
+        <p>That is precisely the luxury a desk does not have. The bench gets 200 histories; the market gives one. The third line in the box is the share of single worlds in which the estimate cleared a one-sided 95 percent test. Under "nothing" it is the false-positive rate. Under "a real 1.0" it is how often one two-year history would have confirmed a real edge. Read it, and notice how far it sits from certainty.</p>
+        <p>The seeds are the canon seeds, so at 200 worlds the box prints the canon figures to the last digit: 10,000 for nothing, 70,000 for a real 1.0 alone at no cost.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The sources, in full<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li>Sharpe, W. F. (1994). "The Sharpe Ratio." The Journal of Portfolio Management, Fall 1994. Read at source: <a href="https://web.stanford.edu/~wfsharpe/art/sr/sr.htm">web.stanford.edu/~wfsharpe/art/sr/sr.htm</a></li>
+          <li>McLean, R. D., and Pontiff, J. (2016). "Does Academic Research Destroy Stock Return Predictability?" The Journal of Finance 71(1), 5-32. DOI 10.1111/jofi.12365. Read at source from a mirrored copy of the published PDF.</li>
+          <li>Bailey, D. H., Borwein, J. M., Lopez de Prado, M., and Zhu, Q. J. (2014). "Pseudo-Mathematics and Financial Charlatanism: The Effects of Backtest Overfitting on Out-of-Sample Performance." Notices of the American Mathematical Society 61(5), 458-471. DOI 10.1090/noti1105. Read at source: <a href="https://www.ams.org/notices/201405/rnoti-p458.pdf">ams.org/notices/201405/rnoti-p458.pdf</a></li>
+        </ul>
+        <p>The earlier draft figures for McLean and Pontiff are reported from summaries of working-paper abstracts and were not read at source.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · build-along</span>
+      <h2>Read a signal like an adversary</h2>
+      <span class="tag build">17 min hands on</span>
+    </div>
+    <p class="lede">No code. Five questions Marlow Street's head now puts to any claim that a signal will keep working, in the order the figure draws them. Each is a gate: a written answer opens it, a missing answer is the finding. Run them on the published-predictor proposal from Part 1, then on a model your own team relies on.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Five hand drawn gates in a row joined by arrows. Gate 1, how was it found, pass when N is counted with the discards included. Gate 2, already public, pass when nobody else has read it yet. Gate 3, how many years, pass when there is enough history for the ruler to shrink. Gate 4, rulers from zero, the headline divided by 0.71 on two years, with a small steel ruler marked 0 and 0.71. Gate 5, what stops it, pass with a named way the edge decays. A dashed arrow drops from every gate into one tray labelled no answer at any gate is the finding, send it back with the question.">
+        <defs>
+          <filter id="a2cSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="67" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="a2cHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3B6E8F" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="a2cAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .a2cH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .a2cL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .a2cS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .a2cB { font: 800 11px Inter, sans-serif; fill: #2A5068; }
+          .a2cV { font: 800 18px Inter, sans-serif; fill: #4A1024; }
+          .a2cN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+        </style>
+
+        <text class="a2cH" x="30" y="30">FIVE GATES FOR ANY CLAIM THAT A SIGNAL WILL KEEP WORKING</text>
+
+        <g filter="url(#a2cSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="30" y="56" width="150" height="156" rx="8" fill="#FFFFFF" transform="rotate(-1 105 134)"/>
+          <rect x="198" y="56" width="150" height="156" rx="8" fill="#FFFFFF" transform="rotate(0.8 273 134)"/>
+          <rect x="366" y="56" width="150" height="156" rx="8" fill="#FFFFFF" transform="rotate(-0.6 441 134)"/>
+          <rect x="534" y="56" width="150" height="156" rx="8" fill="#FFFFFF" transform="rotate(0.6 609 134)"/>
+          <rect x="702" y="56" width="150" height="156" rx="8" fill="#FFFFFF" transform="rotate(-0.8 777 134)"/>
+          <!-- forward arrows between gates -->
+          <path d="M182 134 L196 134" marker-end="url(#a2cAr)"/>
+          <path d="M350 134 L364 134" marker-end="url(#a2cAr)"/>
+          <path d="M518 134 L532 134" marker-end="url(#a2cAr)"/>
+          <path d="M686 134 L700 134" marker-end="url(#a2cAr)"/>
+          <!-- the tray every missing answer falls into -->
+          <path d="M105 214 L105 242 M273 214 L273 242 M441 214 L441 242 M609 214 L609 242 M777 214 L777 242" stroke-width="1.4" stroke-dasharray="4 4"/>
+          <rect x="30" y="246" width="822" height="34" rx="6" fill="#FAF0F3" transform="rotate(0.2 441 263)"/>
+          <!-- the doodle anchor: the ruler, 0 to 1.0, tick at 0.71 -->
+          <rect x="548" y="166" width="100" height="12" rx="2" fill="#EAF1F6" stroke="#3B6E8F"/>
+          <path d="M558 166 L558 171 M568 166 L568 171 M578 166 L578 171 M588 166 L588 171 M598 166 L598 173 M608 166 L608 171 M628 166 L628 171 M638 166 L638 171" stroke="#3B6E8F" stroke-width="1.2"/>
+          <path d="M619 160 L619 180" stroke="#3B6E8F" stroke-width="2.4"/>
+        </g>
+
+        <text class="a2cV" x="44" y="88">1</text>
+        <text class="a2cL" x="44" y="112">How was it found?</text>
+        <text class="a2cS" x="44" y="134">pass: N is counted,</text>
+        <text class="a2cS" x="44" y="150">discards included</text>
+
+        <text class="a2cV" x="212" y="88">2</text>
+        <text class="a2cL" x="212" y="112">Already public?</text>
+        <text class="a2cS" x="212" y="134">pass: nobody else</text>
+        <text class="a2cS" x="212" y="150">has read it yet</text>
+
+        <text class="a2cV" x="380" y="88">3</text>
+        <text class="a2cL" x="380" y="112">How many years?</text>
+        <text class="a2cS" x="380" y="134">pass: enough for</text>
+        <text class="a2cS" x="380" y="150">the ruler to shrink</text>
+
+        <text class="a2cV" x="548" y="88">4</text>
+        <text class="a2cL" x="548" y="112">Rulers from zero?</text>
+        <text class="a2cS" x="548" y="134">headline / 0.71</text>
+        <text class="a2cS" x="548" y="150">on two years</text>
+        <text class="a2cS" x="548" y="196" text-anchor="middle">0</text>
+        <text class="a2cB" x="619" y="196" text-anchor="middle">0.71</text>
+
+        <text class="a2cV" x="716" y="88">5</text>
+        <text class="a2cL" x="716" y="112">What stops it?</text>
+        <text class="a2cS" x="716" y="134">pass: a named way</text>
+        <text class="a2cS" x="716" y="150">the edge decays</text>
+
+        <text class="a2cL" x="441" y="268" text-anchor="middle">no answer at any gate is the finding: send it back with the question</text>
+
+        <text class="a2cN" x="30" y="304">Run the gates in order. Gates 1 and 2 are about the search and the crowd, gates 3 and 4 about the noise,</text>
+        <text class="a2cN" x="30" y="322">and gate 5 about the adversary. A signal that opens all five is still a bet; one that opens none is a story.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - every gate has an answer that can be written down, and the steel ruler at gate 4 is the one number to carry in your head.</figcaption>
+    </figure>
+
+    <div class="steps">
+      <div class="step"><div>
+        <h4>How was it found?</h4>
+        <p>Ask for the search, not the result. One stated hypothesis tested once, or the best of a sweep? Write down N, including the variants that were thrown away. Session 1's lesson applies unchanged, and McLean and Pontiff's 26 percent pre-publication drop is what a search leaves behind even in refereed work.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Has it been published, or traded?</h4>
+        <p>If the signal is in a paper, a conference talk or a widely shared notebook, assume other desks read it too. Ask which of the three windows in the Part 1 figure the desk would be trading in. For a published predictor it is the third, the one with the 58 percent lower bar, and the proposal should say so in its first paragraph.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>How many years of history?</h4>
+        <p>Ask for the number of daily observations behind the headline, and whether any of them were used to choose the rule. The ruler shrinks only with the square root of the history, so it takes four times the years to halve it. Independent history is the one input nobody can manufacture.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>How many rulers out?</h4>
+        <p>Divide the headline Sharpe ratio by 0.71 if the history is about two years. A real 1.0 comes out at about 1.4 rulers, under the 1.17 line its own estimate must clear for a one-sided 95 percent test. Say the result out loud and remember it only holds if N at gate 1 was 1; any search makes it worse, as session 3 measures.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>What would make it stop working?</h4>
+        <p>Ask the presenter to name the mechanism of decay before anyone funds the strategy: who else could trade it, what would crowd it, what change in costs or rules would end it. A researcher who can name it can also monitor it. One who answers "nothing" has told you the claim is untested against an adversary.</p>
+      </div></div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> Read every signal as the people on the other side of the trade would read it. Ask who else has seen it, how long it was measured, and how many rulers it stands from zero. A customer model can be right and stay right. A trading signal that is right gets found, and a found signal gets traded away.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">A signal that worked in a published study earns less once Marlow Street starts trading it. Why is that not a bug in the model?</p>
+      <div class="qopt">A · Because the model was trained on too few features and needs retraining</div>
+      <div class="qopt">B · Because markets are random, so no signal can ever work</div>
+      <div class="qopt">C · Because the counterparties read the same studies and trade the same signal, and their trading changes the returns it was measured on</div>
+      <q class="qwhy">The market is adversarial and reflexive. A churn model's customers never read the model; a trading signal's counterparties do. The decay is the world responding to a correct finding, not an error in fitting it. Option B overstates: the published study measures a smaller edge, not none.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">McLean and Pontiff (2016) report returns 26 percent lower out of sample and 58 percent lower after publication. What do the two numbers separate?</p>
+      <div class="qopt">A · The 26 percent falls before anyone could trade on the paper, so it reflects the search itself; the further 32 percent (58 minus 26) is what the authors attribute to publication-informed trading</div>
+      <div class="qopt">B · The 26 percent is trading costs and the 58 percent is taxes</div>
+      <div class="qopt">C · They are two estimates of the same thing from two different samples</div>
+      <q class="qwhy">The windows are the years after the original sample but before publication, and the years after publication. The first drop is bias from searching; the extra 32 percent is the authors' estimate of what readers of the paper traded away. The published figures are the ones to cite; earlier drafts reported others.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">A single rule, tried once, shows a Sharpe ratio of 1.0 on two years of daily data. Why can that history not confirm a real 1.0?</p>
+      <div class="qopt">A · Because a Sharpe ratio below 2 is never meaningful</div>
+      <div class="qopt">B · Because one estimate on 503 daily observations has a standard deviation of about 0.71, so a real 1.0 is only about 1.4 rulers from zero, and on 200 null worlds the estimate reached 1.0 in 15</div>
+      <div class="qopt">C · Because the rule must be tested on more rules first</div>
+      <q class="qwhy">Sharpe 1994: the t-statistic equals the Sharpe ratio times the square root of T. On two years the ruler is 0.71, the one-sided 95 percent line is 1.17, and pure noise produces 1.0 or more often enough that one history cannot sort them. Option A invents a threshold; option C confuses selection with noise.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before session 3</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">Twenty minutes, on one model or claim your own team depends on and on the guess you committed to in session 1.</p>
+    <div class="steps">
+      <div class="step"><div>
+        <h4>Run the five gates on one claim</h4>
+        <p>Pick a model or finding your team treats as stable. Write one line per gate: how it was found, who else could know it, how much history, how many rulers out (or the nearest equivalent for its metric), and what would make it stop working. Mark the gates nobody could open.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Name your model's adversary, if it has one</h4>
+        <p>Fraud, pricing, bidding and ranking models all face people who adapt to them. Customer churn and demand forecasts mostly do not. Write which kind yours is, and one sentence on what an adapting counterparty would do to it.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Revisit your Marlow Street guess</h4>
+        <p>Your single number for what the 1.8 earns in the year after funding. Would you lower it now, given the ruler and the published decay? Write the new number beside the old one; session 3 checks both against the generator.</p>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The adversary reads you</span><span class="note">A churn model's customers never read the model; a trading signal's counterparties do, and a found edge gets traded.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Reflexivity</span><span class="note">Trading on a signal changes the series it was measured on.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Decay after publication</span><span class="note">McLean and Pontiff (2016), The Journal of Finance 71(1), read at source: 97 variables, 26 percent lower out of sample, 58 percent lower after publication, 32 percent attributed to publication-informed trading.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Non-stationarity, named honestly</span><span class="note">The generator is stationary on purpose, so decay is taught from the study and the bench cannot show it.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The ruler</span><span class="note">Sharpe 1994: t equals the Sharpe ratio times the square root of T. One estimate on 503 daily observations: standard deviation 0.71.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">A real 1.0 on two years</span><span class="note">About 1.4 rulers from zero; on 200 null worlds the estimate passed 1.0 in 15 and 1.17 in 12.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Five gates for a decay claim</span><span class="note">How it was found, whether it is public, how many years, how many rulers out, what would stop it.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">The best of N and the haircut</span><span class="note">The search part of the 26 percent, measured on the generator. Session 3.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">"Assist, never advise", and A/B tests</span><span class="note">The no-advice rule lives in <a href="https://phoebefu6.github.io/learn-ai-finance-with-phoebe/courses/b9-markets-investing.html">learn-ai-finance-with-phoebe, builder session 9</a>; experiments that can be rerun live in <a href="https://phoebefu6.github.io/learn-experimentation-with-phoebe/">learn-experimentation-with-phoebe</a>.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Any market, price, instrument or trade</span><span class="note">Out of scope by design. Synthetic data only, nothing here is investment advice, and no figure describes a real market.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>The one sentence.</strong> A customer never reads your churn model; a counterparty reads your signal's paper.</div>
+      <div class="cheat-item"><strong>Three words.</strong> Adversarial, reflexive, non-stationary. Each one breaks a habit a data team trusts.</div>
+      <div class="cheat-item"><strong>The decay.</strong> 97 variables: 26 percent lower out of sample, 58 percent lower after publication (McLean and Pontiff 2016).</div>
+      <div class="cheat-item"><strong>The split.</strong> The first 26 is the search; the extra 32 the authors attribute to publication-informed trading.</div>
+      <div class="cheat-item"><strong>The ruler.</strong> One Sharpe estimate on two years of daily data: standard deviation about 0.71.</div>
+      <div class="cheat-item"><strong>A real 1.0.</strong> About 1.4 rulers from zero, under the 1.17 line. Noise passed 1.0 in 15 of 200 worlds.</div>
+      <div class="cheat-item"><strong>The five gates.</strong> How found, already public, how many years, how many rulers, what stops it.</div>
+      <div class="cheat-item"><strong>The honest limit.</strong> The generator is stationary and has no memory: it cannot show decay, and overfit rules earn zero here, not less.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Leader session 2 of 6 · learn-quant-trading-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="a1-one-history-not-an-experiment.html">← Leader session 1 · A backtest is one history, not an experiment</a>
+        <a href="a3-try-a-thousand-publish-the-best.html">Leader session 3 · Try a thousand things, publish the best →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/qt-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof QT === "undefined") return;
+  var sel = document.getElementById("a2-truth");
+  var out = document.getElementById("a2-ruler-out");
+  var verdict = document.getElementById("a2-ruler-verdict");
+  var self = document.getElementById("a2-ruler-self");
+  var TRIALS = 200;
+
+  function render() {
+    var real = sel.value === "1";
+    out.innerHTML = '<p class="sql-note">Running ' + TRIALS + ' worlds with one rule each...</p>';
+    setTimeout(function () {
+      /* the canon seeds: ladder A N = 1 uses seed0 = 10000; ladder C at 0 basis points uses seed0 = 70000.
+         At 200 worlds the box prints the canon figures: -0.01 / -0.07, and 1.01 / 1.05. */
+      var r = real
+        ? QT.ladderRung({ N: 1, trueSR: 1, method: "walkforward", costBp: 0 }, TRIALS, 70000)
+        : QT.ladderRung({ N: 1, trueSR: 0, method: "walkforward" }, TRIALS, 10000);
+      var share = Math.round(r.naiveDiscovery * 1000) / 10;
+      var html = '<table class="sql-table"><thead><tr><th>Quantity</th><th>Value</th><th>What it is</th></tr></thead><tbody>';
+      html += "<tr><td>Mean in-sample Sharpe ratio</td><td><b>" + r.isSR.toFixed(2) + "</b></td><td>measured on the first 503 days, annualised, averaged over " + TRIALS + " worlds</td></tr>";
+      html += '<tr><td>Mean out-of-sample Sharpe ratio</td><td><b class="a2-oos">' + r.oosSR.toFixed(2) + "</b></td><td>the same rule on the next 252 days</td></tr>";
+      html += "<tr><td>Share of single worlds that pass</td><td><b>" + share.toFixed(1) + " percent</b></td><td>one history clearing a one-sided 95 percent test against zero</td></tr>";
+      html += "<tr><td>Worlds averaged</td><td>" + TRIALS + "</td><td>the canon trial count, at the canon seed</td></tr>";
+      html += "</tbody></table>";
+      out.innerHTML = html;
+      verdict.textContent = real
+        ? "Averaged over " + TRIALS + " worlds the generator recovers the real 1.0: " + r.isSR.toFixed(2) + " in-sample and " + r.oosSR.toFixed(2) + " afterwards. But a desk gets one world, and in only " + share.toFixed(1) + " percent of single worlds did two years of data clear the one-sided 95 percent test. The rest of the time a real edge looked like noise."
+        : "With nothing there the mean is " + r.isSR.toFixed(2) + " in-sample and " + r.oosSR.toFixed(2) + " afterwards, as it should be. Yet " + share.toFixed(1) + " percent of single worlds passed the one-sided 95 percent test anyway: those are false positives, the ordinary 5 percent within trial noise.";
+    }, 0);
+  }
+
+  var t = QT.selfTest();
+  self.textContent = t.ok
+    ? "The generator's six properties pass in this browser, so the figures above are the figures any correct run gives. Synthetic data only: nothing here describes a real market, and nothing here is investment advice."
+    : "The generator's self test did not pass in this browser, so nothing above should be believed.";
+
+  sel.addEventListener("change", render);
+  render();
+})();
+</script>
+<style>
+  #a2-ruler .sql-code { border: 1px solid var(--hairline); border-radius: 8px; max-width: 24rem; }
+  #a2-ruler table.sql-table { margin: .6rem 0 .2rem; font-size: .85rem; }
+  #a2-ruler .a2-oos { color: var(--amber); }
+</style>
+</body>
+</html>
