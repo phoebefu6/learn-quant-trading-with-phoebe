@@ -537,26 +537,26 @@
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">At 200 worlds per rung the kept rule's out-of-sample Sharpe ratio is 0.14, -0.06 and 0.02 for N of 10, 100 and 1,000. Why is it about zero here rather than reliably negative?</p>
-      <div class="qopt">A · Because the kept rule secretly has a small real edge that cancels the overfitting</div>
-      <div class="qopt">B · Because the generator has no memory: each day is independent of the last, so a rule fitted to the first 503 days carries nothing into the next 252, and the AMS paper's compensation effect needs memory to make overfit rules lose</div>
-      <div class="qopt">C · Because 200 worlds is too few to see the loss that overfitting always causes</div>
-      <q class="qwhy">Without memory there is no reason to expect overfitting to produce negative performance (AMS 2014). With memory, the configuration that fit history best is the one most likely to be wrong when it reverses. This bench models only the first case, so the honest sentence is "earns nothing, or worse with memory".</q>
+      <button class="qopt" type="button">A · Because the kept rule secretly has a small real edge that cancels the overfitting</button>
+      <button class="qopt" type="button">B · Because the generator has no memory: each day is independent of the last, so a rule fitted to the first 503 days carries nothing into the next 252, and the AMS paper's compensation effect needs memory to make overfit rules lose</button>
+      <button class="qopt" type="button">C · Because 200 worlds is too few to see the loss that overfitting always causes</button>
+      <p class="qwhy">Without memory there is no reason to expect overfitting to produce negative performance (AMS 2014). With memory, the configuration that fit history best is the one most likely to be wrong when it reverses. This bench models only the first case, so the honest sentence is "earns nothing, or worse with memory".</p>
     </div>
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">What is sqrt(2 ln N) in the AMS paper, and how does it compare with the bench at N = 100?</p>
-      <div class="qopt">A · The exact expected maximum of N null trials, and the bench matches it to three decimals</div>
-      <div class="qopt">B · The minimum Sharpe ratio a strategy must report to be funded</div>
-      <div class="qopt">C · An upper bound to the expected maximum in units of one estimate's standard deviation; at N = 100 it is 3.035 against a measured 2.539 and equation 1's 2.531</div>
-      <q class="qwhy">The paper writes it as an upper bound, and on every rung it sits above the measurement. It describes how fast the maximum grows, which is why it is quoted loosely as the maximum itself. Quote it as a bound with the measured column beside it.</q>
+      <button class="qopt" type="button">A · The exact expected maximum of N null trials, and the bench matches it to three decimals</button>
+      <button class="qopt" type="button">B · The minimum Sharpe ratio a strategy must report to be funded</button>
+      <button class="qopt" type="button">C · An upper bound to the expected maximum in units of one estimate's standard deviation; at N = 100 it is 3.035 against a measured 2.539 and equation 1's 2.531</button>
+      <p class="qwhy">The paper writes it as an upper bound, and on every rung it sits above the measurement. It describes how fast the maximum grows, which is why it is quoted loosely as the maximum itself. Quote it as a bound with the measured column beside it.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">Marlow Street's backtest reports 1.8 on two years of training data, after about a hundred variants. Why is that exactly what the best of 100 on nothing prints?</p>
-      <div class="qopt">A · Because ladder A measures the best in-sample Sharpe ratio of 100 rules with no alpha at 1.80 over 200 worlds of the same length, and SR*, the expected best of 100 from equation 1, is also 1.80, so the backtest sits exactly where noise plus selection puts it</div>
-      <div class="qopt">B · Because 1.8 is above the 95 percent line of 1.17, so it is a genuine finding</div>
-      <div class="qopt">C · Because any Sharpe ratio above 1 is unusual on two years of data</div>
-      <q class="qwhy">1.17 is the 95 percent line for one estimate. The 1.8 is the best of about a hundred, and the best of a hundred on nothing averages 1.80 at this sample length. The backtest is indistinguishable from the selection loop running on an empty world.</q>
+      <button class="qopt" type="button">A · Because ladder A measures the best in-sample Sharpe ratio of 100 rules with no alpha at 1.80 over 200 worlds of the same length, and SR*, the expected best of 100 from equation 1, is also 1.80, so the backtest sits exactly where noise plus selection puts it</button>
+      <button class="qopt" type="button">B · Because 1.8 is above the 95 percent line of 1.17, so it is a genuine finding</button>
+      <button class="qopt" type="button">C · Because any Sharpe ratio above 1 is unusual on two years of data</button>
+      <p class="qwhy">1.17 is the 95 percent line for one estimate. The 1.8 is the best of about a hundred, and the best of a hundred on nothing averages 1.80 at this sample length. The backtest is indistinguishable from the selection loop running on an empty world.</p>
     </div>
 
     <div class="quiz-score"></div>

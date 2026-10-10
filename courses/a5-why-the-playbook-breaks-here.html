@@ -695,26 +695,26 @@
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">A churn model keeps its accuracy for years with quarterly retraining. A published return predictor does not. Which mechanism separates them?</p>
-      <div class="qopt">A · Market data is noisier, so the predictor was fitted less well in the first place</div>
-      <div class="qopt">B · The predictor was overfit, and every overfit model loses accuracy at the same rate</div>
-      <div class="qopt">C · The market reads it: others find and trade the signal, and McLean and Pontiff (2016) measure returns 26 percent lower out of sample and 58 percent lower after publication across 97 predictors</div>
-      <q class="qwhy">A churn customer never reads the model; a market's other side does, and its trades move the price the signal was measured on. Noise and overfitting are real but they are not the loop. The 26 percent drop before publication is the part a search leaves behind; the further fall after publication is the part they attribute to publication-informed trading.</q>
+      <button class="qopt" type="button">A · Market data is noisier, so the predictor was fitted less well in the first place</button>
+      <button class="qopt" type="button">B · The predictor was overfit, and every overfit model loses accuracy at the same rate</button>
+      <button class="qopt" type="button">C · The market reads it: others find and trade the signal, and McLean and Pontiff (2016) measure returns 26 percent lower out of sample and 58 percent lower after publication across 97 predictors</button>
+      <p class="qwhy">A churn customer never reads the model; a market's other side does, and its trades move the price the signal was measured on. Noise and overfitting are real but they are not the loop. The 26 percent drop before publication is the part a search leaves behind; the further fall after publication is the part they attribute to publication-informed trading.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">Marlow Street's researcher says the fix for a weak result is "more data". What is the honest constraint?</p>
-      <div class="qopt">A · Independent history arrives one day per day; a real 1.5 among 100 rules passes the deflated test in 3 of 100 trials on 3 years and 94 of 100 on 24 years</div>
-      <div class="qopt">B · None: a bootstrap of the two years can generate as many histories as needed</div>
-      <div class="qopt">C · None: shuffling the history into more folds gives more test sets</div>
-      <q class="qwhy">A bootstrap reshuffles the same days and adds no independent history, and shuffling overlapping observations leaks (0.65 on nothing in session 4). The only input that moves the test's power is more history, and it cannot be bought faster than it happens.</q>
+      <button class="qopt" type="button">A · Independent history arrives one day per day; a real 1.5 among 100 rules passes the deflated test in 3 of 100 trials on 3 years and 94 of 100 on 24 years</button>
+      <button class="qopt" type="button">B · None: a bootstrap of the two years can generate as many histories as needed</button>
+      <button class="qopt" type="button">C · None: shuffling the history into more folds gives more test sets</button>
+      <p class="qwhy">A bootstrap reshuffles the same days and adds no independent history, and shuffling overlapping observations leaks (0.65 on nothing in session 4). The only input that moves the test's power is more history, and it cannot be bought faster than it happens.</p>
     </div>
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">A strategy with a real Sharpe ratio of 1.0 flips its position on about 20 percent of days. Its deck says "costs assumed negligible". What does the generator say?</p>
-      <div class="qopt">A · Costs only matter for very large strategies, so the assumption is fine at any normal size</div>
-      <div class="qopt">B · Turnover is about 0.41 units a day, each 5 basis points costs about 0.32 of Sharpe, and at 20 basis points it reads -0.23 out of sample over 200 worlds</div>
-      <div class="qopt">C · Costs lower the in-sample figure but not the out-of-sample one</div>
-      <q class="qwhy">A cost is charged on every change of position, at any size, so a small edge with high turnover is eaten one flip at a time. Size adds slippage and capacity on top, which the generator does not model. Costs land in and out of sample alike: -0.30 and -0.23 at 20 basis points.</q>
+      <button class="qopt" type="button">A · Costs only matter for very large strategies, so the assumption is fine at any normal size</button>
+      <button class="qopt" type="button">B · Turnover is about 0.41 units a day, each 5 basis points costs about 0.32 of Sharpe, and at 20 basis points it reads -0.23 out of sample over 200 worlds</button>
+      <button class="qopt" type="button">C · Costs lower the in-sample figure but not the out-of-sample one</button>
+      <p class="qwhy">A cost is charged on every change of position, at any size, so a small edge with high turnover is eaten one flip at a time. Size adds slippage and capacity on top, which the generator does not model. Costs land in and out of sample alike: -0.30 and -0.23 at 20 basis points.</p>
     </div>
 
     <div class="quiz-score"></div>

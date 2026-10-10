@@ -529,26 +529,26 @@ var lagOK = function (build) { for (var t = 5; t &lt; 750; t += 25) { if (build(
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">Fifty zero-alpha series are filtered to drop any whose 504-day total ended below -20 percent, and the survivors held in equal weight from day one read a Sharpe ratio of 1.51 over 100 trials. What catches it?</p>
-      <div class="qopt">A · A lower floor, so that fewer series are dropped and the bias shrinks</div>
-      <div class="qopt">B · Building the universe from the list known before day one, and asserting that a list recomputed from data available then equals the list the backtest used</div>
-      <div class="qopt">C · A longer history, which averages the survivors' luck away</div>
-      <q class="qwhy">The 1.51 is made by drawing up the list with the whole history in hand; the full universe of 50 reads -0.01. A different floor only changes how much is cut, and a longer history leaves a list drawn at the end just as wrong. The catch is the point-in-time list and the assertion that proves it was used.</q>
+      <button class="qopt" type="button">A · A lower floor, so that fewer series are dropped and the bias shrinks</button>
+      <button class="qopt" type="button">B · Building the universe from the list known before day one, and asserting that a list recomputed from data available then equals the list the backtest used</button>
+      <button class="qopt" type="button">C · A longer history, which averages the survivors' luck away</button>
+      <p class="qwhy">The 1.51 is made by drawing up the list with the whole history in hand; the full universe of 50 reads -0.01. A different floor only changes how much is cut, and a longer history leaves a list drawn at the end just as wrong. The catch is the point-in-time list and the assertion that proves it was used.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">An honest five-day momentum rule and the same rule slipped one day are run over 200 zero-alpha worlds. Which reading catches the slip?</p>
-      <div class="qopt">A · The position's correlation with the day it trades: -0.001 honest against 0.358 slipped, because a position decided at the close of t cannot see day t+1</div>
-      <div class="qopt">B · The position's correlation with the day before: 0.358 honest against 0.355 slipped</div>
-      <div class="qopt">C · Neither; only the Sharpe ratio can tell them apart</div>
-      <q class="qwhy">Day t sits inside both windows, so the day-before column is the rule reading its own inputs and is the same for both. The traded-day column moves from zero to 0.358. The Sharpe ratio does move, 0.02 to 6.11, but a quieter leak moves it to a believable number, so it cannot be the test.</q>
+      <button class="qopt" type="button">A · The position's correlation with the day it trades: -0.001 honest against 0.358 slipped, because a position decided at the close of t cannot see day t+1</button>
+      <button class="qopt" type="button">B · The position's correlation with the day before: 0.358 honest against 0.355 slipped</button>
+      <button class="qopt" type="button">C · Neither; only the Sharpe ratio can tell them apart</button>
+      <p class="qwhy">Day t sits inside both windows, so the day-before column is the rule reading its own inputs and is the same for both. The traded-day column moves from zero to 0.358. The Sharpe ratio does move, 0.02 to 6.11, but a quieter leak moves it to a believable number, so it cannot be the test.</p>
     </div>
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">Why run the truncation assertions on every backtest rather than only on the ones whose numbers look too good?</p>
-      <div class="qopt">A · Because every leak produces a Sharpe ratio above 6, which is easy to spot anyway</div>
-      <div class="qopt">B · Because the assertions only work on zero-alpha worlds, so they must be run while testing</div>
-      <div class="qopt">C · Because a quiet leak inflates a figure into a believable edge, and the assertions cost one recompute and one comparison, need no zero-alpha world and answer pass or fail</div>
-      <q class="qwhy">The planted slip is loud on purpose; real ones are often a fraction of a day and produce numbers nobody questions. A test that runs only when a number looks suspicious misses exactly those. The truncation test does not depend on alpha being zero, so it runs on real backtests unchanged.</q>
+      <button class="qopt" type="button">A · Because every leak produces a Sharpe ratio above 6, which is easy to spot anyway</button>
+      <button class="qopt" type="button">B · Because the assertions only work on zero-alpha worlds, so they must be run while testing</button>
+      <button class="qopt" type="button">C · Because a quiet leak inflates a figure into a believable edge, and the assertions cost one recompute and one comparison, need no zero-alpha world and answer pass or fail</button>
+      <p class="qwhy">The planted slip is loud on purpose; real ones are often a fraction of a day and produce numbers nobody questions. A test that runs only when a number looks suspicious misses exactly those. The truncation test does not depend on alpha being zero, so it runs on real backtests unchanged.</p>
     </div>
 
     <div class="quiz-score"></div>

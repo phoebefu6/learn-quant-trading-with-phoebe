@@ -532,26 +532,26 @@
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">A five-day momentum rule on a random walk with no alpha reads 0.02 built honestly and 6.11 when its signal is shifted one day. Which number catches the shift?</p>
-      <div class="qopt">A · The correlation of the position with the previous day's return, which is high for the shifted rule</div>
-      <div class="qopt">B · The correlation of the position with the return on the day it trades: -0.001 honest against 0.358 shifted, over 200 worlds</div>
-      <div class="qopt">C · The Sharpe ratio alone, since anything above 3 must be a leak</div>
-      <q class="qwhy">The previous-day correlation is 0.358 against 0.355, nearly the same for both, because the rule reads its own inputs either way; it is not a test. Only the traded-day correlation separates them, since an honest position cannot have seen that day. A large Sharpe ratio is a reason to look, not a catch.</q>
+      <button class="qopt" type="button">A · The correlation of the position with the previous day's return, which is high for the shifted rule</button>
+      <button class="qopt" type="button">B · The correlation of the position with the return on the day it trades: -0.001 honest against 0.358 shifted, over 200 worlds</button>
+      <button class="qopt" type="button">C · The Sharpe ratio alone, since anything above 3 must be a leak</button>
+      <p class="qwhy">The previous-day correlation is 0.358 against 0.355, nearly the same for both, because the rule reads its own inputs either way; it is not a test. Only the traded-day correlation separates them, since an honest position cannot have seen that day. A large Sharpe ratio is a reason to look, not a catch.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">Fifty series with no alpha are filtered to drop any that ended below -20 percent. The survivors held in equal weight read a Sharpe ratio of 1.51. What is the leak?</p>
-      <div class="qopt">A · The list was drawn up with knowledge of how each series ended; on the universe as it stood on day one, all 50, the same holding reads -0.01 over 100 trials</div>
-      <div class="qopt">B · The -20 percent floor is too strict, and a looser floor would remove the effect</div>
-      <div class="qopt">C · Equal weighting is the problem; any other weighting would read near zero</div>
-      <q class="qwhy">The rule is applied at the end, so it removes exactly the series that went on to lose, and the test never sees them. The fix is a point-in-time universe, not a different floor or weighting. How much this matters on a real universe is an empirical question the generator cannot answer.</q>
+      <button class="qopt" type="button">A · The list was drawn up with knowledge of how each series ended; on the universe as it stood on day one, all 50, the same holding reads -0.01 over 100 trials</button>
+      <button class="qopt" type="button">B · The -20 percent floor is too strict, and a looser floor would remove the effect</button>
+      <button class="qopt" type="button">C · Equal weighting is the problem; any other weighting would read near zero</button>
+      <p class="qwhy">The rule is applied at the end, so it removes exactly the series that went on to lose, and the test never sees them. The fix is a point-in-time universe, not a different floor or weighting. How much this matters on a real universe is an empirical question the generator cannot answer.</p>
     </div>
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">On the same zero-alpha world, shuffled five-fold cross-validation reads 0.65 out of sample with five-day observations but 0.10 with one-day observations. Why the difference?</p>
-      <div class="qopt">A · Five-day observations have a higher true Sharpe ratio</div>
-      <div class="qopt">B · Five folds is too few for daily data</div>
-      <div class="qopt">C · Five-day observations overlap, so a test observation shares four of its five days with the training neighbours on each side; purging those neighbours brings it back to -0.02</div>
-      <q class="qwhy">The leak needs a shuffle and overlap together. With one-day observations there is no overlap and 0.10 is within trial noise of zero (about 0.07 at 100 worlds). There is no alpha in either case, so a higher true Sharpe ratio is impossible.</q>
+      <button class="qopt" type="button">A · Five-day observations have a higher true Sharpe ratio</button>
+      <button class="qopt" type="button">B · Five folds is too few for daily data</button>
+      <button class="qopt" type="button">C · Five-day observations overlap, so a test observation shares four of its five days with the training neighbours on each side; purging those neighbours brings it back to -0.02</button>
+      <p class="qwhy">The leak needs a shuffle and overlap together. With one-day observations there is no overlap and 0.10 is within trial noise of zero (about 0.07 at 100 worlds). There is no alpha in either case, so a higher true Sharpe ratio is impossible.</p>
     </div>
 
     <div class="quiz-score"></div>

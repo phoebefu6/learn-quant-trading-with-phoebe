@@ -574,26 +574,26 @@ var b3 = QT.ladderRung({ N: 100, trueSR: 1.5, method: "walkforward", days: 756 }
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">On ladder B's real-1.5 rung (200 worlds) the kept rule earns 0.46 out of sample, although the planted rule's true Sharpe ratio is 1.5. Why?</p>
-      <div class="qopt">A · The deflated test shrinks the kept rule's out-of-sample Sharpe ratio</div>
-      <div class="qopt">B · The kept rule is the planted one in 32.5 percent of worlds and a noise rule in the rest, which earns about zero here, so the mean is close to 0.325 times 1.5</div>
-      <div class="qopt">C · The planted signal decays after the training period in this generator</div>
-      <q class="qwhy">The out-of-sample figure is a blend of "kept the real rule" and "kept the luckiest noise". The generator is stationary and has no memory, so the real rule earns its 1.5 and a noise rule earns about zero; 0.325 times 1.5 is 0.49 against a measured 0.46. The test does not touch the out-of-sample days at all.</q>
+      <button class="qopt" type="button">A · The deflated test shrinks the kept rule's out-of-sample Sharpe ratio</button>
+      <button class="qopt" type="button">B · The kept rule is the planted one in 32.5 percent of worlds and a noise rule in the rest, which earns about zero here, so the mean is close to 0.325 times 1.5</button>
+      <button class="qopt" type="button">C · The planted signal decays after the training period in this generator</button>
+      <p class="qwhy">The out-of-sample figure is a blend of "kept the real rule" and "kept the luckiest noise". The generator is stationary and has no memory, so the real rule earns its 1.5 and a noise rule earns about zero; 0.325 times 1.5 is 0.49 against a measured 0.46. The test does not touch the out-of-sample days at all.</p>
     </div>
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">A real 1.5 among 100 on three years passes the deflated test in 0 of 200 worlds in ladder B, 1.5 percent of 200 in B2 and 3 percent of 100 in B3. What is the right reading?</p>
-      <div class="qopt">A · One of the three ladders has a bug, since the setting is identical</div>
-      <div class="qopt">B · The true pass rate is exactly 1.5 percent, the middle value</div>
-      <div class="qopt">C · They are three seed ranges for the same setting, each a mean over a finite number of worlds; the honest summary is "almost never", a few percent at most, quoted with the trial counts</div>
-      <q class="qwhy">A rate measured over 100 or 200 worlds carries noise of its own. Choosing the run that reads best would be selection again, one level up. Report the spread and the counts.</q>
+      <button class="qopt" type="button">A · One of the three ladders has a bug, since the setting is identical</button>
+      <button class="qopt" type="button">B · The true pass rate is exactly 1.5 percent, the middle value</button>
+      <button class="qopt" type="button">C · They are three seed ranges for the same setting, each a mean over a finite number of worlds; the honest summary is "almost never", a few percent at most, quoted with the trial counts</button>
+      <p class="qwhy">A rate measured over 100 or 200 worlds carries noise of its own. Choosing the run that reads best would be selection again, one level up. Report the spread and the counts.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">Marlow Street wants a real 1.5 among 100 to pass the deflated test more often without letting noise through. Which lever does the canon show working?</p>
-      <div class="qopt">A · More independent history: from 3 to 24 years the pass share rises from 3 to 94 percent of 100 worlds, with every pass the planted rule</div>
-      <div class="qopt">B · Bootstrapping the same three years into thirty to get more observations</div>
-      <div class="qopt">C · Trying more rules, so that the real one has more chances to be kept</div>
-      <q class="qwhy">More rules lower the kept share and raise the bar (B2). A resample adds rows but no new days, so its noise is the noise already there. Only independent history narrows the bell of noise estimates, which is what ladder B3 shows and what the minimum backtest length formalises.</q>
+      <button class="qopt" type="button">A · More independent history: from 3 to 24 years the pass share rises from 3 to 94 percent of 100 worlds, with every pass the planted rule</button>
+      <button class="qopt" type="button">B · Bootstrapping the same three years into thirty to get more observations</button>
+      <button class="qopt" type="button">C · Trying more rules, so that the real one has more chances to be kept</button>
+      <p class="qwhy">More rules lower the kept share and raise the bar (B2). A resample adds rows but no new days, so its noise is the noise already there. Only independent history narrows the bell of noise estimates, which is what ladder B3 shows and what the minimum backtest length formalises.</p>
     </div>
 
     <div class="quiz-score"></div>

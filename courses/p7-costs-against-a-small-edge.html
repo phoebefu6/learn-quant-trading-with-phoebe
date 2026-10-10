@@ -573,26 +573,26 @@ for (var i = 1; i &lt; pos.length; i++) units += Math.abs(pos[i] - pos[i - 1]);
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">Starting flat, a rule's positions over five days are +1, +1, -1, -1, +1. How many units of position change does the engine charge?</p>
-      <div class="qopt">A · 3: one for the opening and one for each change of sign</div>
-      <div class="qopt">B · 5: one unit to open from flat, then two for each of the two flips</div>
-      <div class="qopt">C · 2: only the two flips; the opening is free</div>
-      <q class="qwhy">The engine charges cost times |pos - prev| on every observation, and prev starts at 0. Opening is |+1 - 0| = 1; each flip is |-1 - (+1)| or |+1 - (-1)|, which is 2; holds are 0. One plus two plus two is five.</q>
+      <button class="qopt" type="button">A · 3: one for the opening and one for each change of sign</button>
+      <button class="qopt" type="button">B · 5: one unit to open from flat, then two for each of the two flips</button>
+      <button class="qopt" type="button">C · 2: only the two flips; the opening is free</button>
+      <p class="qwhy">The engine charges cost times |pos - prev| on every observation, and prev starts at 0. Opening is |+1 - 0| = 1; each flip is |-1 - (+1)| or |+1 - (-1)|, which is 2; holds are 0. One plus two plus two is five.</p>
     </div>
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">Why does a real Sharpe ratio of 1.0 lose about 0.32 for every 5 basis points of cost on this world?</p>
-      <div class="qopt">A · Because the cost raises the volatility of the strategy's returns</div>
-      <div class="qopt">B · Because the cost is charged on every day the position is held</div>
-      <div class="qopt">C · Because turnover is about 0.41 units a day, so 5 basis points takes 0.41 x 0.0005 a day, which over a daily standard deviation of 0.01 and times the square root of 252 is about a third of a Sharpe point</div>
-      <q class="qwhy">The cost comes out of the mean on the days the position changes, and the signal's persistence fixes how often that is: arccos(0.8)/pi = 0.205 flips a day, two units each. The ladder confirms it: 1.01 gross, 0.69 at 5 basis points, averaged over 200 worlds. A hold is never charged, and the cost is far too small to move the standard deviation.</q>
+      <button class="qopt" type="button">A · Because the cost raises the volatility of the strategy's returns</button>
+      <button class="qopt" type="button">B · Because the cost is charged on every day the position is held</button>
+      <button class="qopt" type="button">C · Because turnover is about 0.41 units a day, so 5 basis points takes 0.41 x 0.0005 a day, which over a daily standard deviation of 0.01 and times the square root of 252 is about a third of a Sharpe point</button>
+      <p class="qwhy">The cost comes out of the mean on the days the position changes, and the signal's persistence fixes how often that is: arccos(0.8)/pi = 0.205 flips a day, two units each. The ladder confirms it: 1.01 gross, 0.69 at 5 basis points, averaged over 200 worlds. A hold is never charged, and the cost is far too small to move the standard deviation.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">A colleague proposes slowing the signal so that it flips half as often. What is the honest reading?</p>
-      <div class="qopt">A · It halves the cost per year at the same cost per trade, so the same edge survives twice the cost; whether a slower signal keeps its edge is an open question that this generator cannot answer, because its edge does not depend on how fast the signal moves</div>
-      <div class="qopt">B · It is always better, because lower turnover always raises the net Sharpe ratio</div>
-      <div class="qopt">C · It makes no difference, because the cost per trade has not changed</div>
-      <q class="qwhy">The arithmetic is certain: the cost per year scales with turnover. The trade-off is not: a slower signal trades less but may also say less, and on this bench the dial that sets the edge ignores phi, so the bench shows only the cheaper half of the bargain. That is a limit stated, not a verdict.</q>
+      <button class="qopt" type="button">A · It halves the cost per year at the same cost per trade, so the same edge survives twice the cost; whether a slower signal keeps its edge is an open question that this generator cannot answer, because its edge does not depend on how fast the signal moves</button>
+      <button class="qopt" type="button">B · It is always better, because lower turnover always raises the net Sharpe ratio</button>
+      <button class="qopt" type="button">C · It makes no difference, because the cost per trade has not changed</button>
+      <p class="qwhy">The arithmetic is certain: the cost per year scales with turnover. The trade-off is not: a slower signal trades less but may also say less, and on this bench the dial that sets the edge ignores phi, so the bench shows only the cheaper half of the bargain. That is a limit stated, not a verdict.</p>
     </div>
 
     <div class="quiz-score"></div>

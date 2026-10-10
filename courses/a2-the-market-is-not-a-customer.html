@@ -459,26 +459,26 @@
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">A signal that worked in a published study earns less once Marlow Street starts trading it. Why is that not a bug in the model?</p>
-      <div class="qopt">A · Because the model was trained on too few features and needs retraining</div>
-      <div class="qopt">B · Because markets are random, so no signal can ever work</div>
-      <div class="qopt">C · Because the counterparties read the same studies and trade the same signal, and their trading changes the returns it was measured on</div>
-      <q class="qwhy">The market is adversarial and reflexive. A churn model's customers never read the model; a trading signal's counterparties do. The decay is the world responding to a correct finding, not an error in fitting it. Option B overstates: the published study measures a smaller edge, not none.</q>
+      <button class="qopt" type="button">A · Because the model was trained on too few features and needs retraining</button>
+      <button class="qopt" type="button">B · Because markets are random, so no signal can ever work</button>
+      <button class="qopt" type="button">C · Because the counterparties read the same studies and trade the same signal, and their trading changes the returns it was measured on</button>
+      <p class="qwhy">The market is adversarial and reflexive. A churn model's customers never read the model; a trading signal's counterparties do. The decay is the world responding to a correct finding, not an error in fitting it. Option B overstates: the published study measures a smaller edge, not none.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">McLean and Pontiff (2016) report returns 26 percent lower out of sample and 58 percent lower after publication. What do the two numbers separate?</p>
-      <div class="qopt">A · The 26 percent falls before anyone could trade on the paper, so it reflects the search itself; the further 32 percent (58 minus 26) is what the authors attribute to publication-informed trading</div>
-      <div class="qopt">B · The 26 percent is trading costs and the 58 percent is taxes</div>
-      <div class="qopt">C · They are two estimates of the same thing from two different samples</div>
-      <q class="qwhy">The windows are the years after the original sample but before publication, and the years after publication. The first drop is bias from searching; the extra 32 percent is the authors' estimate of what readers of the paper traded away. The published figures are the ones to cite; earlier drafts reported others.</q>
+      <button class="qopt" type="button">A · The 26 percent falls before anyone could trade on the paper, so it reflects the search itself; the further 32 percent (58 minus 26) is what the authors attribute to publication-informed trading</button>
+      <button class="qopt" type="button">B · The 26 percent is trading costs and the 58 percent is taxes</button>
+      <button class="qopt" type="button">C · They are two estimates of the same thing from two different samples</button>
+      <p class="qwhy">The windows are the years after the original sample but before publication, and the years after publication. The first drop is bias from searching; the extra 32 percent is the authors' estimate of what readers of the paper traded away. The published figures are the ones to cite; earlier drafts reported others.</p>
     </div>
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">A single rule, tried once, shows a Sharpe ratio of 1.0 on two years of daily data. Why can that history not confirm a real 1.0?</p>
-      <div class="qopt">A · Because a Sharpe ratio below 2 is never meaningful</div>
-      <div class="qopt">B · Because one estimate on 503 daily observations has a standard deviation of about 0.71, so a real 1.0 is only about 1.4 rulers from zero, and on 200 null worlds the estimate reached 1.0 in 15</div>
-      <div class="qopt">C · Because the rule must be tested on more rules first</div>
-      <q class="qwhy">Sharpe 1994: the t-statistic equals the Sharpe ratio times the square root of T. On two years the ruler is 0.71, the one-sided 95 percent line is 1.17, and pure noise produces 1.0 or more often enough that one history cannot sort them. Option A invents a threshold; option C confuses selection with noise.</q>
+      <button class="qopt" type="button">A · Because a Sharpe ratio below 2 is never meaningful</button>
+      <button class="qopt" type="button">B · Because one estimate on 503 daily observations has a standard deviation of about 0.71, so a real 1.0 is only about 1.4 rulers from zero, and on 200 null worlds the estimate reached 1.0 in 15</button>
+      <button class="qopt" type="button">C · Because the rule must be tested on more rules first</button>
+      <p class="qwhy">Sharpe 1994: the t-statistic equals the Sharpe ratio times the square root of T. On two years the ruler is 0.71, the one-sided 95 percent line is 1.17, and pure noise produces 1.0 or more often enough that one history cannot sort them. Option A invents a threshold; option C confuses selection with noise.</p>
     </div>
 
     <div class="quiz-score"></div>

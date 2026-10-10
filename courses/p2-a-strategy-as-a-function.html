@@ -556,26 +556,26 @@ for (var t = 0; t &lt; y5.length; t++) { var p = x[t] &gt;= 0 ? 1 : -1; turn += 
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">Why does the engine annualise a per-observation Sharpe ratio by the square root of 252 over h?</p>
-      <div class="qopt">A · Because 252 over h is the number of observations the engine produces per year, overlapping or not</div>
-      <div class="qopt">B · Because a year holds 252 over h non-overlapping h-day periods, and for independent observations the ratio grows with the square root of their count</div>
-      <div class="qopt">C · Because it makes h = 5 strategies look better than daily ones</div>
-      <q class="qwhy">The engine makes one observation per day whatever h is, so A is wrong about the count. The scale assumes independent periods: the mean grows with the count and the standard deviation with its square root. That puts the size of the ratio on a yearly footing; it does not make overlapping observations independent.</q>
+      <button class="qopt" type="button">A · Because 252 over h is the number of observations the engine produces per year, overlapping or not</button>
+      <button class="qopt" type="button">B · Because a year holds 252 over h non-overlapping h-day periods, and for independent observations the ratio grows with the square root of their count</button>
+      <button class="qopt" type="button">C · Because it makes h = 5 strategies look better than daily ones</button>
+      <p class="qwhy">The engine makes one observation per day whatever h is, so A is wrong about the count. The scale assumes independent periods: the mean grows with the count and the standard deviation with its square root. That puts the size of the ratio on a yearly footing; it does not make overlapping observations independent.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">In <span class="mono">pnl()</span>, what is the cost line charged on?</p>
-      <div class="qopt">A · The change in position, |position[t] - position[t-1]| times the cost, so holding costs nothing and a flip from +1 to -1 pays two units</div>
-      <div class="qopt">B · The position itself, every day it is held</div>
-      <div class="qopt">C · The size of the forward return</div>
-      <q class="qwhy">A trade happens when the position changes, so that is where the cost goes. With phi 0.8 the sign changes on about 20.5 percent of days, about 0.41 units of change a day, which is why a few basis points move the ratio as much as session 7 shows.</q>
+      <button class="qopt" type="button">A · The change in position, |position[t] - position[t-1]| times the cost, so holding costs nothing and a flip from +1 to -1 pays two units</button>
+      <button class="qopt" type="button">B · The position itself, every day it is held</button>
+      <button class="qopt" type="button">C · The size of the forward return</button>
+      <p class="qwhy">A trade happens when the position changes, so that is where the cost goes. With phi 0.8 the sign changes on about 20.5 percent of days, about 0.41 units of change a day, which is why a few basis points move the ratio as much as session 7 shows.</p>
     </div>
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">Why do the observations overlap when h = 5?</p>
-      <div class="qopt">A · Because the engine draws five returns per day when h = 5</div>
-      <div class="qopt">B · Because the cost line is charged five times</div>
-      <div class="qopt">C · Because observation t earns days t+1 to t+5 and observation t+1 earns days t+2 to t+6, so neighbours share four of five days, and 751 observations are built from the same 755 days</div>
-      <q class="qwhy">The world has the same 756 daily returns whatever h is. Scoring a five-day hold every day reuses each day in up to five observations, so the observations are correlated and 751 of them are nowhere near 751 independent five-day bets; 755 days hold 151 non-overlapping windows.</q>
+      <button class="qopt" type="button">A · Because the engine draws five returns per day when h = 5</button>
+      <button class="qopt" type="button">B · Because the cost line is charged five times</button>
+      <button class="qopt" type="button">C · Because observation t earns days t+1 to t+5 and observation t+1 earns days t+2 to t+6, so neighbours share four of five days, and 751 observations are built from the same 755 days</button>
+      <p class="qwhy">The world has the same 756 daily returns whatever h is. Scoring a five-day hold every day reuses each day in up to five observations, so the observations are correlated and 751 of them are nowhere near 751 independent five-day bets; 755 days hold 151 non-overlapping windows.</p>
     </div>
 
     <div class="quiz-score"></div>

@@ -453,26 +453,26 @@ QT.moments(v).sd.toFixed(2)</div>
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">Why does the generator plant alpha through a hidden signal the returns lean on, rather than by adding a drift to the returns?</p>
-      <div class="qopt">A · Because a drift would make the volatility wrong</div>
-      <div class="qopt">B · Because signals are easier to generate than drifts</div>
-      <div class="qopt">C · Because a drift rewards buy-and-hold, which reads nothing, while a signal makes exactly one rule genuinely right and every other rule a coin flip, which is what a selection problem needs</div>
-      <q class="qwhy">Every later session is about rules that read something and pick a side. A drift has no rule to find. A hidden signal with a controllable weight gives the world one true rule and lets later sessions ask whether a correction keeps it among a thousand false ones.</q>
+      <button class="qopt" type="button">A · Because a drift would make the volatility wrong</button>
+      <button class="qopt" type="button">B · Because signals are easier to generate than drifts</button>
+      <button class="qopt" type="button">C · Because a drift rewards buy-and-hold, which reads nothing, while a signal makes exactly one rule genuinely right and every other rule a coin flip, which is what a selection problem needs</button>
+      <p class="qwhy">Every later session is about rules that read something and pick a side. A drift has no rule to find. A hidden signal with a controllable weight gives the world one true rule and lets later sessions ask whether a correction keeps it among a thousand false ones.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">One random rule on 503 days of a zero-alpha series: what is the standard deviation of its annualised Sharpe estimate across worlds, and where does the number come from?</p>
-      <div class="qopt">A · About 0.71, from the sample length: roughly one over the square root of 503 per day, times the square root of 252</div>
-      <div class="qopt">B · About 0.1, from the one percent daily volatility</div>
-      <div class="qopt">C · Zero, since a rule with no information has a true Sharpe ratio of zero</div>
-      <q class="qwhy">The true ratio is zero; the estimate is not. Its width depends only on how many observations went into it, which is why a backtest without a sample length cannot be read. The volatility cancels out of the ratio entirely.</q>
+      <button class="qopt" type="button">A · About 0.71, from the sample length: roughly one over the square root of 503 per day, times the square root of 252</button>
+      <button class="qopt" type="button">B · About 0.1, from the one percent daily volatility</button>
+      <button class="qopt" type="button">C · Zero, since a rule with no information has a true Sharpe ratio of zero</button>
+      <p class="qwhy">The true ratio is zero; the estimate is not. Its width depends only on how many observations went into it, which is why a backtest without a sample length cannot be read. The volatility cancels out of the ratio entirely.</p>
     </div>
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">The box reports that 6.0 percent of 200 zero-alpha worlds clear the 95 percent threshold with one rule. What does that number mean?</p>
-      <div class="qopt">A · The generator has a small bug that adds alpha</div>
-      <div class="qopt">B · It is the false-positive rate of the ordinary test applied once, about the 5 percent a 95 percent test promises, and the baseline that selection across many rules will later push to 99.5 percent</div>
-      <div class="qopt">C · The test is too strict and should be relaxed</div>
-      <q class="qwhy">A 95 percent one-sided test passes about one null world in twenty by design. Six in a hundred at 200 trials is that figure within noise. Session 3 applies the same test to the best of 100 rules and the pass rate becomes 99.5 percent, which is the whole problem.</q>
+      <button class="qopt" type="button">A · The generator has a small bug that adds alpha</button>
+      <button class="qopt" type="button">B · It is the false-positive rate of the ordinary test applied once, about the 5 percent a 95 percent test promises, and the baseline that selection across many rules will later push to 99.5 percent</button>
+      <button class="qopt" type="button">C · The test is too strict and should be relaxed</button>
+      <p class="qwhy">A 95 percent one-sided test passes about one null world in twenty by design. Six in a hundred at 200 trials is that figure within noise. Session 3 applies the same test to the best of 100 rules and the pass rate becomes 99.5 percent, which is the whole problem.</p>
     </div>
 
     <div class="quiz-score"></div>

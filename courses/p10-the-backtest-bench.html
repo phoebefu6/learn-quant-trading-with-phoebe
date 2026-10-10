@@ -500,26 +500,26 @@
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">You press "deploy the best in-sample rule" at N = 100 with nothing real. In-sample reads 1.80, out of sample reads -0.06. What does the drop measure?</p>
-      <div class="qopt">A · A change in the market between the two periods</div>
-      <div class="qopt">B · The selection itself: the first number is the expected maximum of 100 null estimates, which is what you get for looking, and the second is what was there, which was nothing</div>
-      <div class="qopt">C · A bug in the out-of-sample scorer</div>
-      <q class="qwhy">The world is a random walk with no regime change, and the scorer is the same function on both halves. The in-sample figure equals the deflation threshold SR* by construction, because both are the expected best of N on nothing. The drop is the price of having chosen.</q>
+      <button class="qopt" type="button">A · A change in the market between the two periods</button>
+      <button class="qopt" type="button">B · The selection itself: the first number is the expected maximum of 100 null estimates, which is what you get for looking, and the second is what was there, which was nothing</button>
+      <button class="qopt" type="button">C · A bug in the out-of-sample scorer</button>
+      <p class="qwhy">The world is a random walk with no regime change, and the scorer is the same function on both halves. The in-sample figure equals the deflation threshold SR* by construction, because both are the expected best of N on nothing. The drop is the price of having chosen.</p>
     </div>
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">The break button sets shuffled folds, five-day holds and no purge, and the out-of-sample figure on nothing becomes 0.65. Set the hold to one day and the figure returns to noise. Why?</p>
-      <div class="qopt">A · Because one-day strategies trade too often for the leak to matter</div>
-      <div class="qopt">B · Because shuffling only works on long holds</div>
-      <div class="qopt">C · Because the leak needs overlap: a five-day test observation shares four days with a training neighbour, so the rule chosen on those days is scored on them again, while one-day observations share no days</div>
-      <q class="qwhy">The shuffle does not create alpha. It lets the same returns appear on both sides of the split, which only happens when observations span more than one day. The purge removes exactly those neighbours, which is why it brings the figure back to -0.02.</q>
+      <button class="qopt" type="button">A · Because one-day strategies trade too often for the leak to matter</button>
+      <button class="qopt" type="button">B · Because shuffling only works on long holds</button>
+      <button class="qopt" type="button">C · Because the leak needs overlap: a five-day test observation shares four days with a training neighbour, so the rule chosen on those days is scored on them again, while one-day observations share no days</button>
+      <p class="qwhy">The shuffle does not create alpha. It lets the same returns appear on both sides of the split, which only happens when observations span more than one day. The purge removes exactly those neighbours, which is why it brings the figure back to -0.02.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">A real 1.5 is planted among 100 rules on two years of training data. The deflated test passes in 0 of 200 worlds. What is the right reading?</p>
-      <div class="qopt">A · At this N and sample length the test cannot distinguish a real 1.5 from noise; the fix is more history, since the same rule passes 94 percent of the time on 24 years, and a 3-year sample almost never will</div>
-      <div class="qopt">B · Deflation is too strict and should be loosened until the real rule passes</div>
-      <div class="qopt">C · The planted rule was not really there</div>
-      <q class="qwhy">The rule is there by construction. Loosening the test would re-admit the false positives it was built to stop, and the bench shows it admitted none. Power comes from independent observations, which is the minimum backtest length argument, and nothing else supplies it.</q>
+      <button class="qopt" type="button">A · At this N and sample length the test cannot distinguish a real 1.5 from noise; the fix is more history, since the same rule passes 94 percent of the time on 24 years, and a 3-year sample almost never will</button>
+      <button class="qopt" type="button">B · Deflation is too strict and should be loosened until the real rule passes</button>
+      <button class="qopt" type="button">C · The planted rule was not really there</button>
+      <p class="qwhy">The rule is there by construction. Loosening the test would re-admit the false positives it was built to stop, and the bench shows it admitted none. Power comes from independent observations, which is the minimum backtest length argument, and nothing else supplies it.</p>
     </div>
 
     <div class="quiz-score"></div>

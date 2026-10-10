@@ -563,26 +563,26 @@ y.length</div>
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">At leverage 12, over 200 worlds, the mean terminal wealth is 71.48 and the median is 1.45. Which should a desk plan on, and why?</p>
-      <div class="qopt">A · The mean, because it is the expected value and a desk should maximise expected value</div>
-      <div class="qopt">B · The median beside the drawdown, because a desk lives one path, the mean is carried by a few paths that compound furthest, and at 12 every path lost half on the way</div>
-      <div class="qopt">C · Neither, because leverage 12 has the same Sharpe ratio as leverage 1 and so the outcomes are equivalent</div>
-      <q class="qwhy">The mean describes 200 independent desks pooled, which nobody runs. The typical path at 12 ends at 1.45, below leverage 1's 1.57, after a drawdown that reached half on every one of the 200 paths. The Sharpe ratio is unchanged by leverage, which is exactly why it cannot tell these products apart.</q>
+      <button class="qopt" type="button">A · The mean, because it is the expected value and a desk should maximise expected value</button>
+      <button class="qopt" type="button">B · The median beside the drawdown, because a desk lives one path, the mean is carried by a few paths that compound furthest, and at 12 every path lost half on the way</button>
+      <button class="qopt" type="button">C · Neither, because leverage 12 has the same Sharpe ratio as leverage 1 and so the outcomes are equivalent</button>
+      <p class="qwhy">The mean describes 200 independent desks pooled, which nobody runs. The typical path at 12 ends at 1.45, below leverage 1's 1.57, after a drawdown that reached half on every one of the 200 paths. The Sharpe ratio is unchanged by leverage, which is exactly why it cannot tell these products apart.</p>
     </div>
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">Growth per year peaks at leverage 6 (0.502) and is negative by 16 (-0.750). Why does it fall past the peak?</p>
-      <div class="qopt">A · Because the planted edge weakens at higher leverage</div>
-      <div class="qopt">B · Because the engine charges a cost on every rebalance</div>
-      <div class="qopt">C · Because growth is about L times the daily mean minus L squared times the daily variance over two; the edge term grows with L, the volatility term with its square, and past mean over variance, about 6.3 here, the square wins</div>
-      <q class="qwhy">The edge is 1.0 on every rung and sizingRung charges no cost. What changes is the volatility drag on a compounding path, which grows with the square of the leverage. The peak is where the two terms balance, the Kelly fraction of this stated world.</q>
+      <button class="qopt" type="button">A · Because the planted edge weakens at higher leverage</button>
+      <button class="qopt" type="button">B · Because the engine charges a cost on every rebalance</button>
+      <button class="qopt" type="button">C · Because growth is about L times the daily mean minus L squared times the daily variance over two; the edge term grows with L, the volatility term with its square, and past mean over variance, about 6.3 here, the square wins</button>
+      <p class="qwhy">The edge is 1.0 on every rung and sizingRung charges no cost. What changes is the volatility drag on a compounding path, which grows with the square of the leverage. The peak is where the two terms balance, the Kelly fraction of this stated world.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">A rule's real Sharpe is 1.0, but the desk sizes it at full Kelly for the 1.8 its best-of-100 backtest reported. On ladder E's 200 worlds, what happens?</p>
-      <div class="qopt">A · The size is about 11.3, the nearest canon rung is 12, and the median falls from 4.80 to 1.45 while growth falls from 0.502 to 0.080 and every path lost half</div>
-      <div class="qopt">B · Nothing much, because Kelly is robust to errors in the edge</div>
-      <div class="qopt">C · The desk does better, because the mean at 12 is the highest on the ladder</div>
-      <q class="qwhy">Full Kelly scales with the believed edge, so an inflated edge buys an inflated size. Here it lands near twice the true peak, where growth is close to zero. The mean at 12, 71.48, is the highest on the ladder, which is exactly why a mean-only report would endorse the mistake.</q>
+      <button class="qopt" type="button">A · The size is about 11.3, the nearest canon rung is 12, and the median falls from 4.80 to 1.45 while growth falls from 0.502 to 0.080 and every path lost half</button>
+      <button class="qopt" type="button">B · Nothing much, because Kelly is robust to errors in the edge</button>
+      <button class="qopt" type="button">C · The desk does better, because the mean at 12 is the highest on the ladder</button>
+      <p class="qwhy">Full Kelly scales with the believed edge, so an inflated edge buys an inflated size. Here it lands near twice the true peak, where growth is close to zero. The mean at 12, 71.48, is the highest on the ladder, which is exactly why a mean-only report would endorse the mistake.</p>
     </div>
 
     <div class="quiz-score"></div>

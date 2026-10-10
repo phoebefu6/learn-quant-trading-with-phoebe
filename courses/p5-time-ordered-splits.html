@@ -577,26 +577,26 @@ var fixed = QT.ladderRung({ N: 100, trueSR: 0, method: "shuffled", h: 5, purge: 
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">On zero alpha, 100 rules and 100 worlds, a shuffled five-fold split reads 0.10 out of sample on one-day observations and 0.65 on five-day observations. What makes the difference?</p>
-      <div class="qopt">A · Five-day returns are more volatile, so their Sharpe ratios are larger</div>
-      <div class="qopt">B · Overlap: a five-day test observation shares up to 4 of its 5 days with a training neighbour, so the days that chose the rule are scored again; one-day observations share nothing</div>
-      <div class="qopt">C · The two rows use different shuffle seeds, and 0.65 is a bad draw</div>
-      <q class="qwhy">The leak needs overlap. Observations i and j share 5 - |i - j| days when they are fewer than 5 apart, and a shuffle puts nearly every test observation next to training ones. With one-day spans there is nothing to share, and 0.10 is within trial noise of the walk-forward's -0.05. Seeds move a mean by about 0.07 at 100 worlds, not by 0.55.</q>
+      <button class="qopt" type="button">A · Five-day returns are more volatile, so their Sharpe ratios are larger</button>
+      <button class="qopt" type="button">B · Overlap: a five-day test observation shares up to 4 of its 5 days with a training neighbour, so the days that chose the rule are scored again; one-day observations share nothing</button>
+      <button class="qopt" type="button">C · The two rows use different shuffle seeds, and 0.65 is a bad draw</button>
+      <p class="qwhy">The leak needs overlap. Observations i and j share 5 - |i - j| days when they are fewer than 5 apart, and a shuffle puts nearly every test observation next to training ones. With one-day spans there is nothing to share, and 0.10 is within trial noise of the walk-forward's -0.05. Seeds move a mean by about 0.07 at 100 worlds, not by 0.55.</p>
     </div>
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">Purging the shuffled split brings the out-of-sample figure to -0.02, but the best in-sample figure rises from 1.11 to 2.77. What happened?</p>
-      <div class="qopt">A · Purging removed noise from the training data, revealing a stronger rule</div>
-      <div class="qopt">B · Purging moved some test observations into training</div>
-      <div class="qopt">C · Purging a shuffled split left 141 of 601 training observations in the fold reported, and the best of 100 estimates on a small sample is large: session 3's problem on a shorter ruler</div>
-      <q class="qwhy">Nothing about the rules changed and nothing is real. Fewer training observations make each estimate noisier, and the maximum of 100 noisy estimates is higher. A purged blocked split loses 4 observations instead and its in-sample figure stays at 1.26.</q>
+      <button class="qopt" type="button">A · Purging removed noise from the training data, revealing a stronger rule</button>
+      <button class="qopt" type="button">B · Purging moved some test observations into training</button>
+      <button class="qopt" type="button">C · Purging a shuffled split left 141 of 601 training observations in the fold reported, and the best of 100 estimates on a small sample is large: session 3's problem on a shorter ruler</button>
+      <p class="qwhy">Nothing about the rules changed and nothing is real. Fewer training observations make each estimate noisier, and the maximum of 100 noisy estimates is higher. A purged blocked split loses 4 observations instead and its in-sample figure stays at 1.26.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">Adding an embargo of 5 to the purged blocked split moves the out-of-sample figure from 0.06 to -0.10 and costs 5 more training observations. What is the honest reading?</p>
-      <div class="qopt">A · Nothing measurable: both means are within trial noise (about 0.07 at 100 worlds) of zero, and with no memory in the returns there is nothing after a test block for the embargo to absorb. The bench cannot show it on this world</div>
-      <div class="qopt">B · The embargo makes results worse and should be dropped</div>
-      <div class="qopt">C · The embargo removed a leak worth 0.16 that the purge had missed</div>
-      <q class="qwhy">A tool that cannot be shown on a world is not thereby shown to be useless. The embargo guards against dependence that outlasts a label's span, and this generator has none. Teach it as Lopez de Prado describes it (reported), and size it on a series that has the dependence it is meant to catch.</q>
+      <button class="qopt" type="button">A · Nothing measurable: both means are within trial noise (about 0.07 at 100 worlds) of zero, and with no memory in the returns there is nothing after a test block for the embargo to absorb. The bench cannot show it on this world</button>
+      <button class="qopt" type="button">B · The embargo makes results worse and should be dropped</button>
+      <button class="qopt" type="button">C · The embargo removed a leak worth 0.16 that the purge had missed</button>
+      <p class="qwhy">A tool that cannot be shown on a world is not thereby shown to be useless. The embargo guards against dependence that outlasts a label's span, and this generator has none. Teach it as Lopez de Prado describes it (reported), and size it on a series that has the dependence it is meant to catch.</p>
     </div>
 
     <div class="quiz-score"></div>

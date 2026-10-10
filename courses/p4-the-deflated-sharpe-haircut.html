@@ -555,26 +555,26 @@ var m = QT.moments(ys[best].slice(0, 503));
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">What does deflation change inside the probabilistic Sharpe ratio?</p>
-      <div class="qopt">A · It multiplies the estimated Sharpe ratio by a fixed discount that grows with N</div>
-      <div class="qopt">B · Only the benchmark: zero is replaced by SR*, the expected maximum of N null trials computed from the measured variance of the N estimates</div>
-      <div class="qopt">C · It replaces the skewness and kurtosis terms with the number of trials</div>
-      <q class="qwhy">DSR is "a PSR where the rejection threshold is adjusted to reflect the multiplicity of trials". The estimate, the sample length and the shape terms stay; the benchmark moves from 0 to SR*, which is 1.07, 1.80 and 2.31 at N = 10, 100 and 1,000 on 503 days (200 worlds per rung).</q>
+      <button class="qopt" type="button">A · It multiplies the estimated Sharpe ratio by a fixed discount that grows with N</button>
+      <button class="qopt" type="button">B · Only the benchmark: zero is replaced by SR*, the expected maximum of N null trials computed from the measured variance of the N estimates</button>
+      <button class="qopt" type="button">C · It replaces the skewness and kurtosis terms with the number of trials</button>
+      <p class="qwhy">DSR is "a PSR where the rejection threshold is adjusted to reflect the multiplicity of trials". The estimate, the sample length and the shape terms stay; the benchmark moves from 0 to SR*, which is 1.07, 1.80 and 2.31 at N = 10, 100 and 1,000 on 503 days (200 worlds per rung).</p>
     </div>
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">With one real 1.5 among 100 rules on three years of data, the deflated test passed in 0 of 200 worlds in ladder B. What is the right reading?</p>
-      <div class="qopt">A · The rule has no edge, since it never passes</div>
-      <div class="qopt">B · The test is broken, since it refused a real rule</div>
-      <div class="qopt">C · A power problem: the real rule is kept in only 32.5 percent of worlds and almost never clears SR* on this much history; on 24 years the same rule passes in 94 percent of 100 worlds</div>
-      <q class="qwhy">"Almost never", not "never": 0 of 200 in ladder B, 1.5 percent in B2 at N = 100, 3 percent of 100 in B3. The test keeps its promise on false passes (0.000 false discovery rate after deflation) and the only cure the bench shows is more independent history.</q>
+      <button class="qopt" type="button">A · The rule has no edge, since it never passes</button>
+      <button class="qopt" type="button">B · The test is broken, since it refused a real rule</button>
+      <button class="qopt" type="button">C · A power problem: the real rule is kept in only 32.5 percent of worlds and almost never clears SR* on this much history; on 24 years the same rule passes in 94 percent of 100 worlds</button>
+      <p class="qwhy">"Almost never", not "never": 0 of 200 in ladder B, 1.5 percent in B2 at N = 100, 3 percent of 100 in B3. The test keeps its promise on false passes (0.000 false discovery rate after deflation) and the only cure the bench shows is more independent history.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">Why does the engine measure V, the variance of the N estimates, inside each trial instead of plugging in the 0.71 ruler?</p>
-      <div class="qopt">A · Because V carries the sample length and the hold with it, so the same code gives the right SR* on 3 years or 24, where SR* falls from 1.86 to 0.74</div>
-      <div class="qopt">B · Because 0.71 is only an approximation and measuring is always more accurate</div>
-      <div class="qopt">C · Because equation 1 does not work with a constant variance</div>
-      <q class="qwhy">0.71 is the ruler for 503 daily observations only. Equation 1 is written in terms of the variance of the trials' estimated Sharpe ratios, and measuring it lets one line of code follow the history: ladder B3 prints SR* of 1.86, 1.35, 0.99 and 0.74 for 3, 6, 12 and 24 years (100 worlds each).</q>
+      <button class="qopt" type="button">A · Because V carries the sample length and the hold with it, so the same code gives the right SR* on 3 years or 24, where SR* falls from 1.86 to 0.74</button>
+      <button class="qopt" type="button">B · Because 0.71 is only an approximation and measuring is always more accurate</button>
+      <button class="qopt" type="button">C · Because equation 1 does not work with a constant variance</button>
+      <p class="qwhy">0.71 is the ruler for 503 daily observations only. Equation 1 is written in terms of the variance of the trials' estimated Sharpe ratios, and measuring it lets one line of code follow the history: ladder B3 prints SR* of 1.86, 1.35, 0.99 and 0.74 for 3, 6, 12 and 24 years (100 worlds each).</p>
     </div>
 
     <div class="quiz-score"></div>

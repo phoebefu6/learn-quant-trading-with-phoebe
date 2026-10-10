@@ -448,26 +448,26 @@
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">Marlow Street's researcher presents a rule with a two-year backtested Sharpe ratio of 1.8 and a small p-value. What is the first question the head should ask?</p>
-      <div class="qopt">A · Whether the p-value was computed with the right test</div>
-      <div class="qopt">B · How many rules were tried before this one, since the best of 100 random rules on a random walk reports 1.80 in-sample and earns nothing afterwards</div>
-      <div class="qopt">C · Whether the strategy can be scaled to a larger budget</div>
-      <q class="qwhy">The p-value is correct for one trial and meaningless for the best of many. The generator shows that 1.80 is the expected best-of-100 result when nothing is there, so the number cannot be read until N is known. Scale is a session 5 question and comes after.</q>
+      <button class="qopt" type="button">A · Whether the p-value was computed with the right test</button>
+      <button class="qopt" type="button">B · How many rules were tried before this one, since the best of 100 random rules on a random walk reports 1.80 in-sample and earns nothing afterwards</button>
+      <button class="qopt" type="button">C · Whether the strategy can be scaled to a larger budget</button>
+      <p class="qwhy">The p-value is correct for one trial and meaningless for the best of many. The generator shows that 1.80 is the expected best-of-100 result when nothing is there, so the number cannot be read until N is known. Scale is a session 5 question and comes after.</p>
     </div>
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">Why does the experiment instinct misfire on a backtest, even for a leader who reads A/B tests well?</p>
-      <div class="qopt">A · Because financial data is noisier than product data</div>
-      <div class="qopt">B · Because backtests use a different statistic</div>
-      <div class="qopt">C · Because a backtest has no control group, no fresh draw of the past, and a rule that was chosen by reading the same path it is scored on</div>
-      <q class="qwhy">All three experimental supports are absent at once. Noise is real but is not the structural difference, and the statistic is just a ratio. The loop that runs backwards onto the same data is what makes a backtest a different kind of object.</q>
+      <button class="qopt" type="button">A · Because financial data is noisier than product data</button>
+      <button class="qopt" type="button">B · Because backtests use a different statistic</button>
+      <button class="qopt" type="button">C · Because a backtest has no control group, no fresh draw of the past, and a rule that was chosen by reading the same path it is scored on</button>
+      <p class="qwhy">All three experimental supports are absent at once. Noise is real but is not the structural difference, and the statistic is just a ratio. The loop that runs backwards onto the same data is what makes a backtest a different kind of object.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">A rule with no information tried once on two years of daily data reports a Sharpe ratio of 1.0. How surprising is that?</p>
-      <div class="qopt">A · Not very: one estimate on 503 daily observations has a standard deviation of about 0.71 when there is nothing there, so 1.0 is about one and a half standard deviations from zero</div>
-      <div class="qopt">B · Very: a Sharpe ratio of 1.0 is strong evidence of skill on any sample</div>
-      <div class="qopt">C · Impossible: a rule with no information must report exactly zero</div>
-      <q class="qwhy">The ruler is 0.71, and the practitioner track measures it. A single 1.0 is a mild result on two years, and only if it was the only trial. Option C confuses the expected value with one draw.</q>
+      <button class="qopt" type="button">A · Not very: one estimate on 503 daily observations has a standard deviation of about 0.71 when there is nothing there, so 1.0 is about one and a half standard deviations from zero</button>
+      <button class="qopt" type="button">B · Very: a Sharpe ratio of 1.0 is strong evidence of skill on any sample</button>
+      <button class="qopt" type="button">C · Impossible: a rule with no information must report exactly zero</button>
+      <p class="qwhy">The ruler is 0.71, and the practitioner track measures it. A single 1.0 is a mild result on two years, and only if it was the only trial. Option C confuses the expected value with one draw.</p>
     </div>
 
     <div class="quiz-score"></div>
