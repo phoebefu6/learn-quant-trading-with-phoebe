@@ -19,7 +19,7 @@
 <meta name="twitter:image" content="https://phoebefu6.github.io/learn-quant-trading-with-phoebe/assets/og-cover.png">
 <!-- social:end -->
 <title>Learn Quant Trading with Phoebe</title>
-<link rel="stylesheet" href="assets/style.css?v=1">
+<link rel="stylesheet" href="assets/style.css?v=3">
 <style>
 
   .stats-row { display: flex; gap: 2.4rem; margin-top: 1.5rem; flex-wrap: wrap; }
@@ -107,6 +107,96 @@
 </header>
 
 <main class="wrap">
+
+  <section class="section qhx-hero" aria-label="A hand-drawn pile of trading rules tried on pure noise, and what the best one shows">
+    <figure class="zoomable" style="margin:0 0 1rem">
+      <svg viewBox="0 0 880 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Left, a pile of rule cards tried on a random walk with no signal in it; the best card is lifted out. Right, a staircase of four bars for 1, 10, 100 and 1,000 rules: the best in-sample Sharpe ratio climbs from about 0 to 1.04, 1.80 and 2.33 while out of sample it stays near zero. Tiles show the naive test passing in 99.5 percent of worlds at 100 rules, every pass false, and the deflated test passing in none.">
+        <defs>
+          <filter id="qhxSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="23" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="qhxHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3B6E8F" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="qhxAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#2A1118" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .qhxH { font: 800 12px Inter, sans-serif; fill: #2A1118; }
+          .qhxL { font: 600 12px Inter, sans-serif; fill: #2A1118; }
+          .qhxS { font: 400 11px Inter, sans-serif; fill: #6B5159; }
+          .qhxB { font: 800 11px Inter, sans-serif; fill: #2A5068; }
+          .qhxV { font: 800 20px Inter, sans-serif; fill: #4A1024; }
+          .qhxA { font: 700 11px Inter, sans-serif; fill: #7A1F3D; }
+          .qhxN { font: 400 12px Inter, sans-serif; fill: #6B5159; }
+          .qhx-bar { transition: height .3s ease, y .3s ease; }
+          @media (prefers-reduced-motion: reduce) { .qhx-bar { transition: none; } }
+        </style>
+        <g filter="url(#qhxSk)" fill="none" stroke="#2A1118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- left: the pile -->
+          <rect x="30" y="30" width="380" height="250" rx="12" fill="#FFFFFF" transform="rotate(-0.4 220 155)"/>
+          <text class="qhxH" x="48" y="56" stroke="none">RULES TRIED ON PURE NOISE</text>
+          <text class="qhxS" x="48" y="74" stroke="none">a random walk with nothing in it, 755 days, 200 worlds</text>
+          <path d="M60 236 C120 232 180 240 240 234 C300 230 340 236 390 232" stroke="#BF8398"/>
+          <path d="M60 212 C120 208 180 216 240 210 C300 206 340 212 390 208" stroke="#BF8398"/>
+          <path d="M60 188 C120 184 180 192 240 186 C300 182 340 188 390 184" stroke="#BF8398"/>
+          <path d="M60 164 C120 160 180 168 240 162 C300 158 340 164 390 160" stroke="#BF8398"/>
+          <rect x="70" y="150" width="300" height="96" rx="4" fill="url(#qhxHc)" stroke="none" opacity=".6"/>
+          <text class="qhxN" x="80" y="266" stroke="none" id="qhx-pile">100 rule cards, each a random signal</text>
+          <!-- the lifted card -->
+          <rect x="236" y="78" width="118" height="68" rx="6" fill="#FFFFFF" transform="rotate(-6 295 112)"/>
+          <text class="qhxB" x="248" y="98" stroke="none" transform="rotate(-6 295 112)">the best one</text>
+          <text class="qhxV" x="248" y="126" stroke="none" transform="rotate(-6 295 112)" id="qhx-is">1.80</text>
+          <text class="qhxS" x="300" y="126" stroke="none" transform="rotate(-6 295 112)">Sharpe</text>
+          <path d="M196 118 C212 98 224 90 234 92" marker-end="url(#qhxAr)"/>
+          <text class="qhxL" x="64" y="104" stroke="none">keep the best,</text>
+          <text class="qhxL" x="64" y="120" stroke="none">present the number</text>
+          <!-- right: staircase -->
+          <rect x="430" y="30" width="420" height="250" rx="12" fill="#FFFFFF" transform="rotate(0.3 640 155)"/>
+          <text class="qhxH" x="448" y="56" stroke="none">BEST IN-SAMPLE SHARPE, BY RULES TRIED</text>
+          <text class="qhxS" x="448" y="74" stroke="none">in sample climbs with the count; out of sample stays near zero</text>
+          <line x1="470" y1="236" x2="830" y2="236"/><line x1="470" y1="236" x2="470" y2="96"/>
+          <text class="qhxA" x="474" y="254" stroke="none">N = 1</text>
+          <text class="qhxA" x="560" y="254" stroke="none">10</text>
+          <text class="qhxA" x="650" y="254" stroke="none">100</text>
+          <text class="qhxA" x="736" y="254" stroke="none">1,000</text>
+          <rect class="qhx-bar" x="482" y="235" width="40" height="1" fill="#BF8398" stroke="none"/>
+          <rect class="qhx-bar" x="560" y="181" width="40" height="55" fill="#BF8398" stroke="none"/>
+          <rect class="qhx-bar" x="648" y="141" width="40" height="95" fill="#BF8398" stroke="none" id="qhx-b100"/>
+          <rect class="qhx-bar" x="736" y="113" width="40" height="123" fill="#BF8398" stroke="none"/>
+          <text class="qhxB" x="482" y="226" stroke="none">0.0</text>
+          <text class="qhxB" x="560" y="172" stroke="none">1.04</text>
+          <text class="qhxB" x="648" y="132" stroke="none">1.80</text>
+          <text class="qhxB" x="736" y="104" stroke="none">2.33</text>
+          <path d="M482 232 L830 230" stroke="#7A1F3D" stroke-dasharray="5 4"/>
+          <text class="qhxA" x="700" y="222" stroke="none">out of sample, all four</text>
+          <!-- tiles -->
+          <rect x="30" y="300" width="250" height="78" rx="10" fill="#FAF0F3" transform="rotate(0.4 155 339)"/>
+          <text class="qhxS" x="48" y="324" stroke="none">naive test passes, PSR against 0</text>
+          <text class="qhxV" x="48" y="356" stroke="none" id="qhx-naive">99.5%</text>
+          <text class="qhxA" x="130" y="356" stroke="none">of worlds, all false</text>
+          <rect x="300" y="300" width="250" height="78" rx="10" fill="#FAF0F3" transform="rotate(-0.4 425 339)"/>
+          <text class="qhxS" x="318" y="324" stroke="none">deflated test passes, against SR*</text>
+          <text class="qhxV" x="318" y="356" stroke="none" id="qhx-defl">0.0%</text>
+          <text class="qhxA" x="400" y="356" stroke="none" id="qhx-srstar">SR* = 1.80</text>
+          <rect x="570" y="300" width="280" height="78" rx="10" fill="#FFFFFF" transform="rotate(0.3 710 339)"/>
+          <text class="qhxL" x="588" y="326" stroke="none" id="qhx-oos">Out of sample: -0.06</text>
+          <text class="qhxN" x="588" y="346" stroke="none">the best card, deployed on the days</text>
+          <text class="qhxN" x="588" y="362" stroke="none">it never saw. 200 worlds, seed 10001.</text>
+        </g>
+      </svg>
+      <figcaption>🔍 Click to zoom - try enough rules on nothing and the best one looks like a discovery; the deflated test knows how many you tried</figcaption>
+    </figure>
+    <div class="qhx-row">
+      <label for="qhx-n" class="qhxlbl">Rules tried</label>
+      <select id="qhx-n" class="btn"><option value="1">1</option><option value="10">10</option><option value="100" selected>100</option><option value="1000">1,000</option></select>
+      <span class="qhx-hint">Canon from the backtest bench, 200 worlds per rung, synthetic random walks. Not investment advice.</span>
+    </div>
+    <div class="qhx-guess" id="qhx-guess">
+      <p class="qhx-q"><b>Guess first.</b> Try 100 random rules on a random walk with no signal in it and keep the best. What Sharpe ratio does the best one show in sample?</p>
+      <div class="qhx-slider">
+        <input type="range" id="qhx-g" min="0" max="4" step="0.05" value="0.5" aria-label="your guess, Sharpe ratio">
+        <output for="qhx-g" id="qhx-gv">0.50</output>
+        <button type="button" class="btn" id="qhx-reveal">Lock my guess</button>
+      </div>
+      <p class="qhx-answer" id="qhx-ans" hidden></p>
+    </div>
+  </section>
 
   <section class="section">
     <div class="paths" style="margin-top:0">
@@ -378,7 +468,37 @@ window.MINDMAP_DATA = {
   ]
 };
 </script>
-<script src="assets/mindmap.js?v=1"></script>
-<script src="assets/app.js?v=1"></script>
+<script src="assets/mindmap.js?v=2"></script>
+<script>
+(function(){
+  var fig=document.querySelector('.qhx-hero svg'); if(!fig) return;
+  var canon={1:{is:'0.0',oos:'-0.07',naive:'6.0%',defl:'6.0%',sr:'SR* = 0.00',pile:'1 rule card, a random signal'},
+             10:{is:'1.04',oos:'0.14',naive:'32.5%',defl:'0.0%',sr:'SR* = 1.07',pile:'10 rule cards, each a random signal'},
+             100:{is:'1.80',oos:'-0.06',naive:'99.5%',defl:'0.0%',sr:'SR* = 1.80',pile:'100 rule cards, each a random signal'},
+             1000:{is:'2.33',oos:'0.02',naive:'100.0%',defl:'0.0%',sr:'SR* = 2.31',pile:'1,000 rule cards, each a random signal'}};
+  var sel=document.getElementById('qhx-n');
+  function paint(){
+    var c=canon[+sel.value];
+    document.getElementById('qhx-is').textContent=c.is;
+    document.getElementById('qhx-naive').textContent=c.naive;
+    document.getElementById('qhx-defl').textContent=c.defl;
+    document.getElementById('qhx-srstar').textContent=c.sr;
+    document.getElementById('qhx-oos').textContent='Out of sample: '+c.oos;
+    document.getElementById('qhx-pile').textContent=c.pile;
+  }
+  sel.addEventListener('change', paint); paint();
+  var g=document.getElementById('qhx-g'), gv=document.getElementById('qhx-gv'), rv=document.getElementById('qhx-reveal'), ans=document.getElementById('qhx-ans');
+  g.addEventListener('input', function(){ gv.textContent=(+g.value).toFixed(2); });
+  rv.addEventListener('click', function(){
+    var v=+g.value, line;
+    if (Math.abs(v-1.80)<=0.2) line='Right on it.';
+    else if (v<1.80) line='Low. The expected best of 100 draws from nothing is about 1.8, and the deflated test sets its bar there.';
+    else line='High, and the direction is right: more rules, bigger best, still nothing underneath.';
+    ans.textContent='You said '+v.toFixed(2)+'. The bench says 1.80, with out of sample at -0.06. '+line+' Session 10 lets you set the count, plant a real signal and watch the correction.';
+    ans.hidden=false; rv.disabled=true; g.disabled=true;
+  });
+})();
+</script>
+<script src="assets/app.js?v=3"></script>
 </body>
 </html>
